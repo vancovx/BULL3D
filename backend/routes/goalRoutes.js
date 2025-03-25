@@ -4,8 +4,8 @@ const { getGoals, setGoal, updateGoal, deleteGoal } = require('../controllers/go
 const { protect } = require('../middleware/authMiddleware')
 
 
-router.route('/').get(getGoals).post(setGoal)
-router.route('/:id').put(updateGoal).delete(deleteGoal)
+router.route('/').get(protect, getGoals).post(protect, setGoal)
+router.route('/:id').delete(protect, deleteGoal).put(protect, updateGoal)
 
 
 //Desglose de como se hacen las rutas
