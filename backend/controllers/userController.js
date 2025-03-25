@@ -7,49 +7,61 @@ const User = require('../models/userModel')
 // @route   POST /api/users
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
-  const { name, username, email, password, } = req.body
-
-  if (!name || !email || !password) {
-    res.status(400)
-    throw new Error('Please add all fields')
-  }
-
-  // Check if user exists
-  const userExists = await User.findOne({ email })
-
-  if (userExists) {
-    res.status(400)
-    throw new Error('User already exists')
-  }
-
-  // Hash password
-  const salt = await bcrypt.genSalt(10)
-  const hashedPassword = await bcrypt.hash(password, salt)
-
-  // Create user
-  const user = await User.create({
-    name,
-    username,
-    email,
-    password: hashedPassword,
+    const { 
+      name, 
+      username, 
+      email, 
+      password, 
+      numberphone, 
+      description 
+    } = req.body
+  
+    if (!name || !username || !email || !password) {
+      res.status(400)
+      throw new Error('Please add all required fields')
+    }
+  
+    // Check if user exists
+    const userExists = await User.findOne({ email })
+  
+    if (userExists) {
+      res.status(400)
+      throw new Error('User already exists')
+    }
+  
+    // Hash password
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
+  
+    // Crear objeto de usuario
+    const userData = {
+      name,
+      username,
+      email,
+      password: hashedPassword,
+      numberphone: numberphone !== undefined ? numberphone : null,
+      description: description !== undefined ? description : null
+    }
+  
+    // Create user
+    const user = await User.create(userData)
+  
+    if (user) {
+      res.status(201).json({
+        _id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        numberphone: user.numberphone,
+        description: user.description,
+        token: generateToken(user._id),
+      })
+    } else {
+      res.status(400)
+      throw new Error('Invalid user data')
+    }
   })
-
-  if (user) {
-    res.status(201).json({
-      _id: user.id,
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      token: generateToken(user._id),
-    })
-  } else {
-    res.status(400)
-    throw new Error('Invalid user data')
-  }
-})
-
-
-
+  
 // @desc    Authenticate a user
 // @route   POST /api/users/login
 // @access  Public
