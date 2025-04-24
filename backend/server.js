@@ -1,6 +1,7 @@
 const express = require('express')
 const colors = require('colors')
 const dotenv = require('dotenv').config()
+const path = require('path')
 const {errorHandler} = require('./middleware/errorMiddleware')
 const connectDB = require('./config/db')
 const port = process.env.PORT || 8000
@@ -18,6 +19,7 @@ app.use(express.urlencoded({extended: false}))
 //Peticiones que hemos declarado
 app.use('/api/goals', require('./routes/goalRoutes'))
 app.use('/api/users', require('./routes/userRoutes'))
+app.use('/api/assets', require('./routes/assetRoutes'))
 
 // Serve frontend
 if (process.env.NODE_ENV === 'production') {
@@ -32,9 +34,8 @@ if (process.env.NODE_ENV === 'production') {
     app.get('/', (req, res) => res.send('Please set to production'));
 }
 
-
-//Middleware para tratar los errores, tiene que ir después de las peticiones?
+//Middleware para tratar los errores, tiene que ir después de las peticiones
 app.use(errorHandler)
 
-//Random
+//Iniciar el servidor
 app.listen(port, () => console.log(`Server started on port ${port}`))

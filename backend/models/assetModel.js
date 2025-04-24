@@ -23,6 +23,12 @@ const assetSchema = mongoose.Schema(
       required: [true, 'Please add a description'],
     },
 
+    date: {
+      type: Date,
+      default: Date.now,
+      required: [true, 'Date is required'],
+    },
+    
     coverImageUrl: {
       type: String,
       required: [true, 'Cover image URL is required'],

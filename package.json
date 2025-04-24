@@ -22,15 +22,18 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-async-handler": "^1.2.0",
+    "fs-extra": "^11.3.0",
     "google-auth-library": "^9.15.1",
     "googleapis": "^148.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.16.0",
     "mongoose": "^8.12.1",
+    "multer": "^1.4.5-lts.2",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.4.0",
     "react-toastify": "^11.0.5",
     "server": "^1.0.41",
+    "streamifier": "^0.1.1",
     "web-vitals": "^4.2.4"
   },
   "devDependencies": {

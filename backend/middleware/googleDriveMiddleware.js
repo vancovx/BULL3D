@@ -1,11 +1,15 @@
-// Instala los paquetes necesarios
-// npm install googleapis google-auth-library multer streamifier fs-extra
-
-/*const { google } = require('googleapis');
+const { google } = require('googleapis');
 const multer = require('multer');
 const streamifier = require('streamifier');
-const fs = require('fs-extra');
 const path = require('path');
+const fs = require('fs-extra');
+
+// Configuración de almacenamiento en memoria para multer
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 1 * 1024 * 1024 * 1024 } // Límite de 1GB por archivo
+});
 
 // Configuración de autenticación con Google Drive API
 class GoogleDriveService {
@@ -15,22 +19,24 @@ class GoogleDriveService {
   }
 
   initialize() {
-    // Credenciales obtenidas del panel de Google Cloud Platform
-    const credentials = {
-      client_id: process.env.GOOGLE_DRIVE_CLIENT_ID,
-      client_secret: process.env.GOOGLE_DRIVE_CLIENT_SECRET,
-      redirect_uri: process.env.GOOGLE_DRIVE_REDIRECT_URI,
-      refresh_token: process.env.GOOGLE_DRIVE_REFRESH_TOKEN
-    };
+    try {
+      // Cargar credenciales desde el archivo JSON
+      const credentialsPath = path.join(__dirname, '../config/google-drive-credentials.json');
+      const credentialsFile = fs.readFileSync(credentialsPath);
+      const credentials = JSON.parse(credentialsFile);
 
-    const client = new google.auth.OAuth2(
-      credentials.client_id,
-      credentials.client_secret,
-      credentials.redirect_uri
-    );
+      const client = new google.auth.OAuth2(
+        credentials.client_id,
+        credentials.client_secret,
+        credentials.redirect_uri
+      );
 
-    client.setCredentials({ refresh_token: credentials.refresh_token });
-    this.drive = google.drive({ version: 'v3', auth: client });
+      client.setCredentials({ refresh_token: credentials.refresh_token });
+      this.drive = google.drive({ version: 'v3', auth: client });
+      console.log('Google Drive API initialized successfully');
+    } catch (error) {
+      console.error('Error initializing Google Drive API:', error);
+    }
   }
 
   // Subir un archivo a Google Drive y obtener la URL pública
@@ -61,13 +67,13 @@ class GoogleDriveService {
         }
       });
 
-      // Obtener el enlace directo de descarga
-      const downloadUrl = `https://drive.google.com/uc?export=download&id=${response.data.id}`;
+      // Obtener el enlace directo de visualización/descarga
+      const directUrl = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
       
       return {
         id: response.data.id,
         viewUrl: response.data.webViewLink,
-        downloadUrl
+        directUrl
       };
     } catch (error) {
       console.error('Error al subir archivo a Google Drive:', error);
@@ -86,10 +92,22 @@ class GoogleDriveService {
 
       const response = await this.drive.files.create({
         resource: fileMetadata,
-        fields: 'id'
+        fields: 'id,webViewLink'
       });
 
-      return response.data.id;
+      // Configurar permisos para hacer la carpeta accesible públicamente
+      await this.drive.permissions.create({
+        fileId: response.data.id,
+        requestBody: {
+          role: 'reader',
+          type: 'anyone'
+        }
+      });
+
+      return {
+        id: response.data.id,
+        viewUrl: response.data.webViewLink
+      };
     } catch (error) {
       console.error('Error al crear carpeta en Google Drive:', error);
       throw error;
@@ -108,6 +126,39 @@ class GoogleDriveService {
       throw error;
     }
   }
+
+  // Actualizar un archivo existente
+  async updateFile(fileId, fileBuffer, mimeType) {
+    try {
+      const media = {
+        mimeType,
+        body: streamifier.createReadStream(fileBuffer)
+      };
+
+      const response = await this.drive.files.update({
+        fileId: fileId,
+        media: media,
+        fields: 'id,webViewLink'
+      });
+
+      const directUrl = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+      
+      return {
+        id: response.data.id,
+        viewUrl: response.data.webViewLink,
+        directUrl
+      };
+    } catch (error) {
+      console.error('Error al actualizar archivo en Google Drive:', error);
+      throw error;
+    }
+  }
 }
 
-module.exports = new GoogleDriveService();*/
+// Exportamos una instancia del servicio y el middleware de multer
+const driveService = new GoogleDriveService();
+
+module.exports = {
+  driveService,
+  uploadMiddleware: upload
+};
