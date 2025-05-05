@@ -1,0 +1,166 @@
+/* Login.css */
+:root {
+    --primary-color: #8c52ff;
+    --dark-bg: #121628;
+    --card-bg: #1a1a1f;
+    --text-color: #ffffff;
+    --input-bg: #252730;
+    --input-text: #ffffff;
+  }
+  
+  /* Contenedor principal que ocupa toda la pantalla */
+  .app-container {
+    min-height: 100vh;
+    width: 100%;
+    background-color: var(--dark-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    padding-top: 70px; /* Espacio para el header fijo */
+  }
+  
+  .login-container {
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .login-box {
+    width: 100%;
+    max-width: 400px;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    padding: 30px;
+  }
+  
+  .login-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  .login-header h1 {
+    color: var(--primary-color);
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  .login-header p {
+    color: var(--text-color);
+    font-size: 1rem;
+  }
+  
+  .login-form .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .login-form label {
+    display: block;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+  
+  .required {
+    color: var(--primary-color);
+  }
+  
+  .login-form input {
+    width: 100%;
+    padding: 12px 15px;
+    background-color: var(--input-bg);
+    border: none;
+    border-radius: 4px;
+    color: var(--input-text);
+    font-size: 1rem;
+  }
+  
+  .login-form input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.3);
+  }
+  
+  .forgot-password {
+    text-align: left;
+    margin-top: 8px;
+    color: var(--text-color);
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  
+  .forgot-password:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+  
+  .btn-login-submit {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  
+  .btn-login-submit:hover {
+    background-color: #7440e0;
+  }
+  
+  .register-prompt {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
+  
+  .register-link {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .register-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Asegura que la página use todo el ancho disponible para cualquier tamaño de pantalla */
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+  }
+  
+  /* Estilos específicos para pantallas más grandes */
+  @media (min-width: 1200px) {
+    .app-container {
+      padding: 40px;
+      padding-top: 100px;
+    }
+  }
+  
+  /* Estilos para pantallas medianas */
+  @media (max-width: 768px) {
+    .login-box {
+      padding: 25px;
+    }
+  }
+  
+  /* Estilos para pantallas pequeñas */
+  @media (max-width: 480px) {
+    .login-box {
+      padding: 20px;
+    }
+    
+    .login-header h1 {
+      font-size: 2rem;
+    }
+  }

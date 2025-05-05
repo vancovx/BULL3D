@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
-import { FaSignInAlt } from 'react-icons/fa'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { login, reset } from '../features/auth/authSlice'
 import Spinner from '../components/Spinner'
+import '../Login.css'
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -56,47 +56,55 @@ function Login() {
   }
 
   return (
-    <>
-      <section className='heading'>
-        <h1>
-          <FaSignInAlt /> Login
-        </h1>
-        <p>Login and start setting goals</p>
-      </section>
+    <div className="app-container">
+      <div className="login-container">
+        <div className="login-box">
+          <div className="login-header">
+            <h1>BULL3D</h1>
+            <p>Nos alegra volver a verte!!</p>
+          </div>
+          
+          <form onSubmit={onSubmit} className="login-form">
+            <div className="form-group">
+              <label htmlFor="email">Email <span className="required">*</span></label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={email}
+                placeholder="Email"
+                onChange={onChange}
+                required
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="password">Contraseña <span className="required">*</span></label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                value={password}
+                placeholder="Contraseña"
+                onChange={onChange}
+                required
+              />
+              <p className="forgot-password">He olvidado mi contraseña.</p>
+            </div>
 
-      <section className='form'>
-        <form onSubmit={onSubmit}>
-          <div className='form-group'>
-            <input
-              type='email'
-              className='form-control'
-              id='email'
-              name='email'
-              value={email}
-              placeholder='Enter your email'
-              onChange={onChange}
-            />
-          </div>
-          <div className='form-group'>
-            <input
-              type='password'
-              className='form-control'
-              id='password'
-              name='password'
-              value={password}
-              placeholder='Enter password'
-              onChange={onChange}
-            />
-          </div>
-
-          <div className='form-group'>
-            <button type='submit' className='btn btn-block'>
-              Submit
-            </button>
-          </div>
-        </form>
-      </section>
-    </>
+            <div className="form-group">
+              <button type="submit" className="btn-login-submit">
+                Iniciar Sesión
+              </button>
+            </div>
+            
+            <div className="register-prompt">
+              <p>¿Es tu primera vez? <a href="/register" className="register-link">Registrarse</a></p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   )
 }
 

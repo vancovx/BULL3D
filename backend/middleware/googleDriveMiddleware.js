@@ -8,7 +8,7 @@ const fs = require('fs-extra');
 const storage = multer.memoryStorage();
 const upload = multer({ 
   storage,
-  limits: { fileSize: 1 * 1024 * 1024 * 1024 } // Límite de 1GB por archivo
+  limits: { fileSize: 1 * 1024 * 1024 * 1024 } 
 });
 
 // Configuración de autenticación con Google Drive API
@@ -23,19 +23,26 @@ class GoogleDriveService {
       // Cargar credenciales desde el archivo JSON
       const credentialsPath = path.join(__dirname, '../config/google-drive-credentials.json');
       const credentialsFile = fs.readFileSync(credentialsPath);
-      const credentials = JSON.parse(credentialsFile);
-
+      const credentials = JSON.parse(credentialsFile).web;  // Cambiado para acceder a la propiedad .web
+  
       const client = new google.auth.OAuth2(
         credentials.client_id,
         credentials.client_secret,
-        credentials.redirect_uri
+        credentials.redirect_uris[0]  // Usar el primer URI de redirección
       );
-
+  
+      // Asegurarse de que el refresh token existe en el archivo de credenciales
+      if (!credentials.refresh_token) {
+        throw new Error('Falta el refresh token en el archivo de credenciales. Ejecuta getRefreshToken.js primero.');
+      }
+  
       client.setCredentials({ refresh_token: credentials.refresh_token });
+      
       this.drive = google.drive({ version: 'v3', auth: client });
-      console.log('Google Drive API initialized successfully');
+      console.log('Google Drive API inicializada correctamente');
     } catch (error) {
-      console.error('Error initializing Google Drive API:', error);
+      console.error('Error al inicializar Google Drive API:', error);
+      throw error;  // Re-lanzar el error para hacerlo visible
     }
   }
 

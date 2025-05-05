@@ -1,7 +1,8 @@
-import { FaSignInAlt, FaSignOutAlt, FaUser } from 'react-icons/fa'
+import { FaSignInAlt, FaSignOutAlt, FaUser, FaSearch } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout, reset } from '../features/auth/authSlice'
+import '../Header.css'
 
 function Header() {
   const navigate = useNavigate()
@@ -15,32 +16,47 @@ function Header() {
   }
 
   return (
-    <header className='header'>
-      <div className='logo'>
-        <Link to='/'>GoalSetter</Link>
-      </div>
-      <ul>
-        {user ? (
-          <li>
-            <button className='btn' onClick={onLogout}>
-              <FaSignOutAlt /> Logout
+    <header className='main-header'>
+      <div className='header-content'>
+        {/* Logo */}
+        <div className='logo-container'>
+          <Link to='/'>
+            <img className="header-logo" src="/Logo_Toro.png" alt="Logo" />
+          </Link>
+        </div>
+
+        {/* Navegación */}
+        <nav className='header-nav'>
+          <Link to="/explore" className='nav-link'>Explorar</Link>
+          <Link to="/contact" className='nav-link'>Contactanos</Link>
+        </nav>
+
+        {/* Barra de búsqueda */}
+        <div className='search-box'>
+          <input type="text" placeholder="Buscar" />
+          <button className='search-btn'>
+            <FaSearch />
+          </button>
+        </div>
+
+        {/* Autenticación */}
+        <div className='auth-section'>
+          {user ? (
+            <button className='btn-logout' onClick={onLogout}>
+              <FaSignOutAlt /> Cerrar Sesión
             </button>
-          </li>
-        ) : (
-          <>
-            <li>
-              <Link to='/login'>
-                <FaSignInAlt /> Login
+          ) : (
+            <>
+              <Link to='/register' className='btn-register'>
+                <FaUser /> Registrarse
               </Link>
-            </li>
-            <li>
-              <Link to='/register'>
-                <FaUser /> Register
+              <Link to='/login' className='btn-login'>
+                <FaSignInAlt /> Iniciar Sesión
               </Link>
-            </li>
-          </>
-        )}
-      </ul>
+            </>
+          )}
+        </div>
+      </div>
     </header>
   )
 }
