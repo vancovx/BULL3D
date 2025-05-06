@@ -76,9 +76,10 @@ class GoogleDriveService {
         sendNotificationEmail: false
       });
 
-      // Obtener el enlace directo de visualización/descarga
-      const directUrl = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
-
+      // En lugar de devolver una URL directa de Google Drive, 
+      // devolvemos una URL que apunta a nuestro propio proxy
+      const fileId = response.data.id;
+      const directUrl = `/api/proxy/image/${fileId}`;
       
       return {
         id: response.data.id,
@@ -152,8 +153,8 @@ class GoogleDriveService {
         fields: 'id,webViewLink'
       });
 
-      const directUrl = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
-
+      // Usar nuestro proxy en lugar de URL directa de Google Drive
+      const directUrl = `/api/proxy/image/${fileId}`;
       
       return {
         id: response.data.id,

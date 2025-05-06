@@ -20,6 +20,7 @@ app.use(express.urlencoded({extended: false}))
 //app.use('/api/goals', require('./routes/goalRoutes'))
 app.use('/api/users', require('./routes/userRoutes'))
 app.use('/api/assets', require('./routes/assetRoutes'))
+app.use('/api/proxy', require('./routes/proxyRoutes'))  // Nueva ruta para el proxy
 
 // Serve frontend
 if (process.env.NODE_ENV === 'production') {

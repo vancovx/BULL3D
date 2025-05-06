@@ -9,66 +9,105 @@ const getAssets = async () => {
     return response.data
 }
 
+//Get asset especifico (public access)
+const getAssetById = async (assetId) => {
+    const response = await axios.get(`${API_URL}${assetId}`)
+    return response.data
+}
 
 //Upload asset
-const postAsset = async(token, assetData) => {
-
+const createAsset = async (assetData, token) => {
     const config = {
         headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',  // Important for file uploads
         },
     }
-    const response = await axios.post(API_URL, config, assetData)
+    
+    // Create a FormData object for file uploads
+    const formData = new FormData()
+    
+    // Add text fields
+    formData.append('title', assetData.title)
+    formData.append('typeContent', assetData.typeContent)
+    formData.append('description', assetData.description)
+    if (assetData.date) {
+        formData.append('date', assetData.date)
+    }
+    
+    // Add files
+    if (assetData.coverImage) {
+        formData.append('coverImage', assetData.coverImage)
+    }
+    
+    if (assetData.images && assetData.images.length > 0) {
+        assetData.images.forEach(image => {
+            formData.append('images', image)
+        })
+    }
+    
+    if (assetData.content) {
+        formData.append('content', assetData.content)
+    }
+    
+    const response = await axios.post(API_URL, formData, config)
+    return response.data
+}
 
+//Update asset
+const updateAsset = async (assetId, assetData, token) => {
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',  // Important for file uploads
+        },
+    }
+    
+    // Create a FormData object for file uploads
+    const formData = new FormData()
+    
+    // Add text fields
+    if (assetData.title) formData.append('title', assetData.title)
+    if (assetData.typeContent) formData.append('typeContent', assetData.typeContent)
+    if (assetData.description) formData.append('description', assetData.description)
+    if (assetData.date) formData.append('date', assetData.date)
+    
+    // Add files
+    if (assetData.coverImage) {
+        formData.append('coverImage', assetData.coverImage)
+    }
+    
+    if (assetData.images && assetData.images.length > 0) {
+        assetData.images.forEach(image => {
+            formData.append('images', image)
+        })
+    }
+    
+    if (assetData.content) {
+        formData.append('content', assetData.content)
+    }
+    
+    const response = await axios.put(`${API_URL}${assetId}`, formData, config)
     return response.data
 }
 
 //Delete asset
-const deleteAsset = async(token, assetId) => {
-
+const deleteAsset = async (assetId, token) => {
     const config = {
         headers: {
             Authorization: `Bearer ${token}`,
         },
     }
     const response = await axios.delete(`${API_URL}${assetId}`, config)
-    
     return response.data
 }
-
-//Get asset especifico
-const getAssetById = async(token, assetId) => {
-
-    const config = {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    }
-    const response = await axios.get(`${API_URL}${assetId}`, config)
-
-    return response.data
-}
-
-//Put asset
-const putAsset = async(token, assetId) => {
-
-    const config = {
-        headers: {
-            Authorization: `Bearer ${token}`,
-        },
-    }
-    const response = await axios.put(`${API_URL}${assetId}`, config)
-
-    return response.data
-}
-
 
 const assetService = {
     getAssets,
     getAssetById,
-    putAsset,
+    createAsset,
+    updateAsset,
     deleteAsset
-    
 }
 
 export default assetService
