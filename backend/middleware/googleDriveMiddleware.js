@@ -70,12 +70,15 @@ class GoogleDriveService {
         fileId: response.data.id,
         requestBody: {
           role: 'reader',
-          type: 'anyone'
-        }
+          type: 'anyone',
+          allowFileDiscovery: false
+        },
+        sendNotificationEmail: false
       });
 
       // Obtener el enlace directo de visualización/descarga
-      const directUrl = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+      const directUrl = `https://drive.google.com/file/d/${response.data.id}/view?usp=sharing`;
+
       
       return {
         id: response.data.id,
@@ -107,7 +110,8 @@ class GoogleDriveService {
         fileId: response.data.id,
         requestBody: {
           role: 'reader',
-          type: 'anyone'
+          type: 'anyone',
+          allowFileDiscovery: false
         }
       });
 
@@ -148,7 +152,8 @@ class GoogleDriveService {
         fields: 'id,webViewLink'
       });
 
-      const directUrl = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+      const directUrl = `https://drive.google.com/file/d/${response.data.id}/view?usp=sharing`;
+
       
       return {
         id: response.data.id,

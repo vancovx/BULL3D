@@ -56,9 +56,9 @@ function Login() {
   }
 
   return (
-    <div className="app-container">
-      <div className="login-container">
-        <div className="login-box">
+    <div className="app-container login-page">
+      <div className="login-container expanded-container">
+        <div className="login-box expanded-box">
           <div className="login-header">
             <h1>BULL3D</h1>
             <p>Nos alegra volver a verte!!</p>
@@ -91,7 +91,7 @@ function Login() {
               />
               <p className="forgot-password">He olvidado mi contraseña.</p>
             </div>
-
+            
             <div className="form-group">
               <button type="submit" className="btn-login-submit">
                 Iniciar Sesión

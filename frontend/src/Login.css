@@ -30,12 +30,13 @@
   
   .login-box {
     width: 100%;
-    max-width: 400px;
+    max-width: 700px; 
     background-color: var(--card-bg);
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-    padding: 30px;
+    padding: 40px; 
   }
+  
   
   .login-header {
     text-align: center;
@@ -164,3 +165,87 @@
       font-size: 2rem;
     }
   }
+
+
+/* Modificar la clase expanded-container para hacerla más ancha */
+.expanded-container {
+  width: 100%;  /* Cambiado de 90% a 100% */
+  max-width: 1000px; /* Aumentado de 800px a 1000px */
+  margin: 0 auto;
+}
+
+/* Modificar la clase expanded-box para darle más espacio interno */
+.expanded-box {
+  width: 100%;
+  padding: 3rem;  /* Aumentado de 2.5rem a 3rem */
+  border-radius: 10px; /* Añadir bordes más redondeados */
+}
+
+/* Hacer los inputs más anchos y con mejor espaciado */
+.expanded-box input {
+  padding: 0.85rem 1.2rem;
+  font-size: 1.05rem;
+  width: 100%; /* Asegurar que usan todo el ancho disponible */
+}
+
+/* Hacer los labels más grandes y con mejor espaciado */
+.expanded-box label {
+  font-size: 1.15rem;
+  margin-bottom: 0.7rem;
+  display: block;
+}
+
+/* Hacer el botón más grande y prominente */
+.expanded-box .btn-login-submit {
+  padding: 1rem;
+  font-size: 1.2rem;
+  margin-top: 1.8rem;
+  width: 100%;
+}
+
+/* Añadir más espacio entre grupos de formulario */
+.expanded-box .form-group {
+  margin-bottom: 2rem;
+}
+
+/* Ajustar el layout para mantener responsividad */
+@media (max-width: 1200px) {
+  .expanded-container {
+    width: 95%;
+    max-width: 900px;
+  }
+}
+
+@media (max-width: 768px) {
+  .expanded-container {
+    width: 90%;
+  }
+  
+  .expanded-box {
+    padding: 2rem;
+  }
+}
+
+.terms-group {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Espacio entre el checkbox y el texto */
+}
+
+.terms-group input[type="checkbox"] {
+  margin: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary-color); /* Color del check */
+}
+
+.terms-label {
+  color: var(--text-color);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.app-container.login-page {
+  height: 100vh;
+  overflow: hidden;
+}

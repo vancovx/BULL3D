@@ -330,11 +330,10 @@ const deleteAsset = asyncHandler(async (req, res) => {
 
 
 
-
 module.exports = {
   getAssets,
   getAssetById,
   createAsset,
   updateAsset,
-  deleteAsset
+  deleteAsset,
 };
