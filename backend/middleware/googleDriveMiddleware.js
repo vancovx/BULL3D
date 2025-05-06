@@ -77,7 +77,7 @@ class GoogleDriveService {
       });
 
       // Obtener el enlace directo de visualización/descarga
-      const directUrl = `https://drive.google.com/file/d/${response.data.id}/view?usp=sharing`;
+      const directUrl = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
 
       
       return {
@@ -152,7 +152,7 @@ class GoogleDriveService {
         fields: 'id,webViewLink'
       });
 
-      const directUrl = `https://drive.google.com/file/d/${response.data.id}/view?usp=sharing`;
+      const directUrl = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
 
       
       return {

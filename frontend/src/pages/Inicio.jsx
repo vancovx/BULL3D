@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { getAssets, reset } from '../features/assets/assetSlice'
 import Spinner from '../components/Spinner'
@@ -7,11 +6,9 @@ import AssetItem from '../components/AssetItem'
 import './Inicio.css'
 
 function Inicio() {
-  const navigate = useNavigate()
   const dispatch = useDispatch()
   const [filter, setFilter] = useState('all')
 
-  const { user } = useSelector((state) => state.auth)
   const { assets, isLoading, isError, message } = useSelector(
     (state) => state.assets
   )
@@ -21,16 +18,13 @@ function Inicio() {
       console.log(message)
     }
 
-    if (!user) {
-      navigate('/login')
-    } else {
-      dispatch(getAssets())
-    }
+    // Fetch assets regardless of authentication status
+    dispatch(getAssets())
 
     return () => {
       dispatch(reset())
     }
-  }, [user, navigate, isError, message, dispatch])
+  }, [isError, message, dispatch])
 
   const handleFilterChange = (e) => {
     setFilter(e.target.value)

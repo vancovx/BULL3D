@@ -2,11 +2,13 @@ const asyncHandler = require('express-async-handler');
 const Asset = require('../models/assetModel');
 const { driveService } = require('../middleware/googleDriveMiddleware');
 
-// @desc    Get all assets for a user
+
+// @desc    Get all assets (public access)
 // @route   GET /api/assets
-// @access  Private
+// @access  Public
 const getAssets = asyncHandler(async (req, res) => {
-  const assets = await Asset.find({ user: req.user.id });
+  // Retrieve all assets regardless of user
+  const assets = await Asset.find({});
   res.status(200).json(assets);
 });
 

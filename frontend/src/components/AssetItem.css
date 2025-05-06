@@ -1,71 +1,25 @@
-.asset-card {
-    background-color: #1a1a1f;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .asset-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  
-  .asset-image {
-    width: 100%;
-    height: 200px;
-    overflow: hidden;
-  }
-  
-  .asset-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.5s ease;
-  }
-  
-  .asset-card:hover .asset-image img {
-    transform: scale(1.05);
-  }
-  
-  .asset-info {
-    padding: 16px;
-  }
-  
-  .asset-title {
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-  
-  .asset-type {
-    color: #8c52ff;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  
-  .asset-description {
-    color: #ccc;
-    font-size: 0.9rem;
-    margin-bottom: 16px;
-    height: 60px;
-    overflow: hidden;
-  }
-  
-  .asset-btn {
-    display: inline-block;
-    background-color: #8c52ff;
-    color: white;
-    padding: 8px 16px;
-    border-radius: 4px;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: background-color 0.2s;
-  }
-  
-  .asset-btn:hover {
-    background-color: #7440e0;
-  }
+.image-placeholder, .image-error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #252730;
+  color: #ccc;
+  font-size: 0.9rem;
+  flex-direction: column;
+}
+
+.image-error {
+  background-color: #301e28;
+  color: #ff8f8f;
+}
+
+.image-error small {
+  font-size: 0.7rem;
+  max-width: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 5px;
+}
