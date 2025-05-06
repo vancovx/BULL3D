@@ -12,21 +12,23 @@ const getAssets = asyncHandler(async (req, res) => {
   res.status(200).json(assets);
 });
 
+// @desc    Get all assets for a specific user
+// @route   GET /api/assets/user/:userId
+// @access  Public
+const getUserAssets = asyncHandler(async (req, res) => {
+  const assets = await Asset.find({ user: req.params.userId });
+  res.status(200).json(assets);
+});
+
 // @desc    Get asset by ID
 // @route   GET /api/assets/:id
-// @access  Private
+// @access  Public
 const getAssetById = asyncHandler(async (req, res) => {
   const asset = await Asset.findById(req.params.id);
 
   if (!asset) {
     res.status(404);
     throw new Error('Asset not found');
-  }
-
-  // Check if the asset belongs to the user
-  if (asset.user.toString() !== req.user.id) {
-    res.status(403);
-    throw new Error('Not authorized to access this asset');
   }
 
   res.status(200).json(asset);
@@ -241,52 +243,6 @@ const updateAsset = asyncHandler(async (req, res) => {
 // @desc    Delete an asset
 // @route   DELETE /api/assets/:id
 // @access  Private
-/*const deleteAsset = asyncHandler(async (req, res) => {
-  const asset = await Asset.findById(req.params.id);
-
-  if (!asset) {
-    res.status(404);
-    throw new Error('Asset not found');
-  }
-
-  // Check if the asset belongs to the user
-  if (asset.user.toString() !== req.user.id) {
-    res.status(403);
-    throw new Error('Not authorized to delete this asset');
-  }
-
-  try {
-    // Eliminar todos los archivos de Google Drive
-    if (asset._googleDriveIds) {
-      // Si hay una carpeta principal, eliminarla (eliminará todo su contenido)
-      if (asset._googleDriveIds.folderId) {
-        await driveService.deleteFile(asset._googleDriveIds.folderId);
-      } else {
-        // Si no hay carpeta pero hay archivos individuales, eliminarlos uno por uno
-        const fileIds = [
-          asset._googleDriveIds.coverImageId,
-          asset._googleDriveIds.contentId,
-          ...(asset._googleDriveIds.imagesIds || [])
-        ].filter(Boolean);
-        
-        const deletePromises = fileIds.map(id => driveService.deleteFile(id));
-        await Promise.all(deletePromises);
-      }
-    }
-
-    // Eliminar el asset de la base de datos
-    await asset.remove();
-
-    res.status(200).json({ id: req.params.id });
-  } catch (error) {
-    res.status(500);
-    throw new Error(`Failed to delete asset: ${error.message}`);
-  }
-});*/
-
-// @desc    Delete an asset
-// @route   DELETE /api/assets/:id
-// @access  Private
 const deleteAsset = asyncHandler(async (req, res) => {
   const asset = await Asset.findById(req.params.id);
 
@@ -334,6 +290,7 @@ const deleteAsset = asyncHandler(async (req, res) => {
 
 module.exports = {
   getAssets,
+  getUserAssets,
   getAssetById,
   createAsset,
   updateAsset,

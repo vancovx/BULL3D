@@ -3,6 +3,7 @@ import assetService from './assetService'
 
 const initialState = {
     assets: [],
+    userAssets: [],
     asset: {},
     isError: false,
     isSuccess: false,
@@ -17,6 +18,25 @@ export const getAssets = createAsyncThunk(
         try {
             // Get assets without token (public access)
             return await assetService.getAssets()
+        } catch (error) {
+            const message =
+                (error.response &&
+                    error.response.data &&
+                    error.response.data.message) ||
+                error.message ||
+                error.toString()
+            return thunkAPI.rejectWithValue(message)
+        }
+    }
+)
+
+// Get assets for a specific user (public)
+export const getUserAssets = createAsyncThunk(
+    'assets/getUserAssets',
+    async (userId, thunkAPI) => {
+        try {
+            // Get user assets without token (public access)
+            return await assetService.getUserAssets(userId)
         } catch (error) {
             const message =
                 (error.response &&
@@ -140,6 +160,20 @@ export const assetSlice = createSlice({
                 state.isError = true
                 state.message = action.payload
             })
+            // Para getUserAssets
+            .addCase(getUserAssets.pending, (state) => {
+                state.isLoading = true
+            })
+            .addCase(getUserAssets.fulfilled, (state, action) => {
+                state.isLoading = false
+                state.isSuccess = true
+                state.userAssets = action.payload
+            })
+            .addCase(getUserAssets.rejected, (state, action) => {
+                state.isLoading = false
+                state.isError = true
+                state.message = action.payload
+            })
             // Para getAssetById
             .addCase(getAssetById.pending, (state) => {
                 state.isLoading = true
@@ -178,6 +212,12 @@ export const assetSlice = createSlice({
                 state.assets = state.assets.map(asset => 
                     asset._id === action.payload._id ? action.payload : asset
                 )
+                // Also update userAssets if applicable
+                if (state.userAssets.length > 0) {
+                    state.userAssets = state.userAssets.map(asset => 
+                        asset._id === action.payload._id ? action.payload : asset
+                    )
+                }
             })
             .addCase(updateAsset.rejected, (state, action) => {
                 state.isLoading = false
@@ -192,6 +232,10 @@ export const assetSlice = createSlice({
                 state.isLoading = false
                 state.isSuccess = true
                 state.assets = state.assets.filter(asset => asset._id !== action.payload.id)
+                // Also update userAssets if applicable
+                if (state.userAssets.length > 0) {
+                    state.userAssets = state.userAssets.filter(asset => asset._id !== action.payload.id)
+                }
             })
             .addCase(deleteAsset.rejected, (state, action) => {
                 state.isLoading = false

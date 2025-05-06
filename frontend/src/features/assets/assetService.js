@@ -2,20 +2,25 @@ import axios from 'axios'
 
 const API_URL = '/api/assets/'
 
-//Ver todos los assets
 // Get all assets (public access)
 const getAssets = async () => {
     const response = await axios.get(API_URL)
     return response.data
 }
 
-//Get asset especifico (public access)
+// Get assets from a specific user (public access)
+const getUserAssets = async (userId) => {
+    const response = await axios.get(`${API_URL}user/${userId}`)
+    return response.data
+}
+
+// Get specific asset by ID (public access)
 const getAssetById = async (assetId) => {
     const response = await axios.get(`${API_URL}${assetId}`)
     return response.data
 }
 
-//Upload asset
+// Upload asset (protected)
 const createAsset = async (assetData, token) => {
     const config = {
         headers: {
@@ -54,7 +59,7 @@ const createAsset = async (assetData, token) => {
     return response.data
 }
 
-//Update asset
+// Update asset (protected)
 const updateAsset = async (assetId, assetData, token) => {
     const config = {
         headers: {
@@ -91,7 +96,7 @@ const updateAsset = async (assetId, assetData, token) => {
     return response.data
 }
 
-//Delete asset
+// Delete asset (protected)
 const deleteAsset = async (assetId, token) => {
     const config = {
         headers: {
@@ -104,6 +109,7 @@ const deleteAsset = async (assetId, token) => {
 
 const assetService = {
     getAssets,
+    getUserAssets,
     getAssetById,
     createAsset,
     updateAsset,

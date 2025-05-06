@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { 
   getAssets, 
+  getUserAssets,
   getAssetById, 
   createAsset, 
   updateAsset, 
@@ -12,6 +13,7 @@ const { uploadMiddleware } = require('../middleware/googleDriveMiddleware');
 
 // Public routes (no authentication required)
 router.get('/', getAssets);
+router.get('/user/:userId', getUserAssets);
 router.get('/:id', getAssetById);
 
 // Protected routes (authentication required)
