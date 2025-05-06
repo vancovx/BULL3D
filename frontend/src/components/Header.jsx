@@ -41,20 +41,25 @@ function Header() {
 
         {/* Autenticación */}
         <div className='auth-section'>
-          {user ? (
-            <button className='btn-logout' onClick={onLogout}>
-              <FaSignOutAlt /> Cerrar Sesión
-            </button>
-          ) : (
-            <>
-              <Link to='/register' className='btn-register'>
-                <FaUser /> Registrarse
-              </Link>
-              <Link to='/login' className='btn-login'>
-                <FaSignInAlt /> Iniciar Sesión
-              </Link>
-            </>
-          )}
+        {user ? (
+              <>
+                <Link to="/profile" className="profile-icon" title="Mi Perfil">
+                  <FaUser />
+                </Link>
+                <button className='btn-logout' onClick={onLogout}>
+                  <FaSignOutAlt /> Cerrar Sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to='/register' className='btn-register'>
+                  <FaUser /> Registrarse
+                </Link>
+                <Link to='/login' className='btn-login'>
+                  <FaSignInAlt /> Iniciar Sesión
+                </Link>
+              </>
+            )}
         </div>
       </div>
     </header>

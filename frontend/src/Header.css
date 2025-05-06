@@ -157,3 +157,19 @@
       margin-left: 0;
     }
   }
+
+  .profile-icon {
+  margin-right: 1.5rem; 
+  font-size: 1.6rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.profile-icon:hover {
+  color: #ccc;
+}
+
+  
