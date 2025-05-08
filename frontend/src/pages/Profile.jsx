@@ -38,7 +38,7 @@ function Profile() {
 
     // Cargar los assets del usuario si tenemos su ID
     if (user && user._id) {
-      console.log('Dispatching getUserAssets() with ID:', user._id)
+      console.log('Dispatching getUserAssets() with ID:', user.id)
       dispatch(getUserAssets(user._id))
     }
     

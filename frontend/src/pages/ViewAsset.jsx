@@ -251,13 +251,12 @@ function ViewAsset() {
           <div className="asset-info-section">
             <h1 className="asset-title">{asset.title}</h1>
             <div className="asset-type-category">
-              <span className="asset-type">{asset.typeContent}</span>
               <span className="asset-category">{asset.category}</span>
-              {formattedDate && <span className="asset-date">{formattedDate}</span>}
             </div>
             <div className="asset-description">
               {asset.description}
             </div>
+            {formattedDate && <span className="asset-date">{formattedDate}</span>}
           </div>
         </div>
       </div>

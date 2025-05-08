@@ -61,11 +61,11 @@ function AssetItem({ asset }) {
         />
       </div>
       <div className="asset-info">
-        <h3 className="asset-title">{asset.title}</h3>
-        <div className="asset-meta">
+        <div className="asset-title-container">
+          <h3 className="asset-title">{asset.title}</h3>
           <span className="asset-category">{asset.category}</span>
         </div>
-        <Link to={`/assets/${asset._id}`} className="asset-btn">
+        <Link to={`/assets/${asset._id}`} className="asset-btn full-width">
           Ver Más
         </Link>
       </div>

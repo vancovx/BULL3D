@@ -257,9 +257,10 @@
 }
 
 .asset-title {
-  font-size: 1.5rem;
+  font-size: 100px;
   font-weight: bold;
   color: #fff;
+
 }
 
 .asset-type-category {
