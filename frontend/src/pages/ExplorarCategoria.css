@@ -1,0 +1,131 @@
+/* src/pages/ExplorarCategoria.css */
+:root {
+    --primary-color: #8c52ff;
+    --dark-bg: #121628;
+    --card-bg: #1a1a1f;
+    --border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .explorer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+    color: white;
+    padding-top: 80px; /* Espacio para el header fijo */
+  }
+  
+  .category-title {
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.8rem;
+    color: white;
+  }
+  
+  .explorer-content {
+    display: flex;
+    gap: 30px;
+  }
+  
+  /* Sidebar de etiquetas */
+  .tags-sidebar {
+    width: 180px;
+    flex-shrink: 0;
+  }
+  
+  .tags-title {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: rgba(140, 82, 255, 0.1);
+    border-radius: 6px;
+    color: #8c52ff;
+  }
+  
+  .tags-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .tag-button {
+    background-color: #1e2133;
+    color: #a0a0a0;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 15px;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+  }
+  
+  .tag-button:hover {
+    background-color: #252a3d;
+    color: white;
+  }
+  
+  .tag-button.active {
+    background-color: #8c52ff;
+    color: white;
+  }
+  
+  .no-tags {
+    color: #666;
+    font-size: 0.9rem;
+    padding: 10px;
+  }
+  
+  /* Grid de assets */
+  .category-assets {
+    flex: 1;
+  }
+  
+  .assets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .no-assets {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    color: #888;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .explorer-content {
+      flex-direction: column;
+    }
+    
+    .tags-sidebar {
+      width: 100%;
+    }
+    
+    .tags-list {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    
+    .assets-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .explorer-container {
+      padding: 15px;
+      padding-top: 80px;
+    }
+    
+    .assets-grid {
+      grid-template-columns: 1fr;
+    }
+  }

@@ -1,6 +1,6 @@
-/* Header.css */
+/* Header.css - Versión completa */
 :root {
-  --primary-color: #8c52ff;
+  --primary-color: #AF52DE;
   --dark-bg: #121628;
   --header-bg: #0e0f16;
   --text-color: #ffffff;
@@ -176,6 +176,84 @@
   background-color: rgba(255, 255, 255, 0.2);
 }
 
+/* Contenedor del dropdown */
+.nav-dropdown-container {
+  position: relative;
+}
+
+/* Botón de Explorar */
+.explore-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: 0.9rem;
+}
+
+.explore-btn:hover, .explore-btn.active {
+  background-color: rgba(140, 82, 255, 0.1);
+}
+
+.dropdown-icon {
+  font-size: 0.8rem;
+  transition: transform 0.2s;
+}
+
+.explore-btn.active .dropdown-icon {
+  transform: rotate(180deg);
+}
+
+/* Contenedor del dropdown de categorías */
+.categories-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 420px;
+  background-color: #13151e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  padding: 15px;
+  z-index: 1000;
+  margin-top: 5px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Grid de categorías */
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* Cada item de categoría */
+.category-item {
+  background-color: #1e2133;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.category-item:hover {
+  background-color: #8c52ff;
+  transform: translateY(-2px);
+}
+
 /* Responsive */
 @media (max-width: 992px) {
   .header-content {
@@ -192,6 +270,12 @@
   .auth-section {
     order: 2;
   }
+  
+  .categories-dropdown {
+    width: 90vw;
+    min-width: unset;
+    left: 5%;
+  }
 }
 
 @media (max-width: 768px) {
@@ -202,5 +286,21 @@
   .btn-upload, .btn-login, .btn-register, .btn-logout {
     padding: 6px 10px;
     font-size: 0.8rem;
+  }
+  
+  .categories-dropdown {
+    position: fixed;
+    left: 5vw;
+    top: 70px;
+  }
+  
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
   }
 }

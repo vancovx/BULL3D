@@ -1,5 +1,5 @@
 :root {
-  --primary-color: #8c52ff;
+  --primary-color: #AF52DE;
   --primary-dark: #7440e0;
   --dark-bg: #121628;
   --darker-bg: #0c111c;
@@ -54,12 +54,13 @@
 }
 
 .profile-user-info h2 {
+  color: var(--dark-bg);
   margin: 0;
   font-size: 1.8rem;
 }
 
 .username {
-  color: var(--text-secondary);
+  color: var(--dark-bg);
   margin-bottom: 10px;
 }
 

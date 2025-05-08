@@ -1,14 +1,66 @@
-import { FaSignInAlt, FaSignOutAlt, FaUser, FaSearch, FaCloudUploadAlt, FaStar } from 'react-icons/fa'
+// Modificación del componente Header para navegar a ExplorarCategoria
+import { useState, useEffect, useRef } from 'react'
+import { FaSignInAlt, FaSignOutAlt, FaUser, FaSearch, FaCloudUploadAlt, FaStar, FaChevronDown } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout, reset } from '../features/auth/authSlice'
+import { getAssets } from '../features/assets/assetSlice'
 import './Header.css'
 
 function Header() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
+  const { assets } = useSelector((state) => state.assets)
+  
+  const [showCategoriesDropdown, setShowCategoriesDropdown] = useState(false)
+  const dropdownRef = useRef(null)
+  const [categories, setCategories] = useState([])
 
+  // Cerrar el dropdown al hacer clic fuera
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowCategoriesDropdown(false)
+      }
+    }
+    
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  // Obtener los assets para extraer sus categorías
+  useEffect(() => {
+    dispatch(getAssets())
+  }, [dispatch])
+
+  // Extraer categorías únicas de los assets
+  useEffect(() => {
+    if (assets && assets.length > 0) {
+      const uniqueCategories = [...new Set(assets.map(asset => asset.category))]
+      setCategories(uniqueCategories.filter(Boolean))
+    }
+  }, [assets])
+
+  // Función para cerrar sesión
+  const onLogout = () => {
+    dispatch(logout())
+    dispatch(reset())
+    navigate('/')
+  }
+
+  // Función para navegar a la categoría seleccionada - MODIFICADA
+  const navigateToCategory = (category) => {
+    if (category) {
+      navigate(`/categoria/${category}`)
+      setShowCategoriesDropdown(false)
+    } else {
+      console.error('Intentando navegar a una categoría indefinida')
+      navigate('/')
+    }
+  }
 
   return (
     <header className='main-header'>
@@ -22,7 +74,30 @@ function Header() {
 
         {/* Navegación */}
         <nav className='header-nav'>
-          <Link to="/explore" className='nav-link'>Explorar</Link>
+          <div className="nav-dropdown-container" ref={dropdownRef}>
+            <button 
+              className={`nav-link explore-btn ${showCategoriesDropdown ? 'active' : ''}`}
+              onClick={() => setShowCategoriesDropdown(!showCategoriesDropdown)}
+            >
+              Explorar <FaChevronDown className="dropdown-icon" />
+            </button>
+            
+            {showCategoriesDropdown && (
+              <div className="categories-dropdown">
+                <div className="categories-grid">
+                  {categories.map((category, index) => (
+                    <div 
+                      key={index} 
+                      className="category-item"
+                      onClick={() => navigateToCategory(category)}
+                    >
+                      {category}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </nav>
 
         {/* Barra de búsqueda */}

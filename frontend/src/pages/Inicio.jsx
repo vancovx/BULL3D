@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 import { getAssets, reset } from '../features/assets/assetSlice'
 import Spinner from '../components/Spinner'
 import AssetItem from '../components/AssetItem'
@@ -7,6 +8,7 @@ import './Inicio.css'
 
 function Inicio() {
   const dispatch = useDispatch()
+  const location = useLocation()
   const [filter, setFilter] = useState('all')
 
   const { assets, isLoading, isError, message } = useSelector(
@@ -25,44 +27,38 @@ function Inicio() {
       dispatch(reset())
     }
   }, [isError, message, dispatch])
+  
+  // Comprobar si hay una categoría en la URL query
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search)
+    const categoryParam = queryParams.get('category')
+    
+    if (categoryParam) {
+      setFilter(categoryParam)
+    } else {
+      setFilter('all')
+    }
+  }, [location.search])
 
-  const handleFilterChange = (e) => {
-    setFilter(e.target.value)
-  }
-
-  // Filtrar los assets por tipo de contenido
+  // Filtrar los assets por categoría (solo si viene de la URL)
   const filteredAssets = filter === 'all' 
     ? assets 
-    : assets.filter(asset => asset.typeContent === filter)
+    : assets.filter(asset => 
+        asset.category === filter
+      )
 
   if (isLoading) {
     return <Spinner />
   }
 
-  // Obtener los tipos únicos de contenido para el selector de filtro
-  const assetTypes = assets && assets.length > 0 
-    ? ['all', ...new Set(assets.map(asset => asset.typeContent))] 
-    : ['all']
-
   return (
     <div className="home-container">
       <div className="home-header">
-        <h1>Explora los Assets</h1>
-        <div className="filter-container">
-          <label htmlFor="filter">Filtrar por tipo:</label>
-          <select 
-            id="filter" 
-            value={filter} 
-            onChange={handleFilterChange}
-            className="filter-select"
-          >
-            {assetTypes.map(type => (
-              <option key={type} value={type}>
-                {type === 'all' ? 'Todos' : type}
-              </option>
-            ))}
-          </select>
-        </div>
+        {filter === 'all' ? (
+          <h1>Explora los Assets</h1>
+        ) : (
+          <h1>Categoría: {filter}</h1>
+        )}
       </div>
 
       {filteredAssets && filteredAssets.length > 0 ? (
@@ -73,7 +69,7 @@ function Inicio() {
         </div>
       ) : (
         <div className="no-assets">
-          <p>No hay assets disponibles</p>
+          <p>No hay assets disponibles{filter !== 'all' ? ' en esta categoría' : ''}</p>
         </div>
       )}
     </div>

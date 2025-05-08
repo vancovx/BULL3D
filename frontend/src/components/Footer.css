@@ -41,7 +41,7 @@
   }
   
   .social-icon:hover {
-   color: #b277ff;
+   color: #AF52DE;
     transform: scale(1.1);
   } 
   
@@ -56,7 +56,7 @@
   }
   
   .footer-link {
-    color: #b277ff;
+    color: #AF52DE;
     text-decoration: none;
     font-size: 0.9rem;
     transition: color 0.2s;
