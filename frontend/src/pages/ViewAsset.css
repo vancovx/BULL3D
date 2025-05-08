@@ -1,4 +1,14 @@
-.asset-view-container {
+.thumbnail-empty {
+  opacity: 0.5;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  background-color: rgba(37, 39, 48, 0.5);
+}
+
+.thumbnail-empty .image-placeholder {
+  background-color: transparent;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}.asset-view-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
@@ -86,8 +96,11 @@
 .asset-thumbnails {
   display: flex;
   flex-direction: row;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 15px;
+  margin-top: 15px;
+  width: 100%;
+  justify-content: flex-start; /* Alinear desde la izquierda */
+  max-width: 540px;  /* Espacio para 3 miniaturas (170px cada una) + 2 gaps (15px cada uno) */
 }
 
 .thumbnail {

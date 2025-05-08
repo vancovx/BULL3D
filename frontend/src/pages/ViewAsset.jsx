@@ -155,7 +155,6 @@ function ViewAsset() {
 
   return (
     <>
-
       {/* Contenedor principal */}
       <div className="main-container">
         {/* Sección de visualización del modelo */}
@@ -188,7 +187,7 @@ function ViewAsset() {
           {/* Miniaturas */}
           {additionalImages && additionalImages.length > 0 && (
             <div className="asset-thumbnails">
-              {additionalImages.map((imageUrl, index) => (
+              {additionalImages.slice(0, 3).map((imageUrl, index) => (
                 <div className="thumbnail" key={index}>
                   {!imagesLoaded[index] && !imagesError[index] && (
                     <div className="image-placeholder">Cargando...</div>

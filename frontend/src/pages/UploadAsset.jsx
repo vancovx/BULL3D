@@ -34,12 +34,14 @@ function UploadAsset() {
   const [content, setContent] = useState(null)
   const [contentName, setContentName] = useState('')
 
-  // Comprobar si el usuario ha iniciado sesión
+  // Comprobar si el usuario ha iniciado sesión y resetear estado al montar
   useEffect(() => {
+    dispatch(reset())
+    
     if (!user) {
       navigate('/login')
     }
-  }, [user, navigate])
+  }, [user, navigate, dispatch])
 
   // Manejar respuestas de la API
   useEffect(() => {
@@ -47,12 +49,13 @@ function UploadAsset() {
       toast.error(message)
     }
 
+    // Solo mostrar mensaje de éxito y redirigir si realmente se ha enviado el formulario
     if (isSuccess) {
       toast.success('Asset subido correctamente')
       navigate('/')
-      dispatch(reset())
     }
 
+    // Limpiar al desmontar
     return () => {
       dispatch(reset())
     }
@@ -158,7 +161,6 @@ function UploadAsset() {
   return (
     <div className="upload-container">
       <div className="upload-header">
-        <h1><FaCloudUploadAlt /> Subir Asset</h1>
         <p>Comparte tus modelos 3D, texturas, y otros recursos con la comunidad</p>
       </div>
 
@@ -179,6 +181,24 @@ function UploadAsset() {
                   onChange={onChange}
                   placeholder="Nombre del asset"
                 />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="typeContent">Tipo de contenido <span className="required">*</span></label>
+                <select
+                  id="typeContent"
+                  name="typeContent"
+                  value={formData.typeContent}
+                  onChange={onChange}
+                >
+                  <option value="">-- Seleccionar tipo --</option>
+                  <option value="Modelo 3D">Modelo 3D</option>
+                  <option value="Textura">Textura</option>
+                  <option value="Material">Material</option>
+                  <option value="Plugin">Plugin</option>
+                  <option value="Blueprint">Blueprint</option>
+                  <option value="Tutorial">Tutorial</option>
+                </select>
               </div>
 
               <div className="form-group">

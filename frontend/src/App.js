@@ -8,7 +8,7 @@ import Inicio from './pages/Inicio'
 import ViewAsset from './pages/ViewAsset'
 import Profile from './pages/Profile'
 import Contact from './pages/Contact'
-import UploadAsset from './pages/UploadAsset' // Importación del nuevo componente
+import UploadAsset from './pages/UploadAsset' 
 import './App.css'
 
 function App() {
