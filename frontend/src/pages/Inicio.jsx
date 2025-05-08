@@ -53,13 +53,7 @@ function Inicio() {
 
   return (
     <div className="home-container">
-      <div className="home-header">
-        {filter === 'all' ? (
-          <h1>Explora los Assets</h1>
-        ) : (
-          <h1>Categoría: {filter}</h1>
-        )}
-      </div>
+
 
       {filteredAssets && filteredAssets.length > 0 ? (
         <div className="assets-grid">
