@@ -62,10 +62,20 @@ function AssetItem({ asset }) {
       </div>
       <div className="asset-info">
         <h3 className="asset-title">{asset.title}</h3>
-        <p className="asset-type">{asset.typeContent}</p>
+        <div className="asset-meta">
+          <span className="asset-type">{asset.typeContent}</span>
+          <span className="asset-category">{asset.category}</span>
+        </div>
         <p className="asset-description">
           {asset.description ? `${asset.description.substring(0, 100)}...` : 'Sin descripción'}
         </p>
+        {asset.tags && asset.tags.length > 0 && (
+          <div className="asset-tags">
+            {asset.tags.map((tag, index) => (
+              <span key={index} className="asset-tag">{tag}</span>
+            ))}
+          </div>
+        )}
         <Link to={`/assets/${asset._id}`} className="asset-btn">
           Ver Más
         </Link>

@@ -18,6 +18,22 @@ const assetSchema = mongoose.Schema(
       required: [true, 'Please add the type of the content'],
     },
 
+    category: {
+      type: String,
+      required: [true, 'Please add a category'],
+    },
+
+    tags: {
+      type: [String],
+      validate: {
+        validator: function(v) {
+          return v.length <= 5;
+        },
+        message: props => `Tags cannot exceed 5 items!`
+      },
+      default: []
+    },
+
     description: {
       type: String,
       required: [true, 'Please add a description'],

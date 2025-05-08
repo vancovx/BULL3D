@@ -38,12 +38,18 @@ const getAssetById = asyncHandler(async (req, res) => {
 // @route   POST /api/assets
 // @access  Private
 const createAsset = asyncHandler(async (req, res) => {
-  const { title, typeContent, description, date } = req.body;
+  const { title, typeContent, description, date, category, tags } = req.body;
 
   // Validar que los campos requeridos estén presentes
-  if (!title || !typeContent || !description) {
+  if (!title || !typeContent || !description || !category) {
     res.status(400);
     throw new Error('Please provide all required fields');
+  }
+
+  // Validar que no haya más de 5 etiquetas
+  if (tags && tags.length > 5) {
+    res.status(400);
+    throw new Error('Tags cannot exceed 5 items');
   }
 
   // Validar que se han subido todos los archivos necesarios
@@ -89,12 +95,17 @@ const createAsset = asyncHandler(async (req, res) => {
     // Crear un array de URLs de imágenes
     const imagesUrls = imagesResults.map(result => result.directUrl);
 
+    // Procesar las etiquetas si existen
+    const processedTags = tags ? Array.isArray(tags) ? tags : [tags] : [];
+
     // Crear el asset en la base de datos
     const asset = await Asset.create({
       user: req.user.id,
       title,
       typeContent,
       description,
+      category,
+      tags: processedTags,
       coverImageUrl: coverImageResult.directUrl,
       imagesUrl: JSON.stringify(imagesUrls),
       contentUrl: contentResult.directUrl,
@@ -131,7 +142,7 @@ const updateAsset = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to update this asset');
   }
 
-  const { title, typeContent, description, date } = req.body;
+  const { title, typeContent, description, date, category, tags } = req.body;
   const updateData = {};
 
   // Actualizar campos de texto si están presentes
@@ -139,6 +150,17 @@ const updateAsset = asyncHandler(async (req, res) => {
   if (typeContent) updateData.typeContent = typeContent;
   if (description) updateData.description = description;
   if (date) updateData.date = new Date(date);
+  if (category) updateData.category = category;
+  
+  // Procesar las etiquetas si existen
+  if (tags) {
+    const processedTags = Array.isArray(tags) ? tags : [tags];
+    if (processedTags.length > 5) {
+      res.status(400);
+      throw new Error('Tags cannot exceed 5 items');
+    }
+    updateData.tags = processedTags;
+  }
 
   try {
     // Actualizar archivos si se proporcionan nuevos
@@ -243,6 +265,9 @@ const updateAsset = asyncHandler(async (req, res) => {
 // @desc    Delete an asset
 // @route   DELETE /api/assets/:id
 // @access  Private
+// @desc    Delete an asset
+// @route   DELETE /api/assets/:id
+// @access  Private
 const deleteAsset = asyncHandler(async (req, res) => {
   const asset = await Asset.findById(req.params.id);
 
@@ -251,7 +276,6 @@ const deleteAsset = asyncHandler(async (req, res) => {
     throw new Error('Asset not found');
   }
 
-  // Check if the asset belongs to the user
   if (asset.user.toString() !== req.user.id) {
     res.status(403);
     throw new Error('Not authorized to delete this asset');
@@ -260,27 +284,54 @@ const deleteAsset = asyncHandler(async (req, res) => {
   try {
     // Eliminar todos los archivos de Google Drive
     if (asset._googleDriveIds) {
+
       // Si hay una carpeta principal, eliminarla (eliminará todo su contenido)
       if (asset._googleDriveIds.folderId) {
-        await driveService.deleteFile(asset._googleDriveIds.folderId);
+        console.log('Intentando eliminar carpeta con ID:', asset._googleDriveIds.folderId);
+        try {
+          await driveService.deleteFile(asset._googleDriveIds.folderId);
+          console.log('Carpeta eliminada con éxito');
+        } catch (driveError) {
+          console.error('Error al eliminar carpeta de Google Drive:', driveError);
+          
+        }
       } else {
         // Si no hay carpeta pero hay archivos individuales, eliminarlos uno por uno
         const fileIds = [
           asset._googleDriveIds.coverImageId,
           asset._googleDriveIds.contentId,
           ...(asset._googleDriveIds.imagesIds || [])
-        ].filter(Boolean);
-
-        const deletePromises = fileIds.map(id => driveService.deleteFile(id));
-        await Promise.all(deletePromises);
+        ].filter(Boolean); // Filtrar valores nulos/undefined
+        
+        console.log('Intentando eliminar archivos individuales:', fileIds);
+        
+        if (fileIds.length > 0) {
+          const deletePromises = fileIds.map(id => {
+            return new Promise((resolve) => {
+              driveService.deleteFile(id)
+                .then(() => {
+                  console.log(`Archivo ${id} eliminado con éxito`);
+                  resolve();
+                })
+                .catch((err) => {
+                  console.error(`Error al eliminar archivo ${id}:`, err);
+                  resolve(); 
+                });
+            });
+          });
+          
+          await Promise.all(deletePromises);
+        }
       }
+    } else {
+      console.log('No hay IDs de Google Drive para este asset');
     }
 
-    // Eliminar el asset de la base de datos
-    await asset.deleteOne();  // Cambiado de asset.remove() a asset.deleteOne()
+    await Asset.deleteOne({ _id: req.params.id });
 
-    res.status(200).json({ id: req.params.id });
+    res.status(200).json({ id: req.params.id, message: 'Asset eliminado con éxito' });
   } catch (error) {
+    console.error('Error completo al eliminar asset:', error);
     res.status(500);
     throw new Error(`Failed to delete asset: ${error.message}`);
   }
