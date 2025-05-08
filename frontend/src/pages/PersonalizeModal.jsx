@@ -3,10 +3,16 @@ import './PersonalizeModal.css';
 
 function PersonalizeModal({ profile, onClose, onSave }) {
   const [userData, setUserData] = useState({
-    name: profile?.name || 'Oliver Ryan',
-    username: profile?.username || 'oliver1234',
-    description: profile?.description || 'Soy Diseñador Gráfico 3D...',
+    name: profile?.name || '',
+    username: profile?.username || '',
+    description: profile?.description || '',
     highContrast: profile?.highContrast || false
+  });
+
+  const [editableFields, setEditableFields] = useState({
+    name: false,
+    username: false,
+    description: false
   });
 
   const handleChange = (e) => {
@@ -23,7 +29,15 @@ function PersonalizeModal({ profile, onClose, onSave }) {
   };
 
   const handleEditField = (fieldName) => {
-    console.log(`Editing field: ${fieldName}`);
+    setEditableFields({
+      ...editableFields,
+      [fieldName]: !editableFields[fieldName]
+    });
+  };
+
+  // Función para obtener inicial
+  const getInitial = (name) => {
+    return name ? name.charAt(0).toUpperCase() : '?';
   };
 
   return (
@@ -31,6 +45,7 @@ function PersonalizeModal({ profile, onClose, onSave }) {
       <div className="personalize-modal">
         <div className="modal-header">
           <h2>Personalizar</h2>
+          <button className="close-modal-btn" onClick={onClose}>×</button>
         </div>
         
         <div className="bull3d-logo">
@@ -41,12 +56,12 @@ function PersonalizeModal({ profile, onClose, onSave }) {
           <div className="user-profile-section">
             <div className="profile-avatar">
               <div className="profile-initials">
-                {userData.name ? userData.name.charAt(0).toUpperCase() : 'O'}
+                {getInitial(userData.name)}
               </div>
             </div>
             <div className="profile-name-username">
-              <h3>{userData.name}</h3>
-              <p>@{userData.username}</p>
+              <h3>{userData.name || 'Usuario'}</h3>
+              <p>@{userData.username || 'username'}</p>
             </div>
             <button type="button" className="change-photo-btn">
               Cambiar foto
@@ -62,14 +77,15 @@ function PersonalizeModal({ profile, onClose, onSave }) {
                   name="name"
                   value={userData.name}
                   onChange={handleChange}
-                  disabled
+                  disabled={!editableFields.name}
+                  className={editableFields.name ? 'editable' : ''}
                 />
                 <button 
                   type="button" 
-                  className="edit-field-btn"
+                  className={`edit-field-btn ${editableFields.name ? 'active' : ''}`}
                   onClick={() => handleEditField('name')}
                 >
-                  Editar
+                  {editableFields.name ? 'Listo' : 'Editar'}
                 </button>
               </div>
             </div>
@@ -82,14 +98,15 @@ function PersonalizeModal({ profile, onClose, onSave }) {
                   name="username"
                   value={userData.username}
                   onChange={handleChange}
-                  disabled
+                  disabled={!editableFields.username}
+                  className={editableFields.username ? 'editable' : ''}
                 />
                 <button 
                   type="button" 
-                  className="edit-field-btn"
+                  className={`edit-field-btn ${editableFields.username ? 'active' : ''}`}
                   onClick={() => handleEditField('username')}
                 >
-                  Editar
+                  {editableFields.username ? 'Listo' : 'Editar'}
                 </button>
               </div>
             </div>
@@ -102,14 +119,15 @@ function PersonalizeModal({ profile, onClose, onSave }) {
                   name="description"
                   value={userData.description}
                   onChange={handleChange}
-                  disabled
+                  disabled={!editableFields.description}
+                  className={editableFields.description ? 'editable' : ''}
                 />
                 <button 
                   type="button" 
-                  className="edit-field-btn"
+                  className={`edit-field-btn ${editableFields.description ? 'active' : ''}`}
                   onClick={() => handleEditField('description')}
                 >
-                  Editar
+                  {editableFields.description ? 'Listo' : 'Editar'}
                 </button>
               </div>
             </div>
@@ -131,9 +149,14 @@ function PersonalizeModal({ profile, onClose, onSave }) {
             </div>
           </div>
 
-          <button type="submit" className="save-changes-btn">
-            Guardar Cambios
-          </button>
+          <div className="modal-actions">
+            <button type="button" className="cancel-btn" onClick={onClose}>
+              Cancelar
+            </button>
+            <button type="submit" className="save-changes-btn">
+              Guardar Cambios
+            </button>
+          </div>
         </form>
       </div>
     </div>

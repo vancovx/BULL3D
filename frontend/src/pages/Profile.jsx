@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { FaUser, FaEdit, FaCheck, FaTimes } from 'react-icons/fa'
+import { FaUser, FaEdit, FaCheck, FaTimes, FaSignOutAlt } from 'react-icons/fa'
 import { getMe, updateUser, reset } from '../features/users/userSlice'
+import { logout, reset as authReset } from '../features/auth/authSlice'
+import { getUserAssets } from '../features/assets/assetSlice'
 import Spinner from '../components/Spinner'
 import PersonalizeModal from './PersonalizeModal'
 import './Profile.css'
@@ -16,6 +18,9 @@ function Profile() {
   const { profile, isLoading, isError, isSuccess, message } = useSelector(
     (state) => state.user
   )
+  const { userAssets, isLoading: assetsLoading } = useSelector(
+    (state) => state.assets
+  )
 
   const [isEditing, setIsEditing] = useState(false)
   const [showPersonalizeModal, setShowPersonalizeModal] = useState(false)
@@ -27,21 +32,37 @@ function Profile() {
     description: ''
   })
 
+  // Función para cerrar sesión
+  const onLogout = () => {
+    dispatch(logout())
+    dispatch(authReset())
+    navigate('/')
+  }
+
+  // Cargar datos de usuario cuando se monta el componente
   useEffect(() => {
     if (!user) {
       navigate('/login')
       return
     }
 
+    console.log('Cargando perfil del usuario autenticado')
     dispatch(getMe())
+
+    // Cargar los assets del usuario
+    if (user._id) {
+      dispatch(getUserAssets(user._id))
+    }
 
     return () => {
       dispatch(reset())
     }
   }, [user, navigate, dispatch])
 
+  // Actualizar formulario cuando cambia el perfil
   useEffect(() => {
     if (profile) {
+      console.log('Perfil cargado:', profile)
       setFormData({
         name: profile.name || '',
         username: profile.username || '',
@@ -52,6 +73,7 @@ function Profile() {
     }
   }, [profile])
 
+  // Manejar errores y mensajes de éxito
   useEffect(() => {
     if (isError) {
       toast.error(message)
@@ -60,9 +82,7 @@ function Profile() {
     if (isSuccess && message) {
       toast.success(message)
     }
-
-    dispatch(reset())
-  }, [isError, isSuccess, message, dispatch])
+  }, [isError, isSuccess, message])
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -73,6 +93,7 @@ function Profile() {
 
   const handleEditToggle = () => {
     if (isEditing && profile) {
+      // Revertir cambios si se cancela la edición
       setFormData({
         name: profile.name || '',
         username: profile.username || '',
@@ -107,67 +128,93 @@ function Profile() {
     setShowPersonalizeModal(false)
   }
 
-  if (isLoading || !profile) {
+  // Función de utilidad para obtener iniciales
+  const getInitial = (name) => {
+    return name ? name.charAt(0).toUpperCase() : '?';
+  }
+
+  if (isLoading) {
     return <Spinner />
   }
 
   return (
     <div className="profile-page-container">
-      <div className="profile-banner">
-        <div className="profile-info">
-          <div className="profile-avatar">
-            <div className="profile-initials">
-              {profile.name ? profile.name.charAt(0).toUpperCase() : '?'}
+      {profile && (
+        <>
+          <div className="profile-banner">
+            <div className="profile-info">
+              <div className="profile-avatar">
+                <div className="profile-initials">
+                  {getInitial(profile.name)}
+                </div>
+              </div>
+              <div className="profile-user-info">
+                <h2>{profile.name}</h2>
+                <p className="username">@{profile.username}</p>
+                <div className="profile-stats">
+                  <div className="stat">
+                    <span className="stat-value">10</span> Seguidores
+                  </div>
+                  <div className="stat">
+                    <span className="stat-value">10</span> Siguiendo
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button className="personalize-btn" onClick={openPersonalizeModal}>
+              Personalizar
+            </button>
+          </div>
+
+          <div className="profile-tabs">
+            <button className="tab-btn active">Mis Assets</button>
+            <button className="tab-btn">Descargas</button>
+            <div className="tab-right">
+              <button className="logout-btn" onClick={onLogout}>
+                <FaSignOutAlt /> Cerrar Sesión
+              </button>
             </div>
           </div>
-          <div className="profile-user-info">
-            <h2>{profile.name ?? 'Cargando...'}</h2>
-            <p className="username">@{profile.username ?? '...'}</p>
-            <div className="profile-stats">
-              <div className="stat">
-                <span className="stat-value">10</span> Seguidores
+
+          <div className="assets-grid">
+            {assetsLoading ? (
+              <div className="loading-assets">Cargando assets...</div>
+            ) : userAssets && userAssets.length > 0 ? (
+              userAssets.map(asset => (
+                <div className="asset-card" key={asset._id}>
+                  <div className="asset-img">
+                    <img 
+                      src={asset.coverImageUrl} 
+                      alt={asset.title} 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/placeholder-image.jpg';
+                      }}
+                    />
+                    <button className="remove-btn">×</button>
+                    <button className="download-btn">↓</button>
+                  </div>
+                  <div className="asset-title">{asset.title}</div>
+                </div>
+              ))
+            ) : (
+              <div className="no-assets">
+                <p>No tienes assets publicados</p>
               </div>
-              <div className="stat">
-                <span className="stat-value">10</span> Siguiendo
-              </div>
-            </div>
+            )}
           </div>
-        </div>
-        <button className="personalize-btn" onClick={openPersonalizeModal}>
-          Personalizar
-        </button>
-      </div>
 
-      <div className="profile-tabs">
-        <button className="tab-btn active">Mis Assets</button>
-        <button className="tab-btn">Descargas</button>
-        <div className="tab-right">
-          <button className="logout-btn">Cerrar Sesión</button>
-        </div>
-      </div>
-
-      <div className="assets-grid">
-        {/* Simulación de assets, puedes conectarlos dinámicamente más adelante */}
-        <div className="asset-card">
-          <div className="asset-img">
-            <img src="/toro-blender.jpg" alt="Toro en Blender" />
-            <button className="remove-btn">×</button>
-            <button className="download-btn">↓</button>
-          </div>
-          <div className="asset-title">Toro en Blender</div>
-        </div>
-        {/* Más assets... */}
-      </div>
-
-      {showPersonalizeModal && (
-        <PersonalizeModal 
-          profile={profile} 
-          onClose={closePersonalizeModal} 
-          onSave={(data) => {
-            dispatch(updateUser(data))
-            closePersonalizeModal()
-          }} 
-        />
+          {showPersonalizeModal && (
+            <PersonalizeModal 
+              profile={profile} 
+              onClose={closePersonalizeModal} 
+              onSave={(data) => {
+                dispatch(updateUser(data))
+                closePersonalizeModal()
+              }} 
+            />
+          )}
+        </>
       )}
     </div>
   )

@@ -1,8 +1,8 @@
-import { FaSignInAlt, FaSignOutAlt, FaUser, FaSearch, FaCloudUploadAlt } from 'react-icons/fa'
+import { FaSignInAlt, FaSignOutAlt, FaUser, FaSearch, FaCloudUploadAlt, FaStar } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout, reset } from '../features/auth/authSlice'
-import '../Header.css'
+import './Header.css'
 
 function Header() {
   const navigate = useNavigate()
@@ -28,7 +28,6 @@ function Header() {
         {/* Navegación */}
         <nav className='header-nav'>
           <Link to="/explore" className='nav-link'>Explorar</Link>
-          <Link to="/contact" className='nav-link'>Contactanos</Link>
         </nav>
 
         {/* Barra de búsqueda */}
@@ -43,13 +42,20 @@ function Header() {
         <div className='auth-section'>
         {user ? (
               <>
-                <Link to="/upload" className="btn-upload">
-                  <FaCloudUploadAlt /> Subir
+                <Link to="/upload" className="btn-logout">
+                  Subir 
                 </Link>
+                
+                <button className="icon-button">
+                  <FaStar />
+                </button>
   
-                <Link to="/profile" className="profile-icon" title="Mi Perfil">
-                  <FaUser />
+                <Link to="/profile" className="user-avatar">
+                  <div className="avatar-circle">
+                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
                 </Link>
+                
                 <button className='btn-logout' onClick={onLogout}>
                   <FaSignOutAlt /> Cerrar Sesión
                 </button>

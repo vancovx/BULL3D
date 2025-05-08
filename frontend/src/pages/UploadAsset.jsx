@@ -22,12 +22,14 @@ function UploadAsset() {
   // Estado del formulario
   const [formData, setFormData] = useState({
     title: '',
-    typeContent: '',
     category: '',
-    tags: '',
     description: '',
     date: ''
   })
+  
+  // Estado para etiquetas
+  const [tagInput, setTagInput] = useState('')
+  const [tags, setTags] = useState([])
 
   // Estado para archivos
   const [coverImage, setCoverImage] = useState(null)
@@ -73,6 +75,33 @@ function UploadAsset() {
       ...prevState,
       [e.target.name]: e.target.value,
     }))
+  }
+  
+  // Manejar cambios en el input de etiquetas
+  const handleTagInputChange = (e) => {
+    setTagInput(e.target.value)
+  }
+  
+  // Agregar etiqueta
+  const addTag = () => {
+    const trimmedInput = tagInput.trim()
+    if (trimmedInput && !tags.includes(trimmedInput) && tags.length < 5) {
+      setTags([...tags, trimmedInput])
+      setTagInput('')
+    }
+  }
+  
+  // Manejar key press en el input de etiquetas
+  const handleTagKeyDown = (e) => {
+    if (e.key === 'Tab' || e.key === 'Enter') {
+      e.preventDefault()
+      addTag()
+    }
+  }
+  
+  // Eliminar etiqueta
+  const removeTag = (tagToRemove) => {
+    setTags(tags.filter(tag => tag !== tagToRemove))
   }
 
   // Manejar cambio de imagen de portada
@@ -138,7 +167,7 @@ function UploadAsset() {
     e.preventDefault()
 
     // Validar los campos requeridos
-    if (!formData.title || !formData.typeContent || !formData.description || !formData.category) {
+    if (!formData.title || !formData.description || !formData.category) {
       toast.error('Por favor completa todos los campos requeridos')
       return
     }
@@ -155,6 +184,8 @@ function UploadAsset() {
     // Crear objeto con datos para enviar
     const assetData = {
       ...formData,
+      tags: tags, // Usar el array de etiquetas
+      typeContent: 'Modelo 3D', // Valor por defecto ya que se eliminó el selector
       coverImage,
       images: additionalImages,
       content
@@ -169,96 +200,10 @@ function UploadAsset() {
 
   return (
     <div className="upload-container">
-      <div className="upload-header">
-        <h1><FaCloudUploadAlt /> Subir nuevo Asset</h1>
-        <p>Comparte tus modelos 3D, texturas, y otros recursos con la comunidad</p>
-      </div>
 
       <form onSubmit={onSubmit} className="upload-form">
         <div className="form-grid">
-          {/* Primera columna: Detalles principales */}
-          <div className="form-column">
-            <div className="form-section">
-              <h2>Información Básica</h2>
-              
-              <div className="form-group">
-                <label htmlFor="title">Título <span className="required">*</span></label>
-                <input
-                  type="text"
-                  id="title"
-                  name="title"
-                  value={formData.title}
-                  onChange={onChange}
-                  placeholder="Nombre del asset"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="typeContent">Tipo de contenido <span className="required">*</span></label>
-                <select
-                  id="typeContent"
-                  name="typeContent"
-                  value={formData.typeContent}
-                  onChange={onChange}
-                >
-                  <option value="">-- Seleccionar tipo --</option>
-                  <option value="Modelo 3D">Modelo 3D</option>
-                  <option value="Textura">Textura</option>
-                  <option value="Material">Material</option>
-                  <option value="Plugin">Plugin</option>
-                  <option value="Blueprint">Blueprint</option>
-                  <option value="Tutorial">Tutorial</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="category">Categoría <span className="required">*</span></label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={onChange}
-                >
-                  <option value="">-- Seleccionar categoría --</option>
-                  <option value="Arquitectura">Arquitectura</option>
-                  <option value="Personajes">Personajes</option>
-                  <option value="Vehículos">Vehículos</option>
-                  <option value="Naturaleza">Naturaleza</option>
-                  <option value="Animales">Animales</option>
-                  <option value="Muebles">Muebles</option>
-                  <option value="Sci-Fi">Sci-Fi</option>
-                  <option value="Otros">Otros</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="tags">Etiquetas (máx. 5, separadas por comas)</label>
-                <input
-                  type="text"
-                  id="tags"
-                  name="tags"
-                  value={formData.tags}
-                  onChange={onChange}
-                  placeholder="Ej: blender, pbr, lowpoly, gratuito, gratis"
-                />
-              </div>
-
-              <div className="form-group full-width">
-                <label htmlFor="description">Descripción <span className="required">*</span></label>
-                <textarea
-                  id="description"
-                  name="description"
-                  value={formData.description}
-                  onChange={onChange}
-                  rows="6"
-                  placeholder="Describe tu asset, incluye características, software utilizado, formatos, etc."
-                ></textarea>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Segunda columna: Subida de archivos */}
+          {/* Primera columna: Archivos (movida a la izquierda) */}
           <div className="form-column">
             <div className="form-section">
               <h2>Archivos</h2>
@@ -282,8 +227,8 @@ function UploadAsset() {
                       </button>
                     </div>
                   ) : (
-                    <div className="file-upload-box" onClick={() => document.getElementById('coverImage').click()}>
-                      <FaImage className="upload-icon" />
+                    <div className="file-upload-box cover-upload-box" onClick={() => document.getElementById('coverImage').click()}>
+                      <FaImage className="upload-icon cover-icon" />
                       <p>Haz clic para subir la imagen principal</p>
                       <span className="file-hint">PNG, JPG o WEBP (max 5MB)</span>
                     </div>
@@ -302,10 +247,10 @@ function UploadAsset() {
               <div className="form-group">
                 <label>Imágenes adicionales <span className="required">*</span></label>
                 <div className="file-upload-container">
-                  <div className="file-upload-box" onClick={() => document.getElementById('additionalImages').click()}>
-                    <FaImage className="upload-icon" />
+                  <div className="file-upload-box additional-upload-box" onClick={() => document.getElementById('additionalImages').click()}>
+                    <FaImage className="upload-icon additional-icon" />
                     <p>Haz clic para subir imágenes adicionales</p>
-                    <span className="file-hint">Máximo 10 imágenes (max 5MB cada una)</span>
+                    <span className="file-hint">Máximo 3 imágenes (max 5MB cada una)</span>
                   </div>
                   <input
                     type="file"
@@ -355,10 +300,9 @@ function UploadAsset() {
                       </button>
                     </div>
                   ) : (
-                    <div className="file-upload-box" onClick={() => document.getElementById('content').click()}>
-                      <FaFile className="upload-icon" />
-                      <p>Haz clic para subir el archivo principal</p>
-                      <span className="file-hint">ZIP, RAR, FBX, OBJ, etc. (max 1GB)</span>
+                    <div className="content-upload-button" onClick={() => document.getElementById('content').click()}>
+                      <FaFile className="content-icon" />
+                      <span>Archivo principal</span>
                     </div>
                   )}
                   <input
@@ -367,7 +311,92 @@ function UploadAsset() {
                     onChange={handleContentChange}
                     style={{ display: 'none' }}
                   />
+                  {!content && <span className="file-hint content-hint">ZIP, RAR, FBX, OBJ, etc. (max 1GB)</span>}
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Segunda columna: Detalles principales (movida a la derecha) */}
+          <div className="form-column">
+            <div className="form-section">
+              <h2>Información Básica</h2>
+              
+              <div className="form-group">
+                <label htmlFor="title">Título <span className="required">*</span></label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={onChange}
+                  placeholder="Nombre del asset"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="category">Categoría <span className="required">*</span></label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={onChange}
+                >
+                  <option value="">-- Seleccionar categoría --</option>
+                  <option value="Código">Código</option>
+                  <option value="3D">3D</option>
+                  <option value="2D">2D</option>
+                  <option value="Imágenes">Imágenes</option>
+                  <option value="Sonido y Música">Sonido y Música</option>
+                  <option value="Plugins">Plugins</option>
+
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="tagInput">Etiquetas (máx. 5)</label>
+                <input
+                  type="text"
+                  id="tagInput"
+                  value={tagInput}
+                  onChange={handleTagInputChange}
+                  onKeyDown={handleTagKeyDown}
+                  placeholder="Escribe y presiona Tab o Enter para agregar"
+                  maxLength={20}
+                />
+                {tags.length > 0 && (
+                  <div className="tags-container">
+                    {tags.map((tag, index) => (
+                      <div key={index} className="tag-item">
+                        <span className="tag-text">#{tag}</span>
+                        <button 
+                          type="button" 
+                          className="tag-remove-btn"
+                          onClick={() => removeTag(tag)}
+                        >
+                          <FaTimes />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="tags-hint">
+                  {tags.length < 5 ? 
+                    `Puedes agregar ${5 - tags.length} etiqueta${5 - tags.length !== 1 ? 's' : ''} más` : 
+                    'Has alcanzado el límite de etiquetas'}
+                </div>
+              </div>
+
+              <div className="form-group full-width">
+                <label htmlFor="description">Descripción <span className="required">*</span></label>
+                <textarea
+                  id="description"
+                  name="description"
+                  value={formData.description}
+                  onChange={onChange}
+                  rows="6"
+                  placeholder="Describe tu asset, incluye características, software utilizado, formatos, etc."
+                ></textarea>
               </div>
             </div>
           </div>
