@@ -134,6 +134,30 @@
   .btn-login:hover, .btn-logout:hover {
     background-color: #7440e0;
   }
+
+  /* Actualización del Header.css para agregar el botón de subir asset */
+
+  /* Botón de Subir Asset */
+  .btn-upload {
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    background-color: #28a745; /* Color verde para destacar la acción */
+    color: white;
+    border: none;
+  }
+
+  .btn-upload:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+  }
   
   /* Responsive */
   @media (max-width: 768px) {

@@ -60,7 +60,7 @@ const registerUser = asyncHandler(async (req, res) => {
       res.status(400)
       throw new Error('Invalid user data')
     }
-  })
+})
   
 // @desc    Authenticate a user
 // @route   POST /api/users/login
@@ -75,6 +75,7 @@ const loginUser = asyncHandler(async (req, res) => {
     res.json({
       _id: user.id,
       name: user.name,
+      username: user.username,
       email: user.email,
       token: generateToken(user._id),
     })
@@ -84,13 +85,58 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 })
 
-
-
 // @desc    Get user data
 // @route   GET /api/users/me
 // @access  Private
 const getMe = asyncHandler(async (req, res) => {
   res.status(200).json(req.user)
+})
+
+// @desc    Get public user data by ID
+// @route   GET /api/users/:id
+// @access  Public
+const getUserById = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id).select('-password -email')
+  
+  if (!user) {
+    res.status(404)
+    throw new Error('Usuario no encontrado')
+  }
+  
+  res.status(200).json({
+    _id: user._id,
+    name: user.name,
+    username: user.username,
+    description: user.description,
+    // No incluimos email ni otra info sensible
+  })
+})
+
+// @desc    Update user data
+// @route   PUT /api/users/me
+// @access  Private
+const updateUser = asyncHandler(async (req, res) => {
+  const { name, username, email, numberphone, description } = req.body
+  
+  const updateData = {}
+  if (name) updateData.name = name
+  if (username) updateData.username = username
+  if (email) updateData.email = email
+  if (numberphone !== undefined) updateData.numberphone = numberphone
+  if (description !== undefined) updateData.description = description
+  
+  const updatedUser = await User.findByIdAndUpdate(
+    req.user.id,
+    updateData,
+    { new: true }
+  ).select('-password')
+  
+  if (!updatedUser) {
+    res.status(404)
+    throw new Error('Usuario no encontrado')
+  }
+  
+  res.status(200).json(updatedUser)
 })
 
 // Generate JWT
@@ -104,4 +150,6 @@ module.exports = {
   registerUser,
   loginUser,
   getMe,
+  getUserById,
+  updateUser,
 }

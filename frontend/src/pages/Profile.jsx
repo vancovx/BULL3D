@@ -5,6 +5,7 @@ import { toast } from 'react-toastify'
 import { FaUser, FaEdit, FaCheck, FaTimes } from 'react-icons/fa'
 import { getMe, updateUser, reset } from '../features/users/userSlice'
 import Spinner from '../components/Spinner'
+import PersonalizeModal from './PersonalizeModal'
 import './Profile.css'
 
 function Profile() {
@@ -17,6 +18,7 @@ function Profile() {
   )
 
   const [isEditing, setIsEditing] = useState(false)
+  const [showPersonalizeModal, setShowPersonalizeModal] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -101,154 +103,118 @@ function Profile() {
     setIsEditing(false)
   }
 
+  const openPersonalizeModal = () => {
+    setShowPersonalizeModal(true)
+  }
+
+  const closePersonalizeModal = () => {
+    setShowPersonalizeModal(false)
+  }
+
   if (isLoading) {
     return <Spinner />
   }
 
   return (
-    <div className="profile-container">
-      <div className="profile-header">
-        <h1>
-          <FaUser className="profile-icon" /> Mi Perfil
-        </h1>
-        {!isEditing ? (
-          <button className="edit-btn" onClick={handleEditToggle}>
-            <FaEdit /> Editar Perfil
-          </button>
-        ) : (
-          <div className="edit-controls">
-            <button className="save-btn" onClick={onSubmit}>
-              <FaCheck /> Guardar
-            </button>
-            <button className="cancel-btn" onClick={handleEditToggle}>
-              <FaTimes /> Cancelar
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="profile-content">
-        <div className="profile-image-section">
-          <div className="profile-image">
-            {/* Imagen de perfil con iniciales si no hay imagen */}
+    <div className="profile-page-container">
+      {/*  Banner */}
+      <div className="profile-banner">
+        <div className="profile-info">
+          <div className="profile-avatar">
             <div className="profile-initials">
-              {profile?.name ? profile.name.charAt(0).toUpperCase() : '?'}
+              {profile?.name ? profile.name.charAt(0).toUpperCase() : 'O'}
             </div>
           </div>
-          {isEditing && (
-            <button className="upload-image-btn">
-              Cambiar Imagen
-            </button>
-          )}
+          <div className="profile-user-info">
+            <h2>{profile?.name || 'Oliver Ryan'}</h2>
+            <p className="username">@{profile?.username || 'oliver1234'}</p>
+            <div className="profile-stats">
+              <div className="stat">
+                <span className="stat-value">10</span> Seguidores
+              </div>
+              <div className="stat">
+                <span className="stat-value">10</span> Siguiendo
+              </div>
+            </div>
+          </div>
         </div>
+        <button className="personalize-btn" onClick={openPersonalizeModal}>
+          Personalizar
+        </button>
+      </div>
 
-        <div className="profile-details">
-          <div className="profile-form">
-            <div className="form-group">
-              <label>Nombre</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={onChange}
-                  placeholder="Tu nombre"
-                />
-              ) : (
-                <p className="profile-value">{profile?.name}</p>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label>Nombre de Usuario</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username}
-                  onChange={onChange}
-                  placeholder="Nombre de usuario"
-                />
-              ) : (
-                <p className="profile-value">{profile?.username}</p>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label>Email</label>
-              {isEditing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={onChange}
-                  placeholder="Email"
-                />
-              ) : (
-                <p className="profile-value">{profile?.email}</p>
-              )}
-            </div>
-
-            <div className="form-group">
-              <label>Teléfono</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="numberphone"
-                  value={formData.numberphone || ''}
-                  onChange={onChange}
-                  placeholder="Número de teléfono"
-                />
-              ) : (
-                <p className="profile-value">
-                  {profile?.numberphone ? profile.numberphone : 'No especificado'}
-                </p>
-              )}
-            </div>
-
-            <div className="form-group description-group">
-              <label>Descripción</label>
-              {isEditing ? (
-                <textarea
-                  name="description"
-                  value={formData.description || ''}
-                  onChange={onChange}
-                  placeholder="Cuéntanos sobre ti"
-                  rows="5"
-                />
-              ) : (
-                <p className="profile-value description-value">
-                  {profile?.description ? profile.description : 'No hay descripción disponible.'}
-                </p>
-              )}
-            </div>
-          </div>
+      {/* Profile Tabs */}
+      <div className="profile-tabs">
+        <button className="tab-btn active">Mis Assets</button>
+        <button className="tab-btn">Descargas</button>
+        <div className="tab-right">
+          <button className="logout-btn">Cerrar Sesión</button>
         </div>
       </div>
 
-      <div className="profile-actions">
-        <div className="card user-stats">
-          <h3>Estadísticas de Usuario</h3>
-          <div className="stats-grid">
-            <div className="stat-item">
-              <span className="stat-value">0</span>
-              <span className="stat-label">Assets</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">0</span>
-              <span className="stat-label">Descargas</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">0</span>
-              <span className="stat-label">Favoritos</span>
-            </div>
-            <div className="stat-item">
-              <span className="stat-value">0</span>
-              <span className="stat-label">Comentarios</span>
-            </div>
+      {/* Assets Grid */}
+      <div className="assets-grid">
+        <div className="asset-card">
+          <div className="asset-img">
+            <img src="/toro-blender.jpg" alt="Toro en Blender" />
+            <button className="remove-btn">×</button>
+            <button className="download-btn">↓</button>
           </div>
+          <div className="asset-title">Toro en Blender</div>
+        </div>
+        <div className="asset-card">
+          <div className="asset-img">
+            <img src="/weird-characters.jpg" alt="Some Weirdos" />
+            <button className="remove-btn">×</button>
+            <button className="download-btn">↓</button>
+          </div>
+          <div className="asset-title">Some Weirdos</div>
+        </div>
+        <div className="asset-card">
+          <div className="asset-img">
+            <img src="/back-in-saddle.jpg" alt="Back in the Saddle Again..." />
+            <button className="remove-btn">×</button>
+            <button className="download-btn">↓</button>
+          </div>
+          <div className="asset-title">Back in the Saddle Again...</div>
+        </div>
+        <div className="asset-card">
+          <div className="asset-img">
+            <img src="/winter-girl.jpg" alt="Chica en Invierno" />
+            <button className="remove-btn">×</button>
+            <button className="download-btn">↓</button>
+          </div>
+          <div className="asset-title">Chica en Invierno</div>
+        </div>
+        <div className="asset-card">
+          <div className="asset-img">
+            <img src="/ashen-hunter.jpg" alt="Ashen Hunter" />
+            <button className="remove-btn">×</button>
+            <button className="download-btn">↓</button>
+          </div>
+          <div className="asset-title">Ashen Hunter</div>
+        </div>
+        <div className="asset-card">
+          <div className="asset-img">
+            <img src="/dark-fantasy.jpg" alt="Oriental dark fantasy" />
+            <button className="remove-btn">×</button>
+            <button className="download-btn">↓</button>
+          </div>
+          <div className="asset-title">Oriental dark fantasy</div>
         </div>
       </div>
+
+      {/* Personalize Modal */}
+      {showPersonalizeModal && (
+        <PersonalizeModal 
+          profile={profile} 
+          onClose={closePersonalizeModal} 
+          onSave={(data) => {
+            dispatch(updateUser(data));
+            closePersonalizeModal();
+          }} 
+        />
+      )}
     </div>
   )
 }

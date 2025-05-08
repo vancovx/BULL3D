@@ -1,4 +1,4 @@
-import { FaSignInAlt, FaSignOutAlt, FaUser, FaSearch } from 'react-icons/fa'
+import { FaSignInAlt, FaSignOutAlt, FaUser, FaSearch, FaCloudUploadAlt } from 'react-icons/fa'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSelector, useDispatch } from 'react-redux'
 import { logout, reset } from '../features/auth/authSlice'
@@ -43,6 +43,10 @@ function Header() {
         <div className='auth-section'>
         {user ? (
               <>
+                <Link to="/upload" className="btn-upload">
+                  <FaCloudUploadAlt /> Subir
+                </Link>
+  
                 <Link to="/profile" className="profile-icon" title="Mi Perfil">
                   <FaUser />
                 </Link>

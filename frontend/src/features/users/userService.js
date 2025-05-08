@@ -14,38 +14,28 @@ const getMe = async (token) => {
     return response.data
 }
 
-//GET usuario 
+// GET usuario por ID (público, no requiere autenticación)
 const getUserById = async (userId) => {
-    const user = JSON.parse(localStorage.getItem(userId))
-    const config = {
-        headers: {
-            Authorization: `Bearer ${user.token}`
-        },
-    }
-
-    const response = await axios.get(`${API_URL}${userId}`, config)
-
+    const response = await axios.get(`${API_URL}${userId}`)
     return response.data
 }
 
-//PUT usuario
-const putUser = async (userId) => {
-    const user = JSON.parse(localStorage.getItem('user')) 
+// Actualizar información del usuario
+const updateUser = async (userData, token) => {
     const config = {
         headers: {
-            Authorization: `Bearer ${user.token}`
+            Authorization: `Bearer ${token}`
         },
     }
 
-    const response = await axios.put(`${API_URL}${userId}`, config)
-
+    const response = await axios.put(API_URL + 'me', userData, config)
     return response.data
 }
 
 const userService = {
     getMe,
     getUserById,
-    putUser
+    updateUser
 }
 
 export default userService

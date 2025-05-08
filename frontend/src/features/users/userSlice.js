@@ -3,7 +3,7 @@ import userService from './userService'
 
 const initialState = {
   profile: null,
-  profiles: [],
+  userProfiles: {}, // Para almacenar perfiles de usuarios por ID
   isError: false,
   isSuccess: false,
   isLoading: false,
@@ -29,13 +29,12 @@ export const getMe = createAsyncThunk(
   }
 )
 
-// Get user profile by ID
+// Get user profile by ID (public)
 export const getUserById = createAsyncThunk(
-  'users/getProfile',
+  'users/getUserById',
   async (userId, thunkAPI) => {
     try {
-      const token = thunkAPI.getState().auth.user.token
-      return await userService.getUserById(userId, token)
+      return await userService.getUserById(userId)
     } catch (error) {
       const message =
         (error.response &&
@@ -50,7 +49,7 @@ export const getUserById = createAsyncThunk(
 
 // Update user profile
 export const updateUser = createAsyncThunk(
-  'users/updateProfile',
+  'users/updateUser',
   async (userData, thunkAPI) => {
     try {
       const token = thunkAPI.getState().auth.user.token
@@ -101,7 +100,10 @@ export const userSlice = createSlice({
       .addCase(getUserById.fulfilled, (state, action) => {
         state.isLoading = false
         state.isSuccess = true
-        state.profile = action.payload
+        // Almacenar el perfil del usuario en el objeto userProfiles usando su ID como clave
+        if (action.payload && action.payload._id) {
+          state.userProfiles[action.payload._id] = action.payload
+        }
       })
       .addCase(getUserById.rejected, (state, action) => {
         state.isLoading = false
@@ -116,6 +118,10 @@ export const userSlice = createSlice({
         state.isLoading = false
         state.isSuccess = true
         state.profile = action.payload
+        // También actualizar en userProfiles si existe
+        if (action.payload && action.payload._id) {
+          state.userProfiles[action.payload._id] = action.payload
+        }
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false
