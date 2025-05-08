@@ -9,11 +9,6 @@ function Header() {
   const dispatch = useDispatch()
   const { user } = useSelector((state) => state.auth)
 
-  const onLogout = () => {
-    dispatch(logout())
-    dispatch(reset())
-    navigate('/')
-  }
 
   return (
     <header className='main-header'>
@@ -50,15 +45,10 @@ function Header() {
                   <FaStar />
                 </button>
   
-                <Link to="/profile" className="user-avatar">
-                  <div className="avatar-circle">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
-                  </div>
+                <Link to="/profile" className="icon-button">
+                  <FaUser />
                 </Link>
-                
-                <button className='btn-logout' onClick={onLogout}>
-                  <FaSignOutAlt /> Cerrar Sesión
-                </button>
+              
               </>
             ) : (
               <>

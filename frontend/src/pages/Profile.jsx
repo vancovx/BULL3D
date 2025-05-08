@@ -1,36 +1,42 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { FaUser, FaEdit, FaCheck, FaTimes, FaSignOutAlt } from 'react-icons/fa'
-import { getMe, updateUser, reset } from '../features/users/userSlice'
+import { FaSignOutAlt } from 'react-icons/fa'
+import { getMe, updateUser } from '../features/users/userSlice'
 import { logout, reset as authReset } from '../features/auth/authSlice'
 import { getUserAssets } from '../features/assets/assetSlice'
 import Spinner from '../components/Spinner'
 import PersonalizeModal from './PersonalizeModal'
+import { useState } from 'react'
 import './Profile.css'
 
 function Profile() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
-
-  const { user } = useSelector((state) => state.auth)
-  const { profile, isLoading, isError, isSuccess, message } = useSelector(
-    (state) => state.user
-  )
-  const { userAssets, isLoading: assetsLoading } = useSelector(
-    (state) => state.assets
-  )
-
-  const [isEditing, setIsEditing] = useState(false)
   const [showPersonalizeModal, setShowPersonalizeModal] = useState(false)
-  const [formData, setFormData] = useState({
-    name: '',
-    username: '',
-    email: '',
-    numberphone: '',
-    description: ''
-  })
+
+  // Obtenemos el usuario autenticado y el perfil del estado
+  const { user } = useSelector((state) => state.auth)
+  const { profile, isLoading } = useSelector((state) => state.user)
+  const { userAssets, isLoading: assetsLoading } = useSelector((state) => state.assets)
+
+  // Este useEffect se ejecuta al cargar el componente
+  useEffect(() => {
+    // Si no hay usuario autenticado, redirigir al login
+    if (!user) {
+      navigate('/login')
+      return
+    }
+
+    // Cargar el perfil del usuario actual
+    dispatch(getMe())
+
+    // Cargar los assets del usuario si tenemos su ID
+    if (user._id) {
+      dispatch(getUserAssets(user._id))
+    }
+  }, []) // Se ejecuta solo al montar el componente
 
   // Función para cerrar sesión
   const onLogout = () => {
@@ -39,100 +45,14 @@ function Profile() {
     navigate('/')
   }
 
-  // Cargar datos de usuario cuando se monta el componente
-  useEffect(() => {
-    if (!user) {
-      navigate('/login')
-      return
-    }
+  // Funciones para manejar el modal
+  const openPersonalizeModal = () => setShowPersonalizeModal(true)
+  const closePersonalizeModal = () => setShowPersonalizeModal(false)
 
-    console.log('Cargando perfil del usuario autenticado')
-    dispatch(getMe())
+  // Función para obtener la inicial del nombre
+  const getInitial = (name) => name ? name.charAt(0).toUpperCase() : '?'
 
-    // Cargar los assets del usuario
-    if (user._id) {
-      dispatch(getUserAssets(user._id))
-    }
-
-    return () => {
-      dispatch(reset())
-    }
-  }, [user, navigate, dispatch])
-
-  // Actualizar formulario cuando cambia el perfil
-  useEffect(() => {
-    if (profile) {
-      console.log('Perfil cargado:', profile)
-      setFormData({
-        name: profile.name || '',
-        username: profile.username || '',
-        email: profile.email || '',
-        numberphone: profile.numberphone || '',
-        description: profile.description || ''
-      })
-    }
-  }, [profile])
-
-  // Manejar errores y mensajes de éxito
-  useEffect(() => {
-    if (isError) {
-      toast.error(message)
-    }
-
-    if (isSuccess && message) {
-      toast.success(message)
-    }
-  }, [isError, isSuccess, message])
-
-  const onChange = (e) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }))
-  }
-
-  const handleEditToggle = () => {
-    if (isEditing && profile) {
-      // Revertir cambios si se cancela la edición
-      setFormData({
-        name: profile.name || '',
-        username: profile.username || '',
-        email: profile.email || '',
-        numberphone: profile.numberphone || '',
-        description: profile.description || ''
-      })
-    }
-    setIsEditing(!isEditing)
-  }
-
-  const onSubmit = async (e) => {
-    e.preventDefault()
-
-    const userData = {
-      name: formData.name,
-      username: formData.username,
-      email: formData.email,
-      numberphone: formData.numberphone || null,
-      description: formData.description || ''
-    }
-
-    dispatch(updateUser(userData))
-    setIsEditing(false)
-  }
-
-  const openPersonalizeModal = () => {
-    setShowPersonalizeModal(true)
-  }
-
-  const closePersonalizeModal = () => {
-    setShowPersonalizeModal(false)
-  }
-
-  // Función de utilidad para obtener iniciales
-  const getInitial = (name) => {
-    return name ? name.charAt(0).toUpperCase() : '?';
-  }
-
+  // Mostrar spinner mientras carga
   if (isLoading) {
     return <Spinner />
   }

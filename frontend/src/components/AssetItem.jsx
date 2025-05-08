@@ -65,13 +65,6 @@ function AssetItem({ asset }) {
         <div className="asset-meta">
           <span className="asset-category">{asset.category}</span>
         </div>
-        {asset.tags && asset.tags.length > 0 && (
-          <div className="asset-tags">
-            {asset.tags.map((tag, index) => (
-              <span key={index} className="asset-tag">{tag}</span>
-            ))}
-          </div>
-        )}
         <Link to={`/assets/${asset._id}`} className="asset-btn">
           Ver Más
         </Link>
