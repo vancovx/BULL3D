@@ -20,7 +20,7 @@ function Inicio() {
       console.log(message)
     }
 
-    // Fetch assets regardless of authentication status
+    
     dispatch(getAssets())
 
     return () => {
@@ -53,8 +53,6 @@ function Inicio() {
 
   return (
     <div className="home-container">
-
-
       {filteredAssets && filteredAssets.length > 0 ? (
         <div className="assets-grid">
           {filteredAssets.map((asset) => (
