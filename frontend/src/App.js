@@ -7,6 +7,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Inicio from './pages/Inicio'
 import ViewAsset from './pages/ViewAsset'
+import Profile from './pages/Profile'
+import Contact from './pages/Contact'
 import './App.css'
 
 function App() {
@@ -21,6 +23,9 @@ function App() {
             <Route path='/assets/:id' element={<ViewAsset />} />
             <Route path='/login' element={<Login />} />
             <Route path='/register' element={<Register />} />
+            <Route path='/profile' element={<Profile />} />
+            <Route path='/contact' element={<Contact />} />
+            <Route path='/explore' element={<Inicio />} />
           </Routes>
         </div>
       </Router>

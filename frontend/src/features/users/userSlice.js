@@ -10,12 +10,32 @@ const initialState = {
   message: '',
 }
 
-// Get user profile
-export const getUserById= createAsyncThunk(
+// Get current user profile
+export const getMe = createAsyncThunk(
+  'users/getMe',
+  async (_, thunkAPI) => {
+    try {
+      const token = thunkAPI.getState().auth.user.token
+      return await userService.getMe(token)
+    } catch (error) {
+      const message =
+        (error.response &&
+          error.response.data &&
+          error.response.data.message) ||
+        error.message ||
+        error.toString()
+      return thunkAPI.rejectWithValue(message)
+    }
+  }
+)
+
+// Get user profile by ID
+export const getUserById = createAsyncThunk(
   'users/getProfile',
   async (userId, thunkAPI) => {
     try {
-      return await userService.getUserById(userId)
+      const token = thunkAPI.getState().auth.user.token
+      return await userService.getUserById(userId, token)
     } catch (error) {
       const message =
         (error.response &&
@@ -29,11 +49,12 @@ export const getUserById= createAsyncThunk(
 )
 
 // Update user profile
-export const putUser = createAsyncThunk(
+export const updateUser = createAsyncThunk(
   'users/updateProfile',
   async (userData, thunkAPI) => {
     try {
-      return await userService.putUser(userData)
+      const token = thunkAPI.getState().auth.user.token
+      return await userService.updateUser(userData, token)
     } catch (error) {
       const message =
         (error.response &&
@@ -59,6 +80,21 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Para getMe
+      .addCase(getMe.pending, (state) => {
+        state.isLoading = true
+      })
+      .addCase(getMe.fulfilled, (state, action) => {
+        state.isLoading = false
+        state.isSuccess = true
+        state.profile = action.payload
+      })
+      .addCase(getMe.rejected, (state, action) => {
+        state.isLoading = false
+        state.isError = true
+        state.message = action.payload
+      })
+      // Para getUserById
       .addCase(getUserById.pending, (state) => {
         state.isLoading = true
       })
@@ -72,15 +108,16 @@ export const userSlice = createSlice({
         state.isError = true
         state.message = action.payload
       })
-      .addCase(putUser.pending, (state) => {
+      // Para updateUser
+      .addCase(updateUser.pending, (state) => {
         state.isLoading = true
       })
-      .addCase(putUser.fulfilled, (state, action) => {
+      .addCase(updateUser.fulfilled, (state, action) => {
         state.isLoading = false
         state.isSuccess = true
         state.profile = action.payload
       })
-      .addCase(putUser.rejected, (state, action) => {
+      .addCase(updateUser.rejected, (state, action) => {
         state.isLoading = false
         state.isError = true
         state.message = action.payload

@@ -2,6 +2,18 @@ import axios from 'axios'
 
 const API_URL = '/api/users/'
 
+// Obtener datos del perfil del usuario autenticado
+const getMe = async (token) => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`
+      },
+    }
+  
+    const response = await axios.get(API_URL + 'me', config)
+    return response.data
+}
+
 //GET usuario 
 const getUserById = async (userId) => {
     const user = JSON.parse(localStorage.getItem(userId))
@@ -31,8 +43,9 @@ const putUser = async (userId) => {
 }
 
 const userService = {
+    getMe,
     getUserById,
-    putUsuario
+    putUser
 }
 
 export default userService
