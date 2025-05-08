@@ -27,7 +27,6 @@ function Profile() {
     description: ''
   })
 
-  // Cargar el perfil cuando se monte el componente
   useEffect(() => {
     if (!user) {
       navigate('/login')
@@ -41,7 +40,6 @@ function Profile() {
     }
   }, [user, navigate, dispatch])
 
-  // Actualizar el formulario cuando se cargue el perfil
   useEffect(() => {
     if (profile) {
       setFormData({
@@ -54,7 +52,6 @@ function Profile() {
     }
   }, [profile])
 
-  // Manejar errores y éxito
   useEffect(() => {
     if (isError) {
       toast.error(message)
@@ -75,8 +72,7 @@ function Profile() {
   }
 
   const handleEditToggle = () => {
-    if (isEditing) {
-      // Si estamos cancelando la edición, restauramos los datos originales
+    if (isEditing && profile) {
       setFormData({
         name: profile.name || '',
         username: profile.username || '',
@@ -111,23 +107,22 @@ function Profile() {
     setShowPersonalizeModal(false)
   }
 
-  if (isLoading) {
+  if (isLoading || !profile) {
     return <Spinner />
   }
 
   return (
     <div className="profile-page-container">
-      {/*  Banner */}
       <div className="profile-banner">
         <div className="profile-info">
           <div className="profile-avatar">
             <div className="profile-initials">
-              {profile?.name ? profile.name.charAt(0).toUpperCase() : 'O'}
+              {profile.name ? profile.name.charAt(0).toUpperCase() : '?'}
             </div>
           </div>
           <div className="profile-user-info">
-            <h2>{profile?.name || 'Oliver Ryan'}</h2>
-            <p className="username">@{profile?.username || 'oliver1234'}</p>
+            <h2>{profile.name ?? 'Cargando...'}</h2>
+            <p className="username">@{profile.username ?? '...'}</p>
             <div className="profile-stats">
               <div className="stat">
                 <span className="stat-value">10</span> Seguidores
@@ -143,7 +138,6 @@ function Profile() {
         </button>
       </div>
 
-      {/* Profile Tabs */}
       <div className="profile-tabs">
         <button className="tab-btn active">Mis Assets</button>
         <button className="tab-btn">Descargas</button>
@@ -152,8 +146,8 @@ function Profile() {
         </div>
       </div>
 
-      {/* Assets Grid */}
       <div className="assets-grid">
+        {/* Simulación de assets, puedes conectarlos dinámicamente más adelante */}
         <div className="asset-card">
           <div className="asset-img">
             <img src="/toro-blender.jpg" alt="Toro en Blender" />
@@ -162,56 +156,16 @@ function Profile() {
           </div>
           <div className="asset-title">Toro en Blender</div>
         </div>
-        <div className="asset-card">
-          <div className="asset-img">
-            <img src="/weird-characters.jpg" alt="Some Weirdos" />
-            <button className="remove-btn">×</button>
-            <button className="download-btn">↓</button>
-          </div>
-          <div className="asset-title">Some Weirdos</div>
-        </div>
-        <div className="asset-card">
-          <div className="asset-img">
-            <img src="/back-in-saddle.jpg" alt="Back in the Saddle Again..." />
-            <button className="remove-btn">×</button>
-            <button className="download-btn">↓</button>
-          </div>
-          <div className="asset-title">Back in the Saddle Again...</div>
-        </div>
-        <div className="asset-card">
-          <div className="asset-img">
-            <img src="/winter-girl.jpg" alt="Chica en Invierno" />
-            <button className="remove-btn">×</button>
-            <button className="download-btn">↓</button>
-          </div>
-          <div className="asset-title">Chica en Invierno</div>
-        </div>
-        <div className="asset-card">
-          <div className="asset-img">
-            <img src="/ashen-hunter.jpg" alt="Ashen Hunter" />
-            <button className="remove-btn">×</button>
-            <button className="download-btn">↓</button>
-          </div>
-          <div className="asset-title">Ashen Hunter</div>
-        </div>
-        <div className="asset-card">
-          <div className="asset-img">
-            <img src="/dark-fantasy.jpg" alt="Oriental dark fantasy" />
-            <button className="remove-btn">×</button>
-            <button className="download-btn">↓</button>
-          </div>
-          <div className="asset-title">Oriental dark fantasy</div>
-        </div>
+        {/* Más assets... */}
       </div>
 
-      {/* Personalize Modal */}
       {showPersonalizeModal && (
         <PersonalizeModal 
           profile={profile} 
           onClose={closePersonalizeModal} 
           onSave={(data) => {
-            dispatch(updateUser(data));
-            closePersonalizeModal();
+            dispatch(updateUser(data))
+            closePersonalizeModal()
           }} 
         />
       )}

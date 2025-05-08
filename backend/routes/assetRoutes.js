@@ -11,13 +11,12 @@ const {
 const { protect } = require('../middleware/authMiddleware');
 const { uploadMiddleware } = require('../middleware/googleDriveMiddleware');
 
-// Public routes (no authentication required)
+// Public routes 
 router.get('/', getAssets);
 router.get('/user/:userId', getUserAssets);
 router.get('/:id', getAssetById);
 
-// Protected routes (authentication required)
-// En assetRoutes.js, modifica la ruta POST para procesar los tags
+// Protected routes 
 router.post(
   '/', 
   protect,
@@ -26,7 +25,7 @@ router.post(
     { name: 'images', maxCount: 10 },
     { name: 'content', maxCount: 1 }
   ]),
-  // Middleware para procesar tags desde un string separado por comas
+  // Procesar tags desde un string separado por comas
   (req, res, next) => {
     if (req.body.tags && typeof req.body.tags === 'string') {
       // Dividir el string de tags por comas, eliminar espacios en blanco y filtrar valores vacíos
@@ -54,7 +53,8 @@ router.put(
     { name: 'images', maxCount: 10 },
     { name: 'content', maxCount: 1 }
   ]),
-  // Middleware para procesar tags
+
+  // Procesar tags
   (req, res, next) => {
     if (req.body.tags && typeof req.body.tags === 'string') {
       req.body.tags = req.body.tags

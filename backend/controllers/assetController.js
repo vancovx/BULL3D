@@ -38,10 +38,10 @@ const getAssetById = asyncHandler(async (req, res) => {
 // @route   POST /api/assets
 // @access  Private
 const createAsset = asyncHandler(async (req, res) => {
-  const { title, typeContent, description, date, category, tags } = req.body;
+  const { title, description, date, category, tags } = req.body;
 
   // Validar que los campos requeridos estén presentes
-  if (!title || !typeContent || !description || !category) {
+  if (!title  || !description || !category) {
     res.status(400);
     throw new Error('Please provide all required fields');
   }
@@ -102,7 +102,6 @@ const createAsset = asyncHandler(async (req, res) => {
     const asset = await Asset.create({
       user: req.user.id,
       title,
-      typeContent,
       description,
       category,
       tags: processedTags,
@@ -142,12 +141,11 @@ const updateAsset = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to update this asset');
   }
 
-  const { title, typeContent, description, date, category, tags } = req.body;
+  const { title, description, date, category, tags } = req.body;
   const updateData = {};
 
   // Actualizar campos de texto si están presentes
   if (title) updateData.title = title;
-  if (typeContent) updateData.typeContent = typeContent;
   if (description) updateData.description = description;
   if (date) updateData.date = new Date(date);
   if (category) updateData.category = category;

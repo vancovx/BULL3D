@@ -13,10 +13,10 @@ const assetSchema = mongoose.Schema(
       required: [true, 'Please add a title for the asset'],
     },
 
-    typeContent: {
-      type: String,
-      required: [true, 'Please add the type of the content'],
-    },
+    // typeContent: {
+    //   type: String,
+    //   required: [true, 'Please add the type of the content'],
+    // },
 
     category: {
       type: String,
