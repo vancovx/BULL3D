@@ -16,6 +16,9 @@ function UploadAsset() {
     (state) => state.assets
   )
 
+  // Seguimiento de si el formulario se ha enviado
+  const [formSubmitted, setFormSubmitted] = useState(false)
+
   // Estado del formulario
   const [formData, setFormData] = useState({
     title: '',
@@ -36,10 +39,16 @@ function UploadAsset() {
 
   // Comprobar si el usuario ha iniciado sesión y resetear estado al montar
   useEffect(() => {
+    // Resetear el estado al cargar el componente
     dispatch(reset())
     
     if (!user) {
       navigate('/login')
+    }
+    
+    // Limpiar al desmontar
+    return () => {
+      dispatch(reset())
     }
   }, [user, navigate, dispatch])
 
@@ -47,19 +56,16 @@ function UploadAsset() {
   useEffect(() => {
     if (isError) {
       toast.error(message)
+      // Resetear el estado de envío del formulario
+      setFormSubmitted(false)
     }
 
     // Solo mostrar mensaje de éxito y redirigir si realmente se ha enviado el formulario
-    if (isSuccess) {
+    if (isSuccess && formSubmitted) {
       toast.success('Asset subido correctamente')
       navigate('/')
     }
-
-    // Limpiar al desmontar
-    return () => {
-      dispatch(reset())
-    }
-  }, [isSuccess, isError, message, navigate, dispatch])
+  }, [isSuccess, isError, message, navigate, dispatch, formSubmitted])
 
   // Manejar cambios en los campos de texto
   const onChange = (e) => {
@@ -143,6 +149,9 @@ function UploadAsset() {
       return
     }
 
+    // Marcar el formulario como enviado
+    setFormSubmitted(true)
+
     // Crear objeto con datos para enviar
     const assetData = {
       ...formData,
@@ -161,6 +170,7 @@ function UploadAsset() {
   return (
     <div className="upload-container">
       <div className="upload-header">
+        <h1><FaCloudUploadAlt /> Subir nuevo Asset</h1>
         <p>Comparte tus modelos 3D, texturas, y otros recursos con la comunidad</p>
       </div>
 

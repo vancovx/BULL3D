@@ -191,10 +191,11 @@ export const assetSlice = createSlice({
             // Para createAsset
             .addCase(createAsset.pending, (state) => {
                 state.isLoading = true
+                state.isSuccess = false // Resetear isSuccess al empezar
             })
             .addCase(createAsset.fulfilled, (state, action) => {
                 state.isLoading = false
-                state.isSuccess = true
+                state.isSuccess = true // CORREGIDO: Debe ser true cuando se completa exitosamente
                 state.assets.push(action.payload)
             })
             .addCase(createAsset.rejected, (state, action) => {

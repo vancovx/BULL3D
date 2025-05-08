@@ -9,7 +9,7 @@ function Footer() {
       <div className="footer-content">
         <div className="footer-left">
           <Link to="/" className="footer-logo">
-            <img src="/Logo_Toro.png" alt="BULL3D Logo" className="footer-logo-img" />
+            <img src="/Letras_logo.png" alt="BULL3D Logo" className="footer-logo-img" />
           </Link>
           <div className="footer-social">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon">

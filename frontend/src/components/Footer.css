@@ -35,14 +35,21 @@
   }
   
   .social-icon {
-    color: #8c52ff;
-    font-size: 1.5rem;
-    transition: color 0.2s, transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #8c52ff;
+    color: white;
+    font-size: 1.2rem;
+    transition: background-color 0.2s, transform 0.2s;
   }
   
   .social-icon:hover {
-    color: #b277ff;
-    transform: scale(1.1);
+    background-color: #b277ff;
+    transform: scale(1.05);
   }
   
   .footer-right {

@@ -2,13 +2,15 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Header from './components/Header'
+import Footer from './components/Footer'
+import Dashboard from './pages/Dashboard'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Inicio from './pages/Inicio'
 import ViewAsset from './pages/ViewAsset'
 import Profile from './pages/Profile'
 import Contact from './pages/Contact'
-import UploadAsset from './pages/UploadAsset' 
+import UploadAsset from './pages/UploadAsset'
 import './App.css'
 
 function App() {
@@ -26,9 +28,10 @@ function App() {
             <Route path='/profile' element={<Profile />} />
             <Route path='/contact' element={<Contact />} />
             <Route path='/explore' element={<Inicio />} />
-            <Route path='/upload' element={<UploadAsset />} /> 
+            <Route path='/upload' element={<UploadAsset/>} />
           </Routes>
         </div>
+        <Footer />
       </Router>
       <ToastContainer />
     </>
