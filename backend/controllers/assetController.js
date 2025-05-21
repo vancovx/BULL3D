@@ -336,6 +336,28 @@ const deleteAsset = asyncHandler(async (req, res) => {
 });
 
 
+const searchAssets = asyncHandler(async (req, res) => {
+  const query = req.query.q;
+  
+  if (!query) {
+    res.status(400);
+    throw new Error('Please provide a search query');
+  }
+  
+  // Crear una consulta de búsqueda que busque en título, categoría y etiquetas
+  const searchQuery = {
+    $or: [
+      { title: { $regex: query, $options: 'i' } },
+      { category: { $regex: query, $options: 'i' } },
+      { tags: { $in: [new RegExp(query, 'i')] } }
+    ]
+  };
+  
+  const assets = await Asset.find(searchQuery);
+  res.status(200).json(assets);
+});
+
+
 
 module.exports = {
   getAssets,
@@ -344,4 +366,5 @@ module.exports = {
   createAsset,
   updateAsset,
   deleteAsset,
+  searchAssets
 };

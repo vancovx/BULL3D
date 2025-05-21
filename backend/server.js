@@ -22,6 +22,7 @@ app.use('/api/assets', require('./routes/assetRoutes'))
 app.use('/api/proxy', require('./routes/proxyRoutes')) 
 app.use('/api/assets/:assetId/comments', require('./routes/commentRoutes'));
 app.use('/api/comments', require('./routes/commentRoutes'));
+app.use('/api/favorites', require('./routes/favoriteRoutes'));
 
 // Serve frontend
 if (process.env.NODE_ENV === 'production') {

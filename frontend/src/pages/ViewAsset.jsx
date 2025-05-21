@@ -8,6 +8,7 @@ import { toast } from 'react-toastify'
 import { FaArrowLeft, FaSearch, FaStar, FaDownload, FaUser, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
 import Spinner from '../components/Spinner'
 import './ViewAsset.css'
+import Comments from '../components/Comments'
 
 function ViewAsset() {
   const { id } = useParams()
@@ -188,7 +189,7 @@ const handleDownload = () => {
         // Intentar obtener el ID del patrón /d/ o /file/d/
         if (!fileId) {
           const pathId = asset.contentUrl.match(/\/d\/([^\/\?]+)/) || 
-                         asset.contentUrl.match(/\/file\/d\/([^\/\?]+)/);
+                       asset.contentUrl.match(/\/file\/d\/([^\/\?]+)/);
           if (pathId && pathId[1]) {
             fileId = pathId[1];
           }
@@ -200,30 +201,31 @@ const handleDownload = () => {
         return;
       }
       
-      // Obtener nombre de archivo para la descarga basado en el título del asset
-      const fileName = asset.title 
-        ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
-        : 'asset_content';
+      // Crear un nombre de archivo sanitizado usando el título del asset
+      const sanitizedFileName = asset.title 
+        ? asset.title.replace(/[^a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s]/g, '_').trim()
+        : 'asset_download';
       
-      // Construir la URL de descarga utilizando nuestro endpoint de descarga
-      const downloadUrl = `/api/proxy/download/${fileId}?name=${encodeURIComponent(fileName)}`;
+      // Construir la URL de descarga completa
+      const downloadUrl = `/api/proxy/download/${fileId}?name=${encodeURIComponent(sanitizedFileName)}`;
       
-      // Crear un elemento <a> temporal para la descarga
+      // Mostrar toast de inicio de descarga
+      toast.info('Iniciando descarga...');
+      
+      // Crear un enlace temporal y hacer clic en él para iniciar la descarga
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.setAttribute('download', ''); // El atributo download vacío indica que se debe descargar el archivo
+      link.setAttribute('download', ''); // Usar nombre de archivo definido por el servidor
       link.style.display = 'none';
-      
-      // Añadir al DOM, hacer clic y eliminar
       document.body.appendChild(link);
       link.click();
       
-      // Pequeño retraso antes de eliminar el elemento para asegurar que el navegador inicie la descarga
+      // Eliminar el enlace después de un breve retardo
       setTimeout(() => {
         document.body.removeChild(link);
-      }, 100);
+        toast.success('Descarga completada');
+      }, 1000);
       
-      toast.success('Descarga iniciada');
     } catch (error) {
       console.error('Error al iniciar la descarga:', error);
       toast.error('Error al iniciar la descarga');
@@ -357,6 +359,11 @@ const handleDownload = () => {
             {formattedDate && <span className="asset-date">{formattedDate}</span>}
           </div>
         </div>
+      </div>
+      
+      {/* Sección de comentarios */}
+      <div className="comments-container">
+        <Comments assetId={id} />
       </div>
     </>
   )

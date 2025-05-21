@@ -10,6 +10,7 @@ import ViewAsset from './pages/ViewAsset'
 import Profile from './pages/Profile'
 import Contact from './pages/Contact'
 import UploadAsset from './pages/UploadAsset'
+import Favorites from './pages/Favorites'
 import ExplorarCategoria from './pages/ExplorarCategoria'
 import './App.css'
 
@@ -29,6 +30,7 @@ function App() {
             <Route path='/contact' element={<Contact />} />
             <Route path='/categoria/:categoria' element={<ExplorarCategoria />} />
             <Route path='/upload' element={<UploadAsset/>} />
+            <Route path='/favorites' element={<Favorites />} />
           </Routes>
         </div>
         <Footer />

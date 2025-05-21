@@ -116,9 +116,9 @@ function Header() {
                   Subir 
                 </Link>
                 
-                <button className="icon-button">
+                <Link to="/favorites" className="icon-button" title="Mis Favoritos">
                   <FaStar />
-                </button>
+                </Link>
   
                 <Link to="/profile" className="icon-button">
                   <FaUser />

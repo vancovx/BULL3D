@@ -365,3 +365,17 @@
     gap: 15px;
   }
 }
+
+/* Contenedor de comentarios */
+.comments-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+/* Ajustes responsive */
+@media (max-width: 768px) {
+  .comments-container {
+    padding: 0 15px 30px;
+  }
+}

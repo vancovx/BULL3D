@@ -137,6 +137,8 @@ const deleteAsset = async (assetId, token) => {
     return response.data
 }
 
+
+
 const assetService = {
     getAssets,
     getAssetById,

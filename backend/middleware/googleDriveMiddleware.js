@@ -60,7 +60,20 @@ class GoogleDriveService {
   }
 
   // Get file metadata
- 
+ // Get file metadata
+async getFileMetadata(fileId) {
+  try {
+    const response = await this.drive.files.get({
+      fileId,
+      fields: 'id,name,mimeType,size,webContentLink,webViewLink'
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error(`Error al obtener metadatos del archivo ${fileId}:`, error);
+    throw error;
+  }
+}
 
   // Generate a direct download URL for a file
   async getDownloadUrl(fileId) {
