@@ -1,215 +1,230 @@
-import { useState, useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
-import { getAssetComments, createComment, updateComment, deleteComment, reset } from '../features/comments/commentSlice'
-import { toast } from 'react-toastify'
-import './Comments.css'
+import { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import { toast } from 'react-toastify';
+import { FaUser, FaPaperPlane, FaTrash, FaEdit } from 'react-icons/fa';
+import axios from 'axios';
+import './Comments.css';
 
-function Comments({ assetId }) {
-  const [commentText, setCommentText] = useState('')
-  const [editingId, setEditingId] = useState(null)
-  const [editText, setEditText] = useState('')
+const CommentSection = ({ assetId }) => {
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [editingComment, setEditingComment] = useState(null);
+  const [editText, setEditText] = useState('');
   
-  const dispatch = useDispatch()
+  const { user } = useSelector(state => state.auth);
   
-  const { user } = useSelector(state => state.auth)
-  
-  // Manejo seguro de la desestructuración con valores predeterminados
-  const { comments = [], isLoading = false, isError = false, isSuccess = false, message = '' } = 
-    useSelector(state => state.comments || {})
-  
-  // Cargar comentarios cuando se monte el componente o cambie el assetId
+  // Cargar comentarios al montar el componente
   useEffect(() => {
     if (assetId) {
-      dispatch(getAssetComments(assetId))
+      fetchComments();
     }
-    
-    return () => {
-      dispatch(reset())
-    }
-  }, [assetId, dispatch])
+  }, [assetId]);
   
-  // Manejar respuestas de la API
-  useEffect(() => {
-    if (isError) {
-      toast.error(message)
+  // Función para cargar los comentarios
+  const fetchComments = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/api/assets/${assetId}/comments`);
+      setComments(response.data);
+    } catch (error) {
+      console.error('Error al cargar comentarios:', error);
+      toast.error('No se pudieron cargar los comentarios');
+    } finally {
+      setLoading(false);
     }
-    
-    if (isSuccess && editingId) {
-      setEditingId(null)
-      setEditText('')
-    }
-    
-  }, [isError, isSuccess, message, editingId])
+  };
   
   // Enviar un nuevo comentario
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmitComment = async (e) => {
+    e.preventDefault();
     
-    if (!commentText.trim()) {
-      toast.error('El comentario no puede estar vacío')
-      return
+    if (!newComment.trim()) {
+      toast.error('El comentario no puede estar vacío');
+      return;
     }
     
     if (!user) {
-      toast.error('Debes iniciar sesión para comentar')
-      return
+      toast.error('Debes iniciar sesión para comentar');
+      return;
     }
     
-    const commentData = {
-      text: commentText
+    try {
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      };
+      
+      await axios.post(`/api/assets/${assetId}/comments`, {
+        text: newComment
+      }, config);
+      
+      // Limpiar el campo y recargar comentarios
+      setNewComment('');
+      fetchComments();
+      toast.success('Comentario publicado con éxito');
+    } catch (error) {
+      console.error('Error al publicar comentario:', error);
+      toast.error('No se pudo publicar el comentario');
     }
-    
-    dispatch(createComment({
-      assetId,
-      commentData
-    }))
-    
-    setCommentText('')
-  }
+  };
   
-  // Iniciar edición de comentario
-  const handleEdit = (comment) => {
-    setEditingId(comment._id)
-    setEditText(comment.text)
-  }
-  
-  // Guardar edición de comentario
-  const handleSaveEdit = (e) => {
-    e.preventDefault()
-    
-    if (!editText.trim()) {
-      toast.error('El comentario no puede estar vacío')
-      return
+  // Eliminar un comentario
+  const handleDeleteComment = async (commentId) => {
+    if (!user) {
+      toast.error('Debes iniciar sesión para eliminar comentarios');
+      return;
     }
     
-    dispatch(updateComment({
-      commentId: editingId,
-      commentData: { text: editText }
-    }))
-  }
+    if (window.confirm('¿Estás seguro de que quieres eliminar este comentario?')) {
+      try {
+        const config = {
+          headers: {
+            'Authorization': `Bearer ${user.token}`
+          }
+        };
+        
+        await axios.delete(`/api/comments/${commentId}`, config);
+        
+        // Recargar comentarios
+        fetchComments();
+        toast.success('Comentario eliminado con éxito');
+      } catch (error) {
+        console.error('Error al eliminar comentario:', error);
+        toast.error('No se pudo eliminar el comentario');
+      }
+    }
+  };
+  
+  // Iniciar edición de un comentario
+  const startEditing = (comment) => {
+    setEditingComment(comment._id);
+    setEditText(comment.text);
+  };
   
   // Cancelar edición
-  const handleCancelEdit = () => {
-    setEditingId(null)
-    setEditText('')
-  }
+  const cancelEditing = () => {
+    setEditingComment(null);
+    setEditText('');
+  };
   
-  // Eliminar comentario
-  const handleDelete = (commentId) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este comentario?')) {
-      dispatch(deleteComment(commentId))
+  // Guardar edición de comentario
+  const handleUpdateComment = async (commentId) => {
+    if (!editText.trim()) {
+      toast.error('El comentario no puede estar vacío');
+      return;
     }
-  }
+    
+    try {
+      const config = {
+        headers: {
+          'Authorization': `Bearer ${user.token}`
+        }
+      };
+      
+      await axios.put(`/api/comments/${commentId}`, {
+        text: editText
+      }, config);
+      
+      // Recargar comentarios y resetear estado de edición
+      fetchComments();
+      setEditingComment(null);
+      setEditText('');
+      toast.success('Comentario actualizado con éxito');
+    } catch (error) {
+      console.error('Error al actualizar comentario:', error);
+      toast.error('No se pudo actualizar el comentario');
+    }
+  };
   
-  // Formatear fecha para mostrar
+  // Función para obtener la inicial del nombre
+  const getInitial = (name) => {
+    return name ? name.charAt(0).toUpperCase() : '?';
+  };
+  
+  // Formatear fecha
   const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }
-    return new Date(dateString).toLocaleDateString(undefined, options)
-  }
+    const date = new Date(dateString);
+    return date.toLocaleString();
+  };
   
   return (
     <div className="comments-section">
-      <h3 className="comments-title">Comentarios</h3>
+      <h2 className="comments-title">Comentarios</h2>
       
+      {/* Formulario para nuevos comentarios */}
       {user ? (
-        <form onSubmit={handleSubmit} className="comment-form">
-          <textarea
-            placeholder="Escribe un comentario..."
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            rows="3"
-            required
-          />
-          <button type="submit" className="comment-btn" disabled={isLoading}>
-            {isLoading ? 'Enviando...' : 'Publicar comentario'}
+        <form className="comment-form" onSubmit={handleSubmitComment}>
+          <div className="comment-input-container">
+            <div className="comment-avatar">
+              <div className="comment-initials">{getInitial(user.name)}</div>
+            </div>
+            <textarea
+              className="comment-input"
+              placeholder="Escribe tu comentario..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              rows={2}
+            />
+          </div>
+          <button type="submit" className="post-comment-btn">
+            <FaPaperPlane /> Publicar
           </button>
         </form>
       ) : (
-        <div className="login-prompt">
-          <p>Inicia sesión para dejar un comentario</p>
+        <div className="login-to-comment">
+          Inicia sesión para dejar un comentario
         </div>
       )}
       
+      {/* Lista de comentarios */}
       <div className="comments-list">
-        {isLoading && comments.length === 0 ? (
-          <div className="loading-comments">Cargando comentarios...</div>
+        {loading ? (
+          <div className="comments-loading">Cargando comentarios...</div>
         ) : comments.length > 0 ? (
           comments.map(comment => (
             <div key={comment._id} className="comment-item">
-              {editingId === comment._id ? (
-                <form onSubmit={handleSaveEdit} className="edit-form">
-                  <textarea
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    rows="3"
-                    required
-                  />
-                  <div className="edit-actions">
-                    <button type="submit" className="save-btn" disabled={isLoading}>
-                      Guardar
-                    </button>
-                    <button 
-                      type="button" 
-                      className="cancel-btn" 
-                      onClick={handleCancelEdit}
-                      disabled={isLoading}
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <>
-                  <div className="comment-header">
-                    <div className="comment-user">
-                      <div className="comment-avatar">
-                        {comment.user && comment.user.name 
-                          ? comment.user.name.charAt(0).toUpperCase() 
-                          : '?'}
-                      </div>
-                      <span className="comment-username">
-                        {comment.user ? comment.user.name : 'Usuario'} 
-                        {comment.user && comment.user.username ? ` (@${comment.user.username})` : ''}
-                      </span>
-                    </div>
-                    <span className="comment-date">{formatDate(comment.createdAt)}</span>
-                  </div>
-                  <div className="comment-content">{comment.text}</div>
-                  
-                  {user && user._id === comment.user._id && (
-                    <div className="comment-actions">
-                      <button 
-                        className="edit-comment-btn"
-                        onClick={() => handleEdit(comment)}
-                      >
-                        Editar
+              <div className="comment-avatar">
+                <div className="comment-initials">{getInitial(comment.user?.name)}</div>
+              </div>
+              <div className="comment-content">
+                <div className="comment-header">
+                  <span className="comment-author">{comment.user?.name || 'Usuario'}</span>
+                  <span className="comment-date">{formatDate(comment.createdAt)}</span>
+                </div>
+                
+                {editingComment === comment._id ? (
+                  <div className="edit-comment-container">
+                    <textarea
+                      className="edit-comment-input"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      rows={3}
+                    />
+                    <div className="edit-actions">
+                      <button className="save-edit-btn" onClick={() => handleUpdateComment(comment._id)}>
+                        Guardar
                       </button>
-                      <button 
-                        className="delete-comment-btn"
-                        onClick={() => handleDelete(comment._id)}
-                      >
-                        Eliminar
+                      <button className="cancel-edit-btn" onClick={cancelEditing}>
+                        Cancelar
                       </button>
                     </div>
-                  )}
-                </>
-              )}
+                  </div>
+                ) : (
+                  <p className="comment-text">{comment.text}</p>
+                )}
+              </div>
             </div>
           ))
         ) : (
           <div className="no-comments">
-            <p>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+            No hay comentarios. ¡Sé el primero en comentar!
           </div>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Comments
+export default CommentSection;

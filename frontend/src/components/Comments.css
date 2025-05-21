@@ -1,4 +1,4 @@
-/* Comments.css */
+/* CommentSection.css */
 :root {
   --primary-color: #8c52ff;
   --dark-bg: #121628;
@@ -7,236 +7,241 @@
   --text-color: #ffffff;
   --text-secondary: #a0a0a0;
   --border-color: #2a2a2a;
-  --error-color: #ff4d4d;
   --success-color: #4caf50;
+  --error-color: #ff5252;
 }
 
 .comments-section {
-  background-color: var(--card-bg);
-  border-radius: 8px;
-  padding: 25px;
-  margin-top: 30px;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid var(--border-color);
 }
 
 .comments-title {
-  color: var(--text-color);
   font-size: 1.5rem;
+  color: var(--text-color);
   margin-bottom: 20px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 10px;
 }
 
-/* Formulario de comentarios */
+/* Formulario para nuevos comentarios */
 .comment-form {
-  margin-bottom: 30px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-.comment-form textarea {
+.comment-input-container {
+  display: flex;
+  gap: 15px;
+}
+
+.comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--input-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.comment-initials {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.comment-input, .edit-comment-input {
   width: 100%;
-  padding: 15px;
+  padding: 12px 15px;
   background-color: var(--input-bg);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: 4px;
   color: var(--text-color);
   font-size: 0.95rem;
   resize: vertical;
-  margin-bottom: 15px;
-  min-height: 80px;
 }
 
-.comment-form textarea:focus {
+.comment-input:focus, .edit-comment-input:focus {
   outline: none;
   border-color: var(--primary-color);
 }
 
-.comment-btn {
+.post-comment-btn {
+  align-self: flex-end;
   background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 10px 20px;
-  font-size: 0.95rem;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.comment-btn:hover {
+.post-comment-btn:hover {
   background-color: #7440e0;
 }
 
-.comment-btn:disabled {
-  background-color: #555;
-  cursor: not-allowed;
-}
-
-/* Mensaje para iniciar sesión */
-.login-prompt {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
+.login-to-comment {
+  background-color: var(--card-bg);
+  border-radius: 8px;
   padding: 15px;
+  margin-bottom: 20px;
   text-align: center;
   color: var(--text-secondary);
-  margin-bottom: 30px;
 }
 
 /* Lista de comentarios */
 .comments-list {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 15px;
 }
 
-.loading-comments, .no-comments {
-  text-align: center;
-  color: var(--text-secondary);
-  padding: 20px;
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
-}
-
-/* Ítem de comentario */
 .comment-item {
-  background-color: rgba(255, 255, 255, 0.05);
-  border-radius: 6px;
+  background-color: var(--card-bg);
+  border-radius: 8px;
   padding: 15px;
+  display: flex;
+  gap: 15px;
   position: relative;
+}
+
+.comment-content {
+  flex: 1;
 }
 
 .comment-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
-.comment-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.comment-avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background-color: var(--primary-color);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.comment-author {
   font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.comment-username {
   color: var(--text-color);
-  font-weight: 500;
 }
 
 .comment-date {
-  color: var(--text-secondary);
   font-size: 0.8rem;
+  color: var(--text-secondary);
 }
 
-.comment-content {
+.comment-text {
   color: var(--text-color);
   line-height: 1.5;
-  margin-bottom: 10px;
+  white-space: pre-line;
+  margin: 0;
 }
 
-/* Acciones de comentario (editar, eliminar) */
+/* Acciones de comentario */
 .comment-actions {
+  position: absolute;
+  top: 15px;
+  right: 15px;
   display: flex;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
 }
 
 .edit-comment-btn, .delete-comment-btn {
-  background: none;
+  background-color: transparent;
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  font-size: 0.85rem;
-  transition: color 0.2s;
-  padding: 0;
+  font-size: 0.9rem;
+  padding: 5px;
+  border-radius: 4px;
+  transition: all 0.2s;
 }
 
 .edit-comment-btn:hover {
   color: var(--primary-color);
+  background-color: rgba(140, 82, 255, 0.1);
 }
 
 .delete-comment-btn:hover {
   color: var(--error-color);
+  background-color: rgba(255, 82, 82, 0.1);
 }
 
-/* Formulario de edición */
-.edit-form {
-  width: 100%;
-}
-
-.edit-form textarea {
-  width: 100%;
-  padding: 12px;
-  background-color: var(--input-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  color: var(--text-color);
-  font-size: 0.95rem;
-  resize: vertical;
-  margin-bottom: 10px;
-}
-
-.edit-form textarea:focus {
-  outline: none;
-  border-color: var(--primary-color);
+/* Modo edición */
+.edit-comment-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .edit-actions {
   display: flex;
   gap: 10px;
+  align-self: flex-end;
 }
 
-.save-btn, .cancel-btn {
-  padding: 8px 15px;
+.save-edit-btn, .cancel-edit-btn {
+  padding: 6px 12px;
   border-radius: 4px;
   font-size: 0.85rem;
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
-.save-btn {
+.save-edit-btn {
   background-color: var(--primary-color);
   color: white;
   border: none;
 }
 
-.save-btn:hover {
+.save-edit-btn:hover {
   background-color: #7440e0;
 }
 
-.cancel-btn {
+.cancel-edit-btn {
   background-color: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-color);
 }
 
-.cancel-btn:hover {
-  background-color: rgba(255, 255, 255, 0.05);
+.cancel-edit-btn:hover {
+  background-color: var(--input-bg);
 }
 
-/* Estilos responsive */
-@media (max-width: 768px) {
-  .comments-section {
-    padding: 15px;
+/* Estados de carga y vacío */
+.comments-loading, .no-comments {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  background-color: var(--card-bg);
+  border-radius: 8px;
+}
+
+/* Responsividad */
+@media (max-width: 576px) {
+  .comment-form {
+    padding: 12px;
+  }
+  
+  .comment-item {
+    padding: 12px;
   }
   
   .comment-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
   }
   
-  .comment-date {
-    margin-left: 46px;
+  .comment-actions {
+    top: 12px;
+    right: 12px;
   }
 }

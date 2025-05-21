@@ -7,8 +7,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaArrowLeft, FaSearch, FaStar, FaDownload, FaUser, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
 import Spinner from '../components/Spinner'
-import './ViewAsset.css'
 import Comments from '../components/Comments'
+import './ViewAsset.css'
 
 function ViewAsset() {
   const { id } = useParams()
@@ -23,14 +23,6 @@ function ViewAsset() {
   )
   
   const { user } = useSelector(state => state.auth)
-  const { profile } = useSelector(state => state.user)
-  
-  // Función para cerrar sesión
-  const onLogout = () => {
-    dispatch(logout())
-    dispatch(authReset())
-    navigate('/')
-  }
 
   // Efecto para cargar el asset
   useEffect(() => {
@@ -166,74 +158,72 @@ function ViewAsset() {
     return name ? name.charAt(0).toUpperCase() : '?';
   }
 
-  // Función actualizada para manejar la descarga del archivo
-   // Función actualizada para manejar la descarga directa del archivo
-const handleDownload = () => {
-  if (asset && asset.contentUrl) {
-    try {
-      // Extraer el fileId de la URL
-      let fileId = null;
-      
-      // Si la URL es de nuestro proxy, extraer el ID directamente
-      if (asset.contentUrl.startsWith('/api/proxy/image/')) {
-        fileId = asset.contentUrl.replace('/api/proxy/image/', '');
-      } 
-      // Si es una URL de Google Drive, extraer el ID de los parámetros
-      else if (asset.contentUrl.includes('drive.google.com')) {
-        // Intentar obtener el ID del parámetro id=
-        const idParam = asset.contentUrl.match(/[?&]id=([^&]+)/);
-        if (idParam && idParam[1]) {
-          fileId = idParam[1];
-        }
+  // Función actualizada para manejar la descarga directa del archivo
+  const handleDownload = () => {
+    if (asset && asset.contentUrl) {
+      try {
+        // Extraer el fileId de la URL
+        let fileId = null;
         
-        // Intentar obtener el ID del patrón /d/ o /file/d/
-        if (!fileId) {
-          const pathId = asset.contentUrl.match(/\/d\/([^\/\?]+)/) || 
-                       asset.contentUrl.match(/\/file\/d\/([^\/\?]+)/);
-          if (pathId && pathId[1]) {
-            fileId = pathId[1];
+        // Si la URL es de nuestro proxy, extraer el ID directamente
+        if (asset.contentUrl.startsWith('/api/proxy/image/')) {
+          fileId = asset.contentUrl.replace('/api/proxy/image/', '');
+        } 
+        // Si es una URL de Google Drive, extraer el ID de los parámetros
+        else if (asset.contentUrl.includes('drive.google.com')) {
+          // Intentar obtener el ID del parámetro id=
+          const idParam = asset.contentUrl.match(/[?&]id=([^&]+)/);
+          if (idParam && idParam[1]) {
+            fileId = idParam[1];
+          }
+          
+          // Intentar obtener el ID del patrón /d/ o /file/d/
+          if (!fileId) {
+            const pathId = asset.contentUrl.match(/\/d\/([^\/\?]+)/) || 
+                         asset.contentUrl.match(/\/file\/d\/([^\/\?]+)/);
+            if (pathId && pathId[1]) {
+              fileId = pathId[1];
+            }
           }
         }
+        
+        if (!fileId) {
+          toast.error('No se pudo determinar el ID del archivo para descargar');
+          return;
+        }
+        
+        // Obtener nombre de archivo para la descarga basado en el título del asset
+        const fileName = asset.title 
+          ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
+          : 'asset_content';
+        
+        // Construir la URL de descarga utilizando nuestro endpoint de descarga
+        const downloadUrl = `/api/proxy/download/${fileId}?name=${encodeURIComponent(fileName)}`;
+        
+        // Crear un elemento <a> temporal para la descarga
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.setAttribute('download', ''); // El atributo download vacío indica que se debe descargar el archivo
+        link.style.display = 'none';
+        
+        // Añadir al DOM, hacer clic y eliminar
+        document.body.appendChild(link);
+        link.click();
+        
+        // Pequeño retraso antes de eliminar el elemento para asegurar que el navegador inicie la descarga
+        setTimeout(() => {
+          document.body.removeChild(link);
+        }, 100);
+        
+        toast.success('Descarga iniciada');
+      } catch (error) {
+        console.error('Error al iniciar la descarga:', error);
+        toast.error('Error al iniciar la descarga');
       }
-      
-      if (!fileId) {
-        toast.error('No se pudo determinar el ID del archivo para descargar');
-        return;
-      }
-      
-      // Crear un nombre de archivo sanitizado usando el título del asset
-      const sanitizedFileName = asset.title 
-        ? asset.title.replace(/[^a-zA-Z0-9áéíóúüñÁÉÍÓÚÜÑ\s]/g, '_').trim()
-        : 'asset_download';
-      
-      // Construir la URL de descarga completa
-      const downloadUrl = `/api/proxy/download/${fileId}?name=${encodeURIComponent(sanitizedFileName)}`;
-      
-      // Mostrar toast de inicio de descarga
-      toast.info('Iniciando descarga...');
-      
-      // Crear un enlace temporal y hacer clic en él para iniciar la descarga
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.setAttribute('download', ''); // Usar nombre de archivo definido por el servidor
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      
-      // Eliminar el enlace después de un breve retardo
-      setTimeout(() => {
-        document.body.removeChild(link);
-        toast.success('Descarga completada');
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Error al iniciar la descarga:', error);
-      toast.error('Error al iniciar la descarga');
+    } else {
+      toast.error('No hay contenido disponible para descargar');
     }
-  } else {
-    toast.error('No hay contenido disponible para descargar');
-  }
-};
+  };
 
   if (isLoading) {
     return <Spinner />
@@ -308,6 +298,9 @@ const handleDownload = () => {
               ))}
             </div>
           )}
+          
+          {/* Sección de comentarios */}
+          <Comments assetId={id} />
         </div>
 
         {/* Barra lateral con información del asset */}
@@ -359,11 +352,6 @@ const handleDownload = () => {
             {formattedDate && <span className="asset-date">{formattedDate}</span>}
           </div>
         </div>
-      </div>
-      
-      {/* Sección de comentarios */}
-      <div className="comments-container">
-        <Comments assetId={id} />
       </div>
     </>
   )
