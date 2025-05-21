@@ -27,6 +27,7 @@ const removeFavorite = async (assetId, token) => {
     },
   };
 
+  // Asegurarnos de que la URL tiene el formato correcto
   const response = await axios.delete(`${API_URL}${assetId}`, config);
   return response.data;
 };

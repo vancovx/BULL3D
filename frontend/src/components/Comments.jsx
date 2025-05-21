@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { FaUser, FaPaperPlane, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaUser, FaPaperPlane, FaTrash, FaEdit, FaLock, FaSignInAlt } from 'react-icons/fa';
 import axios from 'axios';
 import './Comments.css';
 
@@ -153,7 +154,7 @@ const CommentSection = ({ assetId }) => {
     <div className="comments-section">
       <h2 className="comments-title">Comentarios</h2>
       
-      {/* Formulario para nuevos comentarios */}
+      {/* Formulario para nuevos comentarios (solo para usuarios autenticados) */}
       {user ? (
         <form className="comment-form" onSubmit={handleSubmitComment}>
           <div className="comment-input-container">
@@ -174,11 +175,15 @@ const CommentSection = ({ assetId }) => {
         </form>
       ) : (
         <div className="login-to-comment">
-          Inicia sesión para dejar un comentario
+          <FaLock className="lock-icon" />
+          <p>Inicia sesión para dejar un comentario</p>
+          <Link to="/login" className="login-comment-btn">
+            <FaSignInAlt /> Iniciar sesión
+          </Link>
         </div>
       )}
       
-      {/* Lista de comentarios */}
+      {/* Lista de comentarios (visible para todos) */}
       <div className="comments-list">
         {loading ? (
           <div className="comments-loading">Cargando comentarios...</div>
@@ -192,6 +197,26 @@ const CommentSection = ({ assetId }) => {
                 <div className="comment-header">
                   <span className="comment-author">{comment.user?.name || 'Usuario'}</span>
                   <span className="comment-date">{formatDate(comment.createdAt)}</span>
+                  
+                  {/* Botones de acciones solo para el autor del comentario */}
+                  {user && user._id === comment.user?._id && (
+                    <div className="comment-actions">
+                      <button 
+                        className="edit-comment-btn" 
+                        onClick={() => startEditing(comment)}
+                        title="Editar comentario"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button 
+                        className="delete-comment-btn" 
+                        onClick={() => handleDeleteComment(comment._id)}
+                        title="Eliminar comentario"
+                      >
+                        <FaTrash />
+                      </button>
+                    </div>
+                  )}
                 </div>
                 
                 {editingComment === comment._id ? (
@@ -219,7 +244,7 @@ const CommentSection = ({ assetId }) => {
           ))
         ) : (
           <div className="no-comments">
-            No hay comentarios. ¡Sé el primero en comentar!
+            No hay comentarios. {user ? '¡Sé el primero en comentar!' : 'Inicia sesión para comentar.'}
           </div>
         )}
       </div>

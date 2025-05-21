@@ -40,6 +40,9 @@ const addFavorite = asyncHandler(async (req, res) => {
 // @access  Private
 const removeFavorite = asyncHandler(async (req, res) => {
   const { assetId } = req.params;
+  
+  console.log('Intentando eliminar favorito con assetId:', assetId);
+  console.log('Usuario actual:', req.user.id);
 
   // Buscar el favorito
   const favorite = await Favorite.findOne({
@@ -48,12 +51,15 @@ const removeFavorite = asyncHandler(async (req, res) => {
   });
 
   if (!favorite) {
+    console.log('No se encontró favorito para:', { usuario: req.user.id, asset: assetId });
     res.status(404);
     throw new Error('Favorite not found');
   }
 
-  // Eliminar el favorito
-  await favorite.remove();
+  console.log('Favorito encontrado, procediendo a eliminar:', favorite._id);
+  
+  // Eliminar el favorito usando deleteOne en lugar de remove
+  await Favorite.deleteOne({ _id: favorite._id });
 
   res.status(200).json({ assetId, message: 'Asset removed from favorites' });
 });

@@ -5,7 +5,7 @@ import { getUserById } from '../features/users/userSlice'
 import { checkFavorite, addFavorite, removeFavorite, reset as favoriteReset } from '../features/favorites/favoriteSlice'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { FaArrowLeft, FaSearch, FaStar, FaRegStar, FaDownload, FaUser, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
+import { FaArrowLeft, FaSearch, FaStar, FaRegStar, FaDownload, FaUser, FaSignInAlt, FaSignOutAlt, FaLock } from 'react-icons/fa'
 import Spinner from '../components/Spinner'
 import Comments from '../components/Comments'
 import './ViewAsset.css'
@@ -69,7 +69,7 @@ function ViewAsset() {
     }
   }, [asset?.user, dispatch])
 
-  // Comprobar si el asset está en favoritos cuando se carga
+  // Comprobar si el asset está en favoritos cuando se carga (solo si el usuario está autenticado)
   useEffect(() => {
     if (user && asset && asset._id) {
       dispatch(checkFavorite(asset._id))
@@ -198,6 +198,13 @@ function ViewAsset() {
 
   // Función actualizada para manejar la descarga directa del archivo
   const handleDownload = () => {
+    // Verificar si el usuario está autenticado
+    if (!user) {
+      toast.info('Inicia sesión para descargar este asset');
+      navigate('/login');
+      return;
+    }
+
     if (asset && asset.contentUrl) {
       try {
         // Extraer el fileId de la URL
@@ -261,6 +268,12 @@ function ViewAsset() {
     } else {
       toast.error('No hay contenido disponible para descargar');
     }
+  };
+
+  // Redireccionar a login
+  const redirectToLogin = () => {
+    toast.info('Debes iniciar sesión para utilizar esta función');
+    navigate('/login');
   };
 
   if (isLoading) {
@@ -337,7 +350,7 @@ function ViewAsset() {
             </div>
           )}
           
-          {/* Sección de comentarios */}
+          {/* Sección de comentarios - Solo mostrar el componente si el usuario está autenticado */}
           <Comments assetId={id} />
         </div>
 
@@ -360,16 +373,32 @@ function ViewAsset() {
           </div>
 
           <div className="download-actions">
-            <button className="download-button" onClick={handleDownload}>
-              <FaDownload /> Descargar
-            </button>
-            <button 
-              className={`favorite-button ${isFavorite ? 'favorite-active' : ''}`} 
-              onClick={handleFavoriteClick}
-              disabled={favoriteLoading}
-            >
-              {isFavorite ? <FaStar /> : <FaRegStar />}
-            </button>
+            {user ? (
+              <>
+                <button className="download-button" onClick={handleDownload}>
+                  <FaDownload /> Descargar
+                </button>
+                <button 
+                  className={`favorite-button ${isFavorite ? 'favorite-active' : ''}`} 
+                  onClick={handleFavoriteClick}
+                  disabled={favoriteLoading}
+                >
+                  {isFavorite ? <FaStar /> : <FaRegStar />}
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="download-button disabled" onClick={redirectToLogin}>
+                  <FaLock /> Descargar
+                </button>
+                <button 
+                  className="favorite-button disabled"
+                  onClick={redirectToLogin}
+                >
+                  <FaRegStar />
+                </button>
+              </>
+            )}
           </div>
 
           {asset.tags && asset.tags.length > 0 && (

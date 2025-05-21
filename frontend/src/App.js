@@ -13,6 +13,7 @@ import Contact from './pages/Contact'
 import UploadAsset from './pages/UploadAsset'
 import Favorites from './pages/Favorites'
 import ExplorarCategoria from './pages/ExplorarCategoria'
+import SearchResults from './pages/SearchResults'
 import './App.css'
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path='/categoria/:categoria' element={<ExplorarCategoria />} />
             <Route path='/upload' element={<UploadAsset/>} />
             <Route path='/favorites' element={<Favorites />} />
+            <Route path='/search' element={<SearchResults />} />
           </Routes>
         </div>
         <Footer />

@@ -245,3 +245,107 @@
     right: 12px;
   }
 }
+
+
+/* Estilos para el mensaje de inicio de sesión en comentarios */
+.login-to-comment {
+  background-color: var(--card-bg, #1a1a1f);
+  border-radius: 8px;
+  padding: 25px 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: var(--text-secondary, #a0a0a0);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  border: 1px solid rgba(140, 82, 255, 0.15);
+}
+
+.login-to-comment .lock-icon {
+  font-size: 2rem;
+  color: var(--primary-color, #8c52ff);
+  margin-bottom: 5px;
+}
+
+.login-to-comment p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.login-comment-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--primary-color, #8c52ff);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background-color 0.2s;
+  margin-top: 10px;
+}
+
+.login-comment-btn:hover {
+  background-color: #7440e0;
+  color: white;
+  text-decoration: none;
+}
+
+/* Estilo para el mensaje en la lista de comentarios vacía */
+.no-comments {
+  background-color: var(--card-bg, #1a1a1f);
+  border-radius: 8px;
+  padding: 25px;
+  text-align: center;
+  color: var(--text-secondary, #a0a0a0);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Estilos para los botones de acción en comentarios */
+.comment-actions {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.comment-item:hover .comment-actions {
+  opacity: 1;
+}
+
+.edit-comment-btn, 
+.delete-comment-btn {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  padding: 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.edit-comment-btn {
+  color: var(--primary-color, #8c52ff);
+}
+
+.edit-comment-btn:hover {
+  background-color: rgba(140, 82, 255, 0.1);
+}
+
+.delete-comment-btn {
+  color: #ff6b6b;
+}
+
+.delete-comment-btn:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+}
