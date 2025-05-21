@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { getAssetById, reset } from '../features/assets/assetSlice'
 import { getUserById } from '../features/users/userSlice'
-import { logout, reset as authReset } from '../features/auth/authSlice'
+import { checkFavorite, addFavorite, removeFavorite, reset as favoriteReset } from '../features/favorites/favoriteSlice'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { FaArrowLeft, FaSearch, FaStar, FaDownload, FaUser, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
+import { FaArrowLeft, FaSearch, FaStar, FaRegStar, FaDownload, FaUser, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
 import Spinner from '../components/Spinner'
 import Comments from '../components/Comments'
 import './ViewAsset.css'
@@ -23,6 +23,7 @@ function ViewAsset() {
   )
   
   const { user } = useSelector(state => state.auth)
+  const { isFavorite, isLoading: favoriteLoading } = useSelector(state => state.favorites)
 
   // Efecto para cargar el asset
   useEffect(() => {
@@ -39,6 +40,7 @@ function ViewAsset() {
 
     return () => {
       dispatch(reset())
+      dispatch(favoriteReset())
     }
   }, [id, isError, message, dispatch])
 
@@ -66,6 +68,13 @@ function ViewAsset() {
       setAssetOwner(null)
     }
   }, [asset?.user, dispatch])
+
+  // Comprobar si el asset está en favoritos cuando se carga
+  useEffect(() => {
+    if (user && asset && asset._id) {
+      dispatch(checkFavorite(asset._id))
+    }
+  }, [user, asset, dispatch])
 
   // Función para obtener la URL de la imagen adaptada para usar nuestro proxy
   const getImageUrl = (url) => {
@@ -157,6 +166,35 @@ function ViewAsset() {
   const getInitial = (name) => {
     return name ? name.charAt(0).toUpperCase() : '?';
   }
+
+  // Manejar clic en botón de favoritos
+  const handleFavoriteClick = () => {
+    if (!user) {
+      toast.info('Inicia sesión para añadir a favoritos');
+      navigate('/login');
+      return;
+    }
+
+    if (isFavorite) {
+      dispatch(removeFavorite(asset._id))
+        .unwrap()
+        .then(() => {
+          toast.success('Eliminado de favoritos');
+        })
+        .catch(error => {
+          toast.error('Error al eliminar de favoritos');
+        });
+    } else {
+      dispatch(addFavorite(asset._id))
+        .unwrap()
+        .then(() => {
+          toast.success('Añadido a favoritos');
+        })
+        .catch(error => {
+          toast.error('Error al añadir a favoritos');
+        });
+    }
+  };
 
   // Función actualizada para manejar la descarga directa del archivo
   const handleDownload = () => {
@@ -325,9 +363,13 @@ function ViewAsset() {
             <button className="download-button" onClick={handleDownload}>
               <FaDownload /> Descargar
             </button>
-            <div className="favorite-button">
-              <FaStar />
-            </div>
+            <button 
+              className={`favorite-button ${isFavorite ? 'favorite-active' : ''}`} 
+              onClick={handleFavoriteClick}
+              disabled={favoriteLoading}
+            >
+              {isFavorite ? <FaStar /> : <FaRegStar />}
+            </button>
           </div>
 
           {asset.tags && asset.tags.length > 0 && (
