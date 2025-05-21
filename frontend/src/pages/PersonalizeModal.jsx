@@ -1,186 +1,147 @@
-import { useState, useEffect } from 'react';
-import './PersonalizeModal.css';
+import { useState, useEffect } from 'react'
+import { toast } from 'react-toastify'
+import { FaTimes, FaUserEdit } from 'react-icons/fa'
+import './PersonalizeModal.css'
 
 function PersonalizeModal({ profile, onClose, onSave }) {
-  // Inicializar userData con los datos de profile
-  const [userData, setUserData] = useState({
-    name: '',
-    username: '',
-    description: '',
-    highContrast: false
-  });
+  // Estado para los datos del formulario
+  const [formData, setFormData] = useState({
+    name: profile?.name || '',
+    username: profile?.username || '',
+    email: profile?.email || '',
+    phone: profile?.phone || '',
+    bio: profile?.bio || '',
+  })
 
-  // Actualizar userData cada vez que profile cambia
-  useEffect(() => {
-    if (profile) {
-      setUserData({
-        name: profile.name || '',
-        username: profile.username || '',
-        description: profile.description || '',
-        highContrast: profile.highContrast || false
-      });
-    }
-  }, [profile]);
+  // Extraer valores del formData
+  const { name, username, email, phone, bio } = formData
 
-  const [editableFields, setEditableFields] = useState({
-    name: false,
-    username: false,
-    description: false
-  });
+  // Handler para cambios en los inputs
+  const onChange = (e) => {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.name]: e.target.value,
+    }))
+  }
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setUserData({
-      ...userData,
-      [name]: type === 'checkbox' ? checked : value
-    });
-  };
-
+  // Función para manejar el envío del formulario
   const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(userData);
-  };
+    e.preventDefault()
 
-  const handleEditField = (fieldName) => {
-    setEditableFields({
-      ...editableFields,
-      [fieldName]: !editableFields[fieldName]
-    });
-  };
+    // Preparar datos para enviar
+    const userData = {
+      id: profile?._id || profile?.id,
+      name,
+      username,
+      email,
+      phone,
+      bio,
+    }
 
-  // Función para obtener inicial
+    // Enviar al componente padre
+    onSave(userData)
+  }
+
+  // Función para obtener la inicial del nombre
   const getInitial = (name) => {
-    return name ? name.charAt(0).toUpperCase() : '?';
-  };
+    return name ? name.charAt(0).toUpperCase() : '?'
+  }
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="personalize-modal" onClick={e => e.stopPropagation()}>
+    <div className="modal-backdrop">
+      <div className="personalize-modal">
         <div className="modal-header">
-          <h2>Personalizar Perfil</h2>
-          <button className="close-modal-btn" onClick={onClose}>×</button>
-        </div>
-        
-        <div className="bull3d-logo">
-          <h1>BULL3D</h1>
+          <h2>Personalizar perfil</h2>
+          <button className="close-btn" onClick={onClose}>
+            <FaTimes />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="user-profile-section">
-            <div className="profile-avatar">
+        <form onSubmit={handleSubmit} className="personalize-form">
+          <div className="avatar-section">
+            <div className="profile-avatar-large">
               <div className="profile-initials">
-                {getInitial(userData.name)}
+                {getInitial(name || profile?.name || '?')}
               </div>
             </div>
-            <div className="profile-name-username">
-              <h3>{userData.name || 'Usuario'}</h3>
-              <p>@{userData.username || 'username'}</p>
-            </div>
-            <button type="button" className="change-photo-btn">
-              Cambiar foto
+            {/* Sin botones para cambiar foto */}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="name">Nombre <span className="required">*</span></label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={name}
+              placeholder="Nombre"
+              onChange={onChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="username">Nombre de Usuario <span className="required">*</span></label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={username}
+              placeholder="Nombre de Usuario"
+              onChange={onChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="email">Email <span className="required">*</span></label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              placeholder="Email"
+              onChange={onChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="phone">Número de Teléfono</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              value={phone}
+              placeholder="Número de Teléfono"
+              onChange={onChange}
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="bio">Pequeña Descripción</label>
+            <textarea
+              id="bio"
+              name="bio"
+              value={bio}
+              placeholder="Cuéntanos un poco sobre ti..."
+              onChange={onChange}
+              rows="4"
+            />
+          </div>
+
+          <div className="form-actions">
+            <button type="button" className="btn-cancel" onClick={onClose}>
+              Cancelar
+            </button>
+            <button type="submit" className="btn-save">
+              Guardar cambios
             </button>
           </div>
-
-          <div className="form-fields">
-            <div className="form-group">
-              <label>Nombre</label>
-              <div className="input-with-edit">
-                <input 
-                  type="text" 
-                  name="name"
-                  value={userData.name}
-                  onChange={handleChange}
-                  disabled={!editableFields.name}
-                  placeholder="Nombre"
-                  onClick={() => !editableFields.name && handleEditField('name')}
-                />
-                <button 
-                  type="button" 
-                  className="edit-field-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditField('name');
-                  }}
-                >
-                  {editableFields.name ? 'Listo' : 'Editar'}
-                </button>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Nombre de Usuario</label>
-              <div className="input-with-edit">
-                <input 
-                  type="text" 
-                  name="username"
-                  value={userData.username}
-                  onChange={handleChange}
-                  disabled={!editableFields.username}
-                  placeholder="Username"
-                  onClick={() => !editableFields.username && handleEditField('username')}
-                />
-                <button 
-                  type="button" 
-                  className="edit-field-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditField('username');
-                  }}
-                >
-                  {editableFields.username ? 'Listo' : 'Editar'}
-                </button>
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>Descripción</label>
-              <div className="input-with-edit">
-                <input 
-                  type="text" 
-                  name="description"
-                  value={userData.description}
-                  onChange={handleChange}
-                  disabled={!editableFields.description}
-                  placeholder="Añade una descripción"
-                  onClick={() => !editableFields.description && handleEditField('description')}
-                />
-                <button 
-                  type="button" 
-                  className="edit-field-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEditField('description');
-                  }}
-                >
-                  {editableFields.description ? 'Listo' : 'Editar'}
-                </button>
-              </div>
-            </div>
-
-            <div className="form-group accessibility">
-              <label>Accessibilidad</label>
-              <div className="toggle-option">
-                <span>Contraste alto de colores</span>
-                <label className="toggle-switch">
-                  <input 
-                    type="checkbox" 
-                    name="highContrast"
-                    checked={userData.highContrast}
-                    onChange={handleChange}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <button type="submit" className="save-changes-btn">
-            Guardar Cambios
-          </button>
         </form>
       </div>
     </div>
-  );
+  )
 }
 
-export default PersonalizeModal;
+export default PersonalizeModal

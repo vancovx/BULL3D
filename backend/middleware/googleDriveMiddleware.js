@@ -15,6 +15,7 @@ const upload = multer({
 class GoogleDriveService {
   constructor() {
     this.drive = null;
+    this.auth = null; // Store the auth client
     this.initialize();
   }
 
@@ -37,12 +38,48 @@ class GoogleDriveService {
       }
   
       client.setCredentials({ refresh_token: credentials.refresh_token });
+      this.auth = client; // Store the auth client
       
       this.drive = google.drive({ version: 'v3', auth: client });
       console.log('Google Drive API inicializada correctamente');
     } catch (error) {
       console.error('Error al inicializar Google Drive API:', error);
-      throw error;  // Re-lanzar el error para hacerlo visible
+      throw error; 
+    }
+  }
+
+  // Get a fresh access token
+  async getAccessToken() {
+    try {
+      const { token } = await this.auth.getAccessToken();
+      return token;
+    } catch (error) {
+      console.error('Error al obtener access token:', error);
+      throw error;
+    }
+  }
+
+  // Get file metadata
+ 
+
+  // Generate a direct download URL for a file
+  async getDownloadUrl(fileId) {
+    try {
+      // Verificar que el archivo existe y obtener sus metadatos
+      const fileMetadata = await this.getFileMetadata(fileId);
+      
+      // Crear una URL de descarga directa que no use el proxy
+      const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
+      
+      return {
+        downloadUrl,
+        fileName: fileMetadata.name,
+        mimeType: fileMetadata.mimeType,
+        size: fileMetadata.size
+      };
+    } catch (error) {
+      console.error('Error al generar URL de descarga:', error);
+      throw error;
     }
   }
 
@@ -126,61 +163,61 @@ class GoogleDriveService {
     }
   }
 
-// Eliminar un archivo o carpeta de Google Drive
-async deleteFile(fileId) {
-  if (!fileId) {
-    console.log('Se intentó eliminar un archivo con ID indefinido o nulo');
-    return false;
-  }
+  // Eliminar un archivo o carpeta de Google Drive
+  async deleteFile(fileId) {
+    if (!fileId) {
+      console.log('Se intentó eliminar un archivo con ID indefinido o nulo');
+      return false;
+    }
 
-  try {
-    console.log(`Intentando eliminar archivo con ID: ${fileId}`);
-    
-    // Verificar primero si el archivo existe
-    const checkFile = await this.drive.files.get({
-      fileId: fileId,
-      fields: 'id,name,mimeType'
-    }).catch(err => {
-      // Si el archivo no existe o hay otro error al obtenerlo
-      console.log(`Error al verificar existencia del archivo ${fileId}:`, err.message);
-      return null;
-    });
-    
-    // Si el archivo no existe, devolvemos verdadero ya que el resultado es el mismo
-    if (!checkFile) {
-      console.log(`El archivo ${fileId} no existe o no es accesible`);
+    try {
+      console.log(`Intentando eliminar archivo con ID: ${fileId}`);
+      
+      // Verificar primero si el archivo existe
+      const checkFile = await this.drive.files.get({
+        fileId: fileId,
+        fields: 'id,name,mimeType'
+      }).catch(err => {
+        // Si el archivo no existe o hay otro error al obtenerlo
+        console.log(`Error al verificar existencia del archivo ${fileId}:`, err.message);
+        return null;
+      });
+      
+      // Si el archivo no existe, devolvemos verdadero ya que el resultado es el mismo
+      if (!checkFile) {
+        console.log(`El archivo ${fileId} no existe o no es accesible`);
+        return true;
+      }
+      
+      console.log(`Archivo encontrado: ${checkFile.data.name} (${checkFile.data.mimeType})`);
+      
+      // Eliminar el archivo
+      await this.drive.files.delete({
+        fileId: fileId
+      });
+      
+      console.log(`Archivo ${fileId} eliminado con éxito`);
       return true;
+    } catch (error) {
+      console.error(`Error detallado al eliminar archivo ${fileId}:`, error);
+      
+      // Si el error es 404 (archivo no encontrado), consideramos que ya está eliminado
+      if (error.response && error.response.status === 404) {
+        console.log(`Archivo ${fileId} no encontrado, se considera ya eliminado`);
+        return true;
+      }
+      
+      // Comprobar si hay errores de permisos o token expirado
+      if (error.response && error.response.status === 401) {
+        console.error('Error de autenticación. Posible token expirado.');
+      } else if (error.response && error.response.status === 403) {
+        console.error('Error de permisos. No tienes permiso para eliminar este archivo.');
+      }
+      
+      // Para cualquier otro error, lo propagamos
+      throw error;
     }
-    
-    console.log(`Archivo encontrado: ${checkFile.data.name} (${checkFile.data.mimeType})`);
-    
-    // Eliminar el archivo
-    await this.drive.files.delete({
-      fileId: fileId
-    });
-    
-    console.log(`Archivo ${fileId} eliminado con éxito`);
-    return true;
-  } catch (error) {
-    console.error(`Error detallado al eliminar archivo ${fileId}:`, error);
-    
-    // Si el error es 404 (archivo no encontrado), consideramos que ya está eliminado
-    if (error.response && error.response.status === 404) {
-      console.log(`Archivo ${fileId} no encontrado, se considera ya eliminado`);
-      return true;
-    }
-    
-    // Comprobar si hay errores de permisos o token expirado
-    if (error.response && error.response.status === 401) {
-      console.error('Error de autenticación. Posible token expirado.');
-    } else if (error.response && error.response.status === 403) {
-      console.error('Error de permisos. No tienes permiso para eliminar este archivo.');
-    }
-    
-    // Para cualquier otro error, lo propagamos
-    throw error;
   }
-}
 
   // Actualizar un archivo existente
   async updateFile(fileId, fileBuffer, mimeType) {

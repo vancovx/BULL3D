@@ -4,6 +4,7 @@ import { getAssetById, reset } from '../features/assets/assetSlice'
 import { getUserById } from '../features/users/userSlice'
 import { logout, reset as authReset } from '../features/auth/authSlice'
 import { useParams, Link, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import { FaArrowLeft, FaSearch, FaStar, FaDownload, FaUser, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa'
 import Spinner from '../components/Spinner'
 import './ViewAsset.css'
@@ -101,6 +102,35 @@ function ViewAsset() {
     return url;
   };
 
+  // Función para obtener la URL de descarga, separada de la URL de visualización
+  const getDownloadUrl = (url) => {
+    if (!url) return '';
+    
+    // Si ya es una URL de nuestro proxy, extraer el ID
+    if (url.startsWith('/api/proxy/image/')) {
+      const fileId = url.replace('/api/proxy/image/', '');
+      return `/api/proxy/download/${fileId}`;
+    }
+    
+    // Si es una URL de Google Drive, extraer el ID y usar nuestro endpoint de descarga
+    if (url.includes('drive.google.com')) {
+      // Intentar obtener el ID del parámetro id=
+      const idParam = url.match(/[?&]id=([^&]+)/);
+      if (idParam && idParam[1]) {
+        return `/api/proxy/download/${idParam[1]}`;
+      }
+      
+      // Intentar obtener el ID del patrón /d/ o /file/d/
+      const pathId = url.match(/\/d\/([^\/\?]+)/) || url.match(/\/file\/d\/([^\/\?]+)/);
+      if (pathId && pathId[1]) {
+        return `/api/proxy/download/${pathId[1]}`;
+      }
+    }
+    
+    // Para cualquier otra URL, la devolvemos tal cual
+    return url;
+  };
+
   // Manejar la carga/error de la imagen principal
   const handleMainImageLoad = () => {
     setImagesLoaded(prev => ({ ...prev, main: true }))
@@ -134,6 +164,74 @@ function ViewAsset() {
   const getInitial = (name) => {
     return name ? name.charAt(0).toUpperCase() : '?';
   }
+
+  // Función actualizada para manejar la descarga del archivo
+   // Función actualizada para manejar la descarga directa del archivo
+const handleDownload = () => {
+  if (asset && asset.contentUrl) {
+    try {
+      // Extraer el fileId de la URL
+      let fileId = null;
+      
+      // Si la URL es de nuestro proxy, extraer el ID directamente
+      if (asset.contentUrl.startsWith('/api/proxy/image/')) {
+        fileId = asset.contentUrl.replace('/api/proxy/image/', '');
+      } 
+      // Si es una URL de Google Drive, extraer el ID de los parámetros
+      else if (asset.contentUrl.includes('drive.google.com')) {
+        // Intentar obtener el ID del parámetro id=
+        const idParam = asset.contentUrl.match(/[?&]id=([^&]+)/);
+        if (idParam && idParam[1]) {
+          fileId = idParam[1];
+        }
+        
+        // Intentar obtener el ID del patrón /d/ o /file/d/
+        if (!fileId) {
+          const pathId = asset.contentUrl.match(/\/d\/([^\/\?]+)/) || 
+                         asset.contentUrl.match(/\/file\/d\/([^\/\?]+)/);
+          if (pathId && pathId[1]) {
+            fileId = pathId[1];
+          }
+        }
+      }
+      
+      if (!fileId) {
+        toast.error('No se pudo determinar el ID del archivo para descargar');
+        return;
+      }
+      
+      // Obtener nombre de archivo para la descarga basado en el título del asset
+      const fileName = asset.title 
+        ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
+        : 'asset_content';
+      
+      // Construir la URL de descarga utilizando nuestro endpoint de descarga
+      const downloadUrl = `/api/proxy/download/${fileId}?name=${encodeURIComponent(fileName)}`;
+      
+      // Crear un elemento <a> temporal para la descarga
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', ''); // El atributo download vacío indica que se debe descargar el archivo
+      link.style.display = 'none';
+      
+      // Añadir al DOM, hacer clic y eliminar
+      document.body.appendChild(link);
+      link.click();
+      
+      // Pequeño retraso antes de eliminar el elemento para asegurar que el navegador inicie la descarga
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
+      
+      toast.success('Descarga iniciada');
+    } catch (error) {
+      console.error('Error al iniciar la descarga:', error);
+      toast.error('Error al iniciar la descarga');
+    }
+  } else {
+    toast.error('No hay contenido disponible para descargar');
+  }
+};
 
   if (isLoading) {
     return <Spinner />
@@ -229,7 +327,7 @@ function ViewAsset() {
           </div>
 
           <div className="download-actions">
-            <button className="download-button">
+            <button className="download-button" onClick={handleDownload}>
               <FaDownload /> Descargar
             </button>
             <div className="favorite-button">

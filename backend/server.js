@@ -16,11 +16,12 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 
-//Peticiones que hemos declarado
-//app.use('/api/goals', require('./routes/goalRoutes'))
+//Peticiones 
 app.use('/api/users', require('./routes/userRoutes'))
 app.use('/api/assets', require('./routes/assetRoutes'))
-app.use('/api/proxy', require('./routes/proxyRoutes'))  // Nueva ruta para el proxy
+app.use('/api/proxy', require('./routes/proxyRoutes')) 
+app.use('/api/assets/:assetId/comments', require('./routes/commentRoutes'));
+app.use('/api/comments', require('./routes/commentRoutes'));
 
 // Serve frontend
 if (process.env.NODE_ENV === 'production') {

@@ -15,6 +15,12 @@ const getAssetById = async (assetId) => {
     return response.data
 }
 
+// Get assets by user ID (public access)
+const getUserAssets = async (userId) => {
+    const response = await axios.get(`${API_URL}user/${userId}`)
+    return response.data
+}
+
 //Upload asset
 const createAsset = async (assetData, token) => {
     const config = {
@@ -134,6 +140,7 @@ const deleteAsset = async (assetId, token) => {
 const assetService = {
     getAssets,
     getAssetById,
+    getUserAssets,
     createAsset,
     updateAsset,
     deleteAsset

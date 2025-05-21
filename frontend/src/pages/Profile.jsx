@@ -5,7 +5,7 @@ import { toast } from 'react-toastify'
 import { FaSignOutAlt } from 'react-icons/fa'
 import { getMe, updateUser, reset as userReset } from '../features/users/userSlice'
 import { logout, reset as authReset } from '../features/auth/authSlice'
-import { getUserAssets } from '../features/assets/assetSlice'
+import { getUserAssets, deleteAsset, reset as assetReset } from '../features/assets/assetSlice'
 import Spinner from '../components/Spinner'
 import PersonalizeModal from './PersonalizeModal'
 import './Profile.css'
@@ -14,16 +14,13 @@ function Profile() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const [showPersonalizeModal, setShowPersonalizeModal] = useState(false)
+  const [activeTab, setActiveTab] = useState('assets')
 
   // Obtenemos el usuario autenticado y el perfil del estado
   const { user } = useSelector((state) => state.auth)
   const { profile, isLoading, isSuccess, isError, message } = useSelector((state) => state.user)
-  const { userAssets, isLoading: assetsLoading } = useSelector((state) => state.assets)
+  const { userAssets, isLoading: assetsLoading, isError: assetsError, message: assetsMessage } = useSelector((state) => state.assets)
 
-  // Agregar console.log para debugging
-  console.log('Auth User:', user)
-  console.log('User Profile:', profile)
-  
   // Este useEffect se ejecuta al cargar el componente
   useEffect(() => {
     // Si no hay usuario autenticado, redirigir al login
@@ -33,34 +30,72 @@ function Profile() {
     }
 
     // Cargar el perfil del usuario actual con dispatch
-    console.log('Dispatching getMe()')
     dispatch(getMe())
-
-    // Cargar los assets del usuario si tenemos su ID
-    if (user && user._id) {
-      console.log('Dispatching getUserAssets() with ID:', user.id)
-      dispatch(getUserAssets(user._id))
+    
+    // Cargar los assets del usuario
+    if (user && (user._id || user.id)) {
+      dispatch(getUserAssets(user._id || user.id))
     }
     
+    // Limpiar estados al desmontar el componente
+    return () => {
+      dispatch(userReset())
+      dispatch(assetReset())
+    }
   }, [user, navigate, dispatch])
   
   // Manejar errores
   useEffect(() => {
     if (isError) {
-      console.error('Error in user profile:', message)
       toast.error(message)
     }
     
-    if (isSuccess) {
-      console.log('Profile loaded successfully')
+    if (assetsError) {
+      toast.error(assetsMessage)
     }
-  }, [isError, isSuccess, message])
+  }, [isError, message, assetsError, assetsMessage])
 
   // Función para cerrar sesión
   const onLogout = () => {
     dispatch(logout())
     dispatch(authReset())
+    dispatch(userReset())
+    dispatch(assetReset())
     navigate('/')
+  }
+
+  // Función para eliminar un asset
+  const handleDeleteAsset = (assetId) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este asset?')) {
+      dispatch(deleteAsset(assetId))
+        .unwrap()
+        .then(() => {
+          toast.success('Asset eliminado correctamente')
+          // Recargar los assets del usuario
+          if (user && (user._id || user.id)) {
+            dispatch(getUserAssets(user._id || user.id))
+          }
+        })
+        .catch((error) => {
+          toast.error('Error al eliminar el asset')
+        })
+    }
+  }
+
+  // Función para descargar un asset
+  const handleDownloadAsset = (asset) => {
+    // Verificar si hay una URL de contenido para descargar
+    if (asset.contentUrl) {
+      // Crear un enlace temporal
+      const link = document.createElement('a')
+      link.href = asset.contentUrl
+      link.download = asset.title || 'asset-download'
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+    } else {
+      toast.error('No hay contenido disponible para descargar')
+    }
   }
 
   // Funciones para manejar el modal
@@ -70,6 +105,11 @@ function Profile() {
   // Función para obtener la inicial del nombre
   const getInitial = (name) => {
     return name ? name.charAt(0).toUpperCase() : '?'
+  }
+
+  // Función para manejar el cambio de tabs
+  const handleTabChange = (tab) => {
+    setActiveTab(tab)
   }
 
   // Mostrar spinner mientras carga
@@ -105,8 +145,18 @@ function Profile() {
       </div>
 
       <div className="profile-tabs">
-        <button className="tab-btn active">Mis Assets</button>
-        <button className="tab-btn">Descargas</button>
+        <button 
+          className={`tab-btn ${activeTab === 'assets' ? 'active' : ''}`}
+          onClick={() => handleTabChange('assets')}
+        >
+          Mis Assets
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'downloads' ? 'active' : ''}`}
+          onClick={() => handleTabChange('downloads')}
+        >
+          Descargas
+        </button>
         <div className="tab-right">
           <button className="logout-btn" onClick={onLogout}>
             <FaSignOutAlt /> Cerrar Sesión
@@ -114,40 +164,65 @@ function Profile() {
         </div>
       </div>
 
-      <div className="assets-grid">
-        {assetsLoading ? (
-          <div className="loading-assets">Cargando assets...</div>
-        ) : userAssets && userAssets.length > 0 ? (
-          userAssets.map(asset => (
-            <div className="asset-card" key={asset._id}>
-              <div className="asset-img">
-                <img 
-                  src={asset.coverImageUrl} 
-                  alt={asset.title} 
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = '/placeholder-image.jpg';
-                  }}
-                />
-                <button className="remove-btn">×</button>
-                <button className="download-btn">↓</button>
+      {activeTab === 'assets' && (
+        <div className="assets-grid">
+          {assetsLoading ? (
+            <div className="loading-assets">Cargando assets...</div>
+          ) : userAssets && userAssets.length > 0 ? (
+            userAssets.map(asset => (
+              <div className="asset-card" key={asset._id}>
+                <div className="asset-img">
+                  <img 
+                    src={asset.coverImageUrl} 
+                    alt={asset.title} 
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/placeholder-image.jpg';
+                    }}
+                    onClick={() => navigate(`/assets/${asset._id}`)}
+                  />
+                  <button 
+                    className="remove-btn" 
+                    onClick={() => handleDeleteAsset(asset._id)}
+                    title="Eliminar asset"
+                  >
+                    ×
+                  </button>
+                  <button 
+                    className="download-btn" 
+                    onClick={() => handleDownloadAsset(asset)}
+                    title="Descargar asset"
+                  >
+                    ↓
+                  </button>
+                </div>
+                <div className="asset-title" onClick={() => navigate(`/assets/${asset._id}`)}>
+                  {asset.title}
+                </div>
               </div>
-              <div className="asset-title">{asset.title}</div>
+            ))
+          ) : (
+            <div className="no-assets">
+              <p>No tienes assets publicados</p>
+              <button className="create-asset-btn" onClick={() => navigate('/new-asset')}>
+                Crear un asset
+              </button>
             </div>
-          ))
-        ) : (
-          <div className="no-assets">
-            <p>No tienes assets publicados</p>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'downloads' && (
+        <div className="downloads-section">
+          <p>Funcionalidad de descargas en desarrollo.</p>
+        </div>
+      )}
 
       {showPersonalizeModal && (
         <PersonalizeModal 
           profile={profile || user || {}} 
           onClose={closePersonalizeModal} 
           onSave={(data) => {
-            console.log('Saving profile data:', data)
             dispatch(updateUser(data))
               .unwrap()
               .then(() => {
@@ -157,7 +232,6 @@ function Profile() {
                 dispatch(getMe());
               })
               .catch((error) => {
-                console.error('Error updating profile:', error)
                 toast.error('Error al actualizar el perfil');
               });
           }} 

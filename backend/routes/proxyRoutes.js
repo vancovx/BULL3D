@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const { driveService } = require('../middleware/googleDriveMiddleware');
 
 // Proxy route for Google Drive images
 router.get('/image/:id', async (req, res) => {
