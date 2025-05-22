@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { getAssetById, reset } from '../features/assets/assetSlice'
 import { getUserById } from '../features/users/userSlice'
 import { checkFavorite, addFavorite, removeFavorite, reset as favoriteReset } from '../features/favorites/favoriteSlice'
+import { registerDownload } from '../features/downloads/downloadSlice'
 import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { FaArrowLeft, FaStar, FaRegStar, FaDownload, FaLock } from 'react-icons/fa'
@@ -17,6 +18,7 @@ function ViewAsset() {
   const [imagesLoaded, setImagesLoaded] = useState({})
   const [imagesError, setImagesError] = useState({})
   const [assetOwner, setAssetOwner] = useState(null)
+  const [isDownloading, setIsDownloading] = useState(false) // Estado para controlar la descarga
   
   const { asset, isLoading, isError, message } = useSelector(
     (state) => state.assets
@@ -158,48 +160,104 @@ function ViewAsset() {
     }
   };
 
-
-const handleDownload = () => {
-  // Verificar si el usuario está autenticado
-  if (!user) {
-    toast.info('Inicia sesión para descargar este asset');
-    navigate('/login');
-    return;
-  }
-
-  // Verificar que el asset tiene una URL de descarga
-  if (asset && asset.downloadUrl) {
-    try {
-      console.log('Iniciando descarga desde:', asset.downloadUrl);
-      
-      // Obtener nombre de archivo para la descarga basado en el título del asset
-      const fileName = asset.title 
-        ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
-        : 'asset_content';
-      
-      // Crear un elemento <a> temporal para la descarga
-      const link = document.createElement('a');
-      link.href = asset.downloadUrl; // URL DIRECTA de Google Drive
-      link.setAttribute('download', fileName); // Nombre sugerido para el archivo
-      // REMOVIDO: link.setAttribute('target', '_blank'); - Esto causaba que se abra en nueva pestaña
-      link.style.display = 'none';
-      
-      // Añadir al DOM, hacer clic y eliminar
-      document.body.appendChild(link);
-      link.click();
-      
-      // Eliminar el elemento inmediatamente
-      document.body.removeChild(link);
-      
-      toast.success('Descarga iniciada');
-    } catch (error) {
-      console.error('Error al iniciar la descarga:', error);
-      toast.error('Error al iniciar la descarga');
+  // Función modificada para manejar la descarga con registro en historial
+  const handleDownload = async () => {
+    // Verificar si el usuario está autenticado
+    if (!user) {
+      toast.info('Inicia sesión para descargar este asset');
+      navigate('/login');
+      return;
     }
-  } else {
-    toast.error('No hay contenido disponible para descargar');
-  }
-};
+
+    // Verificar que el asset tiene una URL de descarga
+    if (!asset || !asset.downloadUrl) {
+      toast.error('No hay contenido disponible para descargar');
+      return;
+    }
+
+    // Evitar múltiples descargas simultáneas
+    if (isDownloading) {
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      console.log('Registrando descarga en el historial...');
+      
+      // Primero registrar la descarga en el historial
+      const downloadResponse = await dispatch(registerDownload(asset._id)).unwrap();
+      
+      console.log('Descarga registrada:', downloadResponse);
+      
+      // Si el registro fue exitoso, proceder con la descarga
+      if (downloadResponse && downloadResponse.downloadUrl) {
+        // Obtener nombre de archivo para la descarga basado en el título del asset
+        const fileName = asset.title 
+          ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
+          : 'asset_content';
+        
+        // Crear un elemento <a> temporal para la descarga
+        const link = document.createElement('a');
+        link.href = downloadResponse.downloadUrl; // Usar la URL del response
+        link.setAttribute('download', fileName);
+        link.style.display = 'none';
+        
+        // Añadir al DOM, hacer clic y eliminar
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.success('Descarga iniciada y registrada en tu historial');
+      } else {
+        // Si no hay URL en el response, usar la URL original del asset
+        const fileName = asset.title 
+          ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
+          : 'asset_content';
+        
+        const link = document.createElement('a');
+        link.href = asset.downloadUrl;
+        link.setAttribute('download', fileName);
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.success('Descarga iniciada y registrada en tu historial');
+      }
+      
+    } catch (error) {
+      console.error('Error al registrar la descarga:', error);
+      
+      // Si falla el registro, aún permitir la descarga pero sin historial
+      if (asset.downloadUrl) {
+        try {
+          const fileName = asset.title 
+            ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
+            : 'asset_content';
+          
+          const link = document.createElement('a');
+          link.href = asset.downloadUrl;
+          link.setAttribute('download', fileName);
+          link.style.display = 'none';
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          toast.warning('Descarga iniciada, pero no se pudo registrar en el historial');
+        } catch (downloadError) {
+          console.error('Error al iniciar la descarga:', downloadError);
+          toast.error('Error al iniciar la descarga');
+        }
+      } else {
+        toast.error('Error al procesar la descarga');
+      }
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   // Redireccionar a login
   const redirectToLogin = () => {
@@ -306,8 +364,12 @@ const handleDownload = () => {
           <div className="download-actions">
             {user ? (
               <>
-                <button className="download-button" onClick={handleDownload}>
-                  <FaDownload /> Descargar
+                <button 
+                  className={`download-button ${isDownloading ? 'downloading' : ''}`}
+                  onClick={handleDownload}
+                  disabled={isDownloading}
+                >
+                  <FaDownload /> {isDownloading ? 'Descargando...' : 'Descargar'}
                 </button>
                 <button 
                   className={`favorite-button ${isFavorite ? 'favorite-active' : ''}`} 

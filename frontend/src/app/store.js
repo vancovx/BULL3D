@@ -4,6 +4,7 @@ import assetReducer from '../features/assets/assetSlice'
 import userReducer from '../features/users/userSlice'
 import commentReducer from '../features/comments/commentSlice'
 import favoriteReducer from '../features/favorites/favoriteSlice'
+import downloadReducer from '../features/downloads/downloadSlice'
 
 export const store = configureStore({
     reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
         user: userReducer,
         coments: commentReducer,
         favorites: favoriteReducer,
+        downloads: downloadReducer,
     },
 })
