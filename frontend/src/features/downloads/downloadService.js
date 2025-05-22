@@ -9,6 +9,7 @@ const registerDownload = async (assetId, token) => {
       Authorization: `Bearer ${token}`,
     },
   };
+  
 
   const response = await axios.post(`${API_URL}${assetId}`, {}, config);
   return response.data;

@@ -11,7 +11,7 @@ export const store = configureStore({
         auth: authReducer,
         assets: assetReducer,
         user: userReducer,
-        coments: commentReducer,
+        comments: commentReducer,
         favorites: favoriteReducer,
         downloads: downloadReducer,
     },
