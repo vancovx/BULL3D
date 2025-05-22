@@ -4,6 +4,9 @@ import { FaTimes, FaUserEdit } from 'react-icons/fa'
 import './PersonalizeModal.css'
 
 function PersonalizeModal({ profile, onClose, onSave }) {
+  // ✅ NUEVO: Estado para alto contraste
+  const [isHighContrast, setIsHighContrast] = useState(false)
+
   // Estado para los datos del formulario
   const [formData, setFormData] = useState({
     name: '',
@@ -12,6 +15,26 @@ function PersonalizeModal({ profile, onClose, onSave }) {
     phone: '',
     bio: '',
   })
+
+  // ✅ NUEVO: Cargar preferencia de alto contraste guardada
+  useEffect(() => {
+    const savedContrast = localStorage.getItem('high-contrast')
+    if (savedContrast) {
+      setIsHighContrast(JSON.parse(savedContrast))
+    }
+  }, [])
+
+  // ✅ NUEVO: Aplicar el tema cuando cambie el estado de alto contraste
+  useEffect(() => {
+    if (isHighContrast) {
+      document.documentElement.setAttribute('data-theme', 'high-contrast')
+    } else {
+      document.documentElement.removeAttribute('data-theme')
+    }
+    
+    // Guardar preferencia en localStorage
+    localStorage.setItem('high-contrast', JSON.stringify(isHighContrast))
+  }, [isHighContrast])
 
   // Inicializar el formulario con los datos del perfil
   useEffect(() => {
@@ -41,6 +64,12 @@ function PersonalizeModal({ profile, onClose, onSave }) {
       ...prevState,
       [e.target.name]: e.target.value,
     }))
+  }
+
+  // ✅ NUEVO: Handler para el cambio de alto contraste
+  const handleContrastToggle = (e) => {
+    setIsHighContrast(e.target.checked)
+    toast.success(e.target.checked ? 'Alto contraste activado' : 'Alto contraste desactivado')
   }
 
   // Función para manejar el envío del formulario
@@ -164,6 +193,22 @@ function PersonalizeModal({ profile, onClose, onSave }) {
               onChange={onChange}
               rows="4"
             />
+          </div>
+
+          {/* ✅ MOVIDO: Sección de Accesibilidad al final */}
+          <div className="accessibility-section">
+            <h3>Accesibilidad</h3>
+            <div className="contrast-switch">
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={isHighContrast}
+                  onChange={handleContrastToggle}
+                />
+                <span className="slider"></span>
+              </label>
+              <span className="switch-label">Activar modo alto contraste</span>
+            </div>
           </div>
 
           <div className="form-actions">

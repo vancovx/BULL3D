@@ -1,0 +1,139 @@
+/* high-contrast.css */
+
+/* Sobrescrituras para el modal PersonalizeModal */
+[data-theme="high-contrast"] .modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.95) !important;
+}
+
+[data-theme="high-contrast"] .personalize-modal {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] .modal-header {
+  background-color: #000000 !important;
+  border-bottom: 2px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] .modal-header h2,
+[data-theme="high-contrast"] .close-btn {
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .close-btn:hover {
+  color: #ffff00 !important;
+}
+
+[data-theme="high-contrast"] .personalize-form {
+  background-color: #000000 !important;
+}
+
+[data-theme="high-contrast"] .avatar-section {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] .profile-avatar-large {
+  background-color: #ffffff !important;
+  border: 3px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] .profile-initials {
+  color: #000000 !important;
+}
+
+[data-theme="high-contrast"] .avatar-note {
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .form-group label {
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .required {
+  color: #ffff00 !important;
+}
+
+[data-theme="high-contrast"] .form-group input,
+[data-theme="high-contrast"] .form-group textarea {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .form-group input:focus,
+[data-theme="high-contrast"] .form-group textarea:focus {
+  border-color: #ffff00 !important;
+  outline: 3px solid #ffff00 !important;
+}
+
+[data-theme="high-contrast"] .form-group input::placeholder,
+[data-theme="high-contrast"] .form-group textarea::placeholder {
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .form-actions {
+  border-top: 2px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] .btn-cancel {
+  background-color: #000000 !important;
+  border: 2px solid #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="high-contrast"] .btn-cancel:hover {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+[data-theme="high-contrast"] .btn-save {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] .btn-save:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+/* Sobrescrituras GLOBALES para toda tu app */
+[data-theme="high-contrast"] * {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+[data-theme="high-contrast"] button {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 2px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] button:hover {
+  background-color: #ffff00 !important;
+  color: #000000 !important;
+}
+
+[data-theme="high-contrast"] input,
+[data-theme="high-contrast"] textarea,
+[data-theme="high-contrast"] select {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+[data-theme="high-contrast"] input:focus,
+[data-theme="high-contrast"] textarea:focus,
+[data-theme="high-contrast"] select:focus {
+  outline: 3px solid #ffff00 !important;
+  border-color: #ffff00 !important;
+}
+
+[data-theme="high-contrast"] a {
+  color: #ffff00 !important;
+  text-decoration: underline !important;
+}

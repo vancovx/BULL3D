@@ -1,4 +1,4 @@
-/* Header.css - Versión corregida para centrar búsqueda en responsive */
+/* Header.css - Versión completa */
 :root {
   --primary-color: #AF52DE;
   --dark-bg: #121628;
@@ -253,34 +253,21 @@
   transform: translateY(-2px);
 }
 
-/* Responsive - AQUÍ ESTÁ LA CORRECCIÓN PRINCIPAL */
+/* Responsive */
 @media (max-width: 992px) {
   .header-content {
     flex-wrap: wrap;
-    justify-content: space-between; /* Cambio: distribute space between items */
   }
   
-  /* Mantener logo y navegación en la primera fila */
-  .logo-container,
-  .header-nav {
-    order: 1;
-  }
-  
-  /* Auth section también en la primera fila */
-  .auth-section {
-    order: 2;
-    margin-left: 0; /* Cambio: remove auto margin */
-  }
-  
-  /* Barra de búsqueda en segunda fila, centrada */
   .search-box {
     order: 3;
-    flex-basis: 100%; /* Cambio: take full width */
     max-width: 100%;
     width: 100%;
     margin: 10px 0;
-    margin-left: 0; /* Cambio: remove left margin */
-    justify-self: center; /* Cambio: center itself */
+  }
+  
+  .auth-section {
+    order: 2;
   }
   
   .categories-dropdown {
@@ -291,10 +278,6 @@
 }
 
 @media (max-width: 768px) {
-  .header-content {
-    gap: 15px; /* Reduce gap for smaller screens */
-  }
-  
   .nav-link {
     font-size: 0.8rem;
   }
@@ -313,38 +296,11 @@
   .categories-grid {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  /* Ajustar header para pantallas muy pequeñas */
-  .header-nav {
-    margin-left: 10px;
-  }
-  
-  .search-box {
-    margin: 15px 0;
-  }
 }
 
 @media (max-width: 480px) {
   .categories-grid {
     grid-template-columns: 1fr;
-  }
-  
-  /* En pantallas muy pequeñas, hacer el header más compacto */
-  .main-header {
-    padding: 8px 10px;
-  }
-  
-  .header-content {
-    gap: 10px;
-  }
-  
-  .btn-register, .btn-login, .btn-logout {
-    padding: 5px 8px;
-    font-size: 0.75rem;
-  }
-  
-  .search-box {
-    margin: 12px 0;
   }
 }
 

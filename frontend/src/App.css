@@ -71,3 +71,5 @@ input, button, textarea, select {
     padding: 0 15px;
   }
 }
+
+@import './pages/high-contrast.css';
