@@ -489,192 +489,6 @@
     gap: 15px;
   }
 
-  /* Hacer los botones más grandes en móvil pequeño */
-  .mobile-actions {
-    flex-direction: column;
-    gap: 10px;
-    align-items: center;
-    max-width: 300px;
-    margin: 20px auto 0;
-  }
-
-  .mobile-actions .download-button {
-    width: 100%;
-    padding: 15px;
-    font-size: 1.1rem;
-    justify-content: center;
-  }
-
-  .mobile-actions .favorite-button {
-    width: 60px;
-    height: 50px;
-    font-size: 1.2rem;
-  }
-}
-
-/* Estilos específicos para los botones móviles */
-.mobile-actions .download-button {
-  flex: 1;
-  background-color: #8c52ff;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 12px 20px;
-  font-size: 1rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-  min-height: 48px;
-}
-
-.mobile-actions .download-button:hover {
-  background-color: #7440e0;
-  transform: translateY(-1px);
-}
-
-.mobile-actions .download-button.disabled {
-  background-color: #444;
-  color: #999;
-  cursor: not-allowed;
-}
-
-.mobile-actions .download-button.disabled:hover {
-  background-color: #444;
-  transform: none;
-}
-
-.mobile-actions .favorite-button {
-  width: 48px;
-  height: 48px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #252730;
-  color: #8c52ff;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-  font-size: 1.1rem;
-}
-
-.mobile-actions .favorite-button:hover {
-  background-color: #303450;
-  transform: translateY(-1px);
-}
-
-.mobile-actions .favorite-button.favorite-active {
-  background-color: #8c52ff;
-  color: white;
-}
-
-.mobile-actions .favorite-button.disabled {
-  background-color: #444;
-  color: #666;
-  cursor: not-allowed;
-}
-
-.mobile-actions .favorite-button.disabled:hover {
-  background-color: #444;
-  transform: none;
-}
-
-
-/* Contenedor para las acciones móviles */
-.mobile-actions {
-  display: none;
-  width: 100%;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 20px;
-  padding: 0 20px;
-}
-
-/* Media Queries - MODIFICAR la sección móvil existente */
-@media (max-width: 992px) {
-  .main-container {
-    grid-template-columns: 1fr;
-  }
-  
-  .asset-main-view, .asset-sidebar {
-    padding: 15px;
-  }
-
-  /* MOSTRAR acciones móviles */
-  .mobile-actions {
-    display: flex;
-  }
-
-  /* OCULTAR acciones del sidebar en móvil */
-  .asset-sidebar .download-actions {
-    display: none;
-  }
-
-  /* Ajustar el orden de elementos en el main view */
-  .asset-main-view {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .asset-main-image {
-    order: 1;
-  }
-
-  .asset-thumbnails {
-    order: 2;
-  }
-
-  .mobile-actions {
-    order: 3;
-  }
-
-  .back-button-container {
-    order: 4;
-  }
-
-  .comments-section {
-    order: 5;
-  }
-}
-
-@media (max-width: 768px) {
-  .asset-title {
-    font-size: 1.3rem;
-  }
-  
-  /* Ajustar botones móviles */
-  .mobile-actions .download-button,
-  .mobile-actions .favorite-button {
-    padding: 12px 20px;
-    font-size: 1rem;
-    border-radius: 8px;
-  }
-
-  .mobile-actions .favorite-button {
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
-  }
-  
-  .asset-thumbnails {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 576px) {
-  .asset-thumbnails {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .main-container {
-    padding: 10px;
-    gap: 15px;
-  }
-
   /* MANTENER los botones en fila horizontal en móvil pequeño */
   .mobile-actions {
     flex-direction: row; /* CAMBIADO: mantener en fila */
@@ -694,10 +508,11 @@
   }
 
   .mobile-actions .favorite-button {
-    width: 60px;
-    height: 50px;
-    font-size: 1.2rem;
-    flex-shrink: 0; /* AÑADIDO: no se encoge */
+    width: 55px; /* AUMENTADO: de 60px a 55px pero más proporcionado */
+    height: 55px; /* AUMENTADO: botón más grande */
+    font-size: 1.8rem; /* AUMENTADO: estrella mucho más grande */
+    border-radius: 8px; /* AUMENTADO: bordes más redondeados */
+    flex-shrink: 0; /* MANTENER: no se encoge */
   }
 }
 
@@ -748,7 +563,7 @@
   cursor: pointer;
   transition: all 0.2s;
   border: none;
-  font-size: 1.1rem;
+  font-size: 1.4rem; /* AUMENTADO: de 1.1rem a 1.4rem */
 }
 
 .mobile-actions .favorite-button:hover {
@@ -770,4 +585,28 @@
 .mobile-actions .favorite-button.disabled:hover {
   background-color: #444;
   transform: none;
+}
+
+/* NUEVO: Estilos específicos para pantallas móviles */
+@media (max-width: 768px) {
+  .mobile-actions .favorite-button {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem; /* AUMENTADO: estrella más grande en tablets */
+  }
+}
+
+@media (max-width: 576px) {
+  .mobile-actions .favorite-button {
+    width: 55px; /* AUMENTADO: de 60px a 55px pero más proporcionado */
+    height: 55px; /* AUMENTADO: botón más grande */
+    font-size: 1.8rem; /* AUMENTADO: estrella mucho más grande */
+    border-radius: 8px; /* AUMENTADO: bordes más redondeados */
+  }
+  
+  .mobile-actions .download-button {
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    min-height: 55px; /* IGUALADO: misma altura que favoritos */
+  }
 }
