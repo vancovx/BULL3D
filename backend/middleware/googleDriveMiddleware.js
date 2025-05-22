@@ -21,9 +21,9 @@ class GoogleDriveService {
 
   initialize() {
     try {
-      const credentialsPath = path.join(__dirname, '../secrets/google-drive-credentials.json');
-      const credentialsFile = fs.readFileSync(credentialsPath);
-      const credentials = JSON.parse(credentialsFile).web;
+      //const credentialsPath = path.join(__dirname, '../secrets/google-drive-credentials.json');
+      //const credentialsFile = fs.readFileSync(credentialsPath);
+      const credentials = JSON.parse(process.env.GOOGLE_DRIVE_CREDENTIALS).web;
   
       const client = new google.auth.OAuth2(
         credentials.client_id,
