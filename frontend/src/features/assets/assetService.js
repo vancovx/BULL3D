@@ -145,7 +145,7 @@ const assetService = {
     getUserAssets,
     createAsset,
     updateAsset,
-    deleteAsset
+    deleteAsset,
 }
 
 export default assetService

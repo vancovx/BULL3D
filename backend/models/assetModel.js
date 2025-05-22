@@ -1,3 +1,4 @@
+// backend/models/assetModel.js
 const mongoose = require('mongoose');
 
 const assetSchema = mongoose.Schema(
@@ -12,11 +13,6 @@ const assetSchema = mongoose.Schema(
       type: String,
       required: [true, 'Please add a title for the asset'],
     },
-
-    // typeContent: {
-    //   type: String,
-    //   required: [true, 'Please add the type of the content'],
-    // },
 
     category: {
       type: String,
@@ -60,7 +56,7 @@ const assetSchema = mongoose.Schema(
       required: [true, 'Content URL is required'],
     },
     
-    // Campo adicional para almacenar IDs de Google Drive (no expuestos al cliente)
+    // Campo adicional para almacenar IDs de Google Drive
     _googleDriveIds: {
       folderId: String,
       coverImageId: String,
@@ -82,10 +78,17 @@ assetSchema.methods.getImagesUrls = function() {
   }
 };
 
-// Hook para limpiar datos antes de enviar al cliente
+// Hook para limpiar datos antes de enviar al cliente (MODIFICADO)
 assetSchema.set('toJSON', {
   transform: function(doc, ret, options) {
-    // Eliminar el campo _googleDriveIds de la respuesta
+    // Solo eliminar _googleDriveIds en operaciones públicas
+    // Para descargas privadas, mantenemos el contentId
+    if (options && options.includeDownloadId) {
+      // Para descargas autenticadas, incluir solo el contentId
+      ret.downloadId = ret._googleDriveIds?.contentId;
+    }
+    
+    // Siempre eliminar el objeto completo _googleDriveIds
     delete ret._googleDriveIds;
     return ret;
   }

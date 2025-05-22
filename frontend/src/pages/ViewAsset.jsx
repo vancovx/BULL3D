@@ -9,6 +9,7 @@ import { FaArrowLeft, FaSearch, FaStar, FaRegStar, FaDownload, FaUser, FaSignInA
 import Spinner from '../components/Spinner'
 import Comments from '../components/Comments'
 import './ViewAsset.css'
+import { getAssetDownloadInfo } from '../features/assets/assetSlice'
 
 function ViewAsset() {
   const { id } = useParams()
