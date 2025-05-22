@@ -17,13 +17,10 @@ function Header() {
   const [searchResults, setSearchResults] = useState([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   
   const dropdownRef = useRef(null)
   const searchRef = useRef(null)
   const mobileMenuRef = useRef(null)
-  const mobileSearchRef = useRef(null)
-  const mobileSearchInputRef = useRef(null); // NUEVO: Ref para el input móvil
   const [categories, setCategories] = useState([])
 
   // Cerrar dropdowns al hacer clic fuera
@@ -35,32 +32,15 @@ function Header() {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSearchResults(false);
       }
-      // MEJORADO: Solo cerrar búsqueda móvil si se hace clic fuera del overlay completo
-      if (showMobileSearch && mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
-        setShowMobileSearch(false);
-        setShowSearchResults(false);
-      }
     }
     
     document.addEventListener("mousedown", handleClickOutside)
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [showMobileSearch])
+  }, [])
 
-  // NUEVO: Efecto para manejar el scroll cuando se abre la búsqueda móvil
-  useEffect(() => {
-    if (showMobileSearch) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    
-    // Limpiar al desmontar
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [showMobileSearch]);
+
 
   // Obtener los assets para extraer sus categorías
   useEffect(() => {
@@ -124,7 +104,6 @@ function Header() {
     if (searchQuery.trim() !== '') {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
       setShowSearchResults(false);
-      closeMobileSearch();
     }
   };
 
@@ -134,7 +113,6 @@ function Header() {
     setSearchQuery('');
     setSearchResults([]);
     setShowSearchResults(false);
-    closeMobileSearch();
   };
 
   // Función para limpiar la búsqueda - UNIFICADA
@@ -154,37 +132,6 @@ function Header() {
   // Función para togglear el menú móvil
   const toggleMobileMenu = () => {
     setShowMobileMenu(!showMobileMenu);
-    // Cerrar búsqueda móvil si está abierta
-    if (showMobileSearch) {
-      closeMobileSearch();
-    }
-  };
-
-  // MEJORADA: Función para abrir la búsqueda móvil
-  const openMobileSearch = () => {
-    console.log('Abriendo búsqueda móvil...'); // Debug
-    setShowMobileSearch(true);
-    // Cerrar menú móvil si está abierto
-    if (showMobileMenu) {
-      setShowMobileMenu(false);
-    }
-    
-    // MEJORADO: Enfocar el input cuando se abre la búsqueda móvil
-    setTimeout(() => {
-      if (mobileSearchInputRef.current) {
-        mobileSearchInputRef.current.focus();
-        console.log('Input móvil enfocado'); // Debug
-      }
-    }, 100); // Reducido el timeout
-  };
-
-  // MEJORADA: Función para cerrar la búsqueda móvil
-  const closeMobileSearch = () => {
-    console.log('Cerrando búsqueda móvil...'); // Debug
-    setShowMobileSearch(false);
-    setShowSearchResults(false);
-    setSearchQuery(''); // NUEVO: Limpiar query al cerrar
-    setSearchResults([]); // NUEVO: Limpiar resultados al cerrar
   };
 
   // Cerrar menú móvil al redimensionar la ventana
@@ -192,7 +139,6 @@ function Header() {
     const handleResize = () => {
       if (window.innerWidth > 768) {
         setShowMobileMenu(false);
-        closeMobileSearch();
       }
     };
 
@@ -325,22 +271,7 @@ function Header() {
             )}
           </div>
 
-          {/* MEJORADO: Botón de búsqueda móvil con mejor funcionalidad */}
-          <button 
-            className="mobile-search-btn"
-            onClick={openMobileSearch}
-            title="Buscar"
-            style={{ 
-              fontSize: '1.2rem',
-              padding: '8px',
-              color: '#8c52ff',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >
-            <FaSearch />
-          </button>
+
 
           {/* Autenticación */}
           <div className='auth-section'>
@@ -395,100 +326,7 @@ function Header() {
         onClick={() => setShowMobileMenu(false)}
       />
 
-      {/* MEJORADO: Búsqueda móvil con funcionalidad completa */}
-      <div className={`mobile-search-overlay ${showMobileSearch ? 'active' : ''}`}>
-        <div className="mobile-search-container" ref={mobileSearchRef}>
-          <div className="mobile-search-header">
-            <h3>Buscar Assets</h3>
-            <button 
-              className="close-search-btn"
-              onClick={closeMobileSearch}
-            >
-              <FaTimes />
-            </button>
-          </div>
-          
-          <form onSubmit={handleSearchSubmit}>
-            <div className="search-box">
-              <input 
-                ref={mobileSearchInputRef} // AÑADIDO: Ref para el input móvil
-                type="text" 
-                placeholder="Buscar assets..." 
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                autoComplete="off" // AÑADIDO: Evitar autocompletado del navegador
-              />
-              {searchQuery && (
-                <button 
-                  type="button" 
-                  className="clear-search-btn" 
-                  onClick={clearSearch}
-                  title="Limpiar búsqueda"
-                >
-                  <FaTimes />
-                </button>
-              )}
-              <button type="submit" className='search-btn' title="Buscar">
-                <FaSearch />
-              </button>
-            </div>
-          </form>
 
-          {/* Resultados de búsqueda móvil - IDÉNTICOS AL DESKTOP */}
-          {showSearchResults && searchResults.length > 0 && (
-            <div className="search-results">
-              <div className="search-results-header">
-                <h3>Resultados</h3>
-                <p>{searchResults.length} encontrados</p>
-              </div>
-              <div className="search-results-list">
-                {searchResults.slice(0, 8).map(asset => (
-                  <div 
-                    key={asset._id} 
-                    className="search-result-item"
-                    onClick={() => navigateToAsset(asset._id)}
-                  >
-                    <div className="search-result-image">
-                      <img 
-                        src={asset.coverImageUrl} 
-                        alt={asset.title} 
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = '/placeholder-image.jpg';
-                        }}
-                      />
-                    </div>
-                    <div className="search-result-info">
-                      <h4>{asset.title}</h4>
-                      <span className="search-result-category">{asset.category}</span>
-                    </div>
-                  </div>
-                ))}
-                
-                {searchResults.length > 8 && (
-                  <div className="see-all-results">
-                    <Link 
-                      to={`/search?q=${encodeURIComponent(searchQuery)}`} 
-                      onClick={closeMobileSearch}
-                    >
-                      Ver todos los resultados ({searchResults.length})
-                    </Link>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-          
-          {showSearchResults && searchResults.length === 0 && searchQuery.trim() !== '' && (
-            <div className="search-results">
-              <div className="no-search-results">
-                <p>No se encontraron resultados para "{searchQuery}"</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
     </>
   )
 }

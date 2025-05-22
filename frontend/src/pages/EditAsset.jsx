@@ -35,8 +35,16 @@ function EditAsset() {
   // Estado para archivos (opcionales en edición)
   const [coverImage, setCoverImage] = useState(null)
   const [coverImagePreview, setCoverImagePreview] = useState(null)
+  // NUEVO: Estado para trackear si hay imagen original
+  const [originalCoverImage, setOriginalCoverImage] = useState(null)
+  const [showCoverImageUpload, setShowCoverImageUpload] = useState(false)
+
   const [additionalImages, setAdditionalImages] = useState([])
   const [additionalImagesPreview, setAdditionalImagesPreview] = useState([])
+  // NUEVO: Estado para imágenes originales
+  const [originalAdditionalImages, setOriginalAdditionalImages] = useState([])
+  const [showAdditionalImagesUpload, setShowAdditionalImagesUpload] = useState(false)
+
   const [content, setContent] = useState(null)
   const [contentName, setContentName] = useState('')
 
@@ -82,6 +90,7 @@ function EditAsset() {
 
       // Configurar imagen de portada existente
       if (asset.coverImageUrl) {
+        setOriginalCoverImage(asset.coverImageUrl)
         setCoverImagePreview(asset.coverImageUrl)
       }
 
@@ -89,6 +98,7 @@ function EditAsset() {
       if (asset.imagesUrl) {
         try {
           const existingImages = JSON.parse(asset.imagesUrl)
+          setOriginalAdditionalImages(existingImages)
           setAdditionalImagesPreview(existingImages)
         } catch (e) {
           console.error('Error parsing existing images:', e)
@@ -145,7 +155,7 @@ function EditAsset() {
     setTags(tags.filter(tag => tag !== tagToRemove))
   }
 
-  // Manejar cambio de imagen de portada
+  // CORREGIDO: Manejar cambio de imagen de portada
   const handleCoverImageChange = (e) => {
     const file = e.target.files[0]
     if (file) {
@@ -155,10 +165,25 @@ function EditAsset() {
         setCoverImagePreview(reader.result)
       }
       reader.readAsDataURL(file)
+      setShowCoverImageUpload(false) // Ocultar el uploader después de seleccionar
     }
   }
 
-  // Manejar cambio de imágenes adicionales
+  // NUEVO: Función para remover la imagen de portada y mostrar uploader
+  const handleRemoveCoverImage = () => {
+    setCoverImage(null)
+    setCoverImagePreview(null)
+    setShowCoverImageUpload(true)
+  }
+
+  // NUEVO: Función para cancelar cambio de imagen de portada
+  const handleCancelCoverImageChange = () => {
+    setCoverImage(null)
+    setCoverImagePreview(originalCoverImage)
+    setShowCoverImageUpload(false)
+  }
+
+  // CORREGIDO: Manejar cambio de imágenes adicionales
   const handleAdditionalImagesChange = (e) => {
     const files = Array.from(e.target.files)
     if (files.length > 0) {
@@ -180,10 +205,12 @@ function EditAsset() {
       Promise.all(newPreviews).then(previews => {
         setAdditionalImagesPreview(previews)
       })
+      
+      setShowAdditionalImagesUpload(false) // Ocultar uploader después de seleccionar
     }
   }
 
-  // Eliminar una imagen adicional
+  // CORREGIDO: Eliminar una imagen adicional
   const removeAdditionalImage = (index) => {
     const updatedImages = [...additionalImages]
     updatedImages.splice(index, 1)
@@ -192,6 +219,25 @@ function EditAsset() {
     const updatedPreviews = [...additionalImagesPreview]
     updatedPreviews.splice(index, 1)
     setAdditionalImagesPreview(updatedPreviews)
+
+    // Si no quedan imágenes, mostrar el uploader
+    if (updatedPreviews.length === 0) {
+      setShowAdditionalImagesUpload(true)
+    }
+  }
+
+  // NUEVO: Función para cambiar imágenes adicionales
+  const handleChangeAdditionalImages = () => {
+    setAdditionalImages([])
+    setAdditionalImagesPreview([])
+    setShowAdditionalImagesUpload(true)
+  }
+
+  // NUEVO: Función para cancelar cambio de imágenes adicionales
+  const handleCancelAdditionalImagesChange = () => {
+    setAdditionalImages([])
+    setAdditionalImagesPreview(originalAdditionalImages)
+    setShowAdditionalImagesUpload(false)
   }
 
   // Manejar cambio del archivo de contenido
@@ -260,7 +306,6 @@ function EditAsset() {
 
   return (
     <div className="upload-container">
-
       <form onSubmit={onSubmit} className="upload-form">
         <div className="form-grid">
           {/* Primera columna: Archivos (opcionales en edición) */}
@@ -268,11 +313,11 @@ function EditAsset() {
             <div className="form-section">
               <h2>Archivos (opcional - solo si quieres cambiarlos)</h2>
               
-              {/* Imagen de portada */}
+              {/* CORREGIDO: Imagen de portada */}
               <div className="form-group">
                 <label>Imagen de portada</label>
                 <div className="file-upload-container">
-                  {coverImagePreview ? (
+                  {coverImagePreview && !showCoverImageUpload ? (
                     <div className="image-preview-container">
                       <img 
                         src={typeof coverImagePreview === 'string' && coverImagePreview.startsWith('http') 
@@ -284,10 +329,8 @@ function EditAsset() {
                       <button 
                         type="button" 
                         className="remove-image-btn"
-                        onClick={() => {
-                          setCoverImage(null)
-                          setCoverImagePreview(asset.coverImageUrl) // Volver a la imagen original
-                        }}
+                        onClick={handleRemoveCoverImage}
+                        title="Cambiar imagen"
                       >
                         <FaTimes />
                       </button>
@@ -295,8 +338,18 @@ function EditAsset() {
                   ) : (
                     <div className="file-upload-box cover-upload-box" onClick={() => document.getElementById('coverImage').click()}>
                       <FaImage className="upload-icon cover-icon" />
-                      <p>Haz clic para cambiar la imagen principal</p>
+                      <p>Haz clic para {originalCoverImage ? 'cambiar' : 'subir'} la imagen principal</p>
                       <span className="file-hint">PNG, JPG o WEBP (max 5MB)</span>
+                      {originalCoverImage && (
+                        <button 
+                          type="button" 
+                          className="cancel-btn" 
+                          onClick={handleCancelCoverImageChange}
+                          style={{ marginTop: '10px' }}
+                        >
+                          Cancelar cambio
+                        </button>
+                      )}
                     </div>
                   )}
                   <input
@@ -309,15 +362,66 @@ function EditAsset() {
                 </div>
               </div>
 
-              {/* Imágenes adicionales */}
+              {/* CORREGIDO: Imágenes adicionales */}
               <div className="form-group">
                 <label>Imágenes adicionales</label>
                 <div className="file-upload-container">
-                  <div className="file-upload-box additional-upload-box" onClick={() => document.getElementById('additionalImages').click()}>
-                    <FaImage className="upload-icon additional-icon" />
-                    <p>Haz clic para cambiar imágenes adicionales</p>
-                    <span className="file-hint">Máximo 3 imágenes (max 5MB cada una)</span>
-                  </div>
+                  {additionalImagesPreview.length > 0 && !showAdditionalImagesUpload ? (
+                    <>
+                      <div style={{ marginBottom: '15px', textAlign: 'center' }}>
+                        <button 
+                          type="button" 
+                          className="btn-change-images"
+                          onClick={handleChangeAdditionalImages}
+                          style={{
+                            backgroundColor: '#8c52ff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '8px 16px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Cambiar imágenes adicionales
+                        </button>
+                      </div>
+                      <div className="additional-images-preview">
+                        {additionalImagesPreview.map((preview, index) => (
+                          <div key={index} className="additional-image-item">
+                            <img 
+                              src={typeof preview === 'string' && preview.startsWith('http') 
+                                ? getImageUrl(preview) 
+                                : preview} 
+                              alt={`Imagen ${index + 1}`} 
+                            />
+                            <button 
+                              type="button" 
+                              className="remove-image-btn"
+                              onClick={() => removeAdditionalImage(index)}
+                            >
+                              <FaTimes />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="file-upload-box additional-upload-box" onClick={() => document.getElementById('additionalImages').click()}>
+                      <FaImage className="upload-icon additional-icon" />
+                      <p>Haz clic para {originalAdditionalImages.length > 0 ? 'cambiar' : 'subir'} imágenes adicionales</p>
+                      <span className="file-hint">Máximo 3 imágenes (max 5MB cada una)</span>
+                      {originalAdditionalImages.length > 0 && (
+                        <button 
+                          type="button" 
+                          className="cancel-btn" 
+                          onClick={handleCancelAdditionalImagesChange}
+                          style={{ marginTop: '10px' }}
+                        >
+                          Cancelar cambio
+                        </button>
+                      )}
+                    </div>
+                  )}
                   <input
                     type="file"
                     id="additionalImages"
@@ -327,28 +431,6 @@ function EditAsset() {
                     style={{ display: 'none' }}
                   />
                 </div>
-                
-                {additionalImagesPreview.length > 0 && (
-                  <div className="additional-images-preview">
-                    {additionalImagesPreview.map((preview, index) => (
-                      <div key={index} className="additional-image-item">
-                        <img 
-                          src={typeof preview === 'string' && preview.startsWith('http') 
-                            ? getImageUrl(preview) 
-                            : preview} 
-                          alt={`Imagen ${index + 1}`} 
-                        />
-                        <button 
-                          type="button" 
-                          className="remove-image-btn"
-                          onClick={() => removeAdditionalImage(index)}
-                        >
-                          <FaTimes />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Archivo principal */}
