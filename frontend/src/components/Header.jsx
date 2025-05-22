@@ -23,7 +23,7 @@ function Header() {
   const searchRef = useRef(null)
   const mobileMenuRef = useRef(null)
   const mobileSearchRef = useRef(null)
-  const desktopSearchInputRef = useRef(null);
+  const mobileSearchInputRef = useRef(null); // NUEVO: Ref para el input móvil
   const [categories, setCategories] = useState([])
 
   // Cerrar dropdowns al hacer clic fuera
@@ -35,8 +35,10 @@ function Header() {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSearchResults(false);
       }
-      if (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
-        // No cerrar la búsqueda móvil con clic fuera para mejor UX
+      // MEJORADO: Solo cerrar búsqueda móvil si se hace clic fuera del overlay completo
+      if (showMobileSearch && mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
+        setShowMobileSearch(false);
+        setShowSearchResults(false);
       }
     }
     
@@ -44,7 +46,21 @@ function Header() {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [])
+  }, [showMobileSearch])
+
+  // NUEVO: Efecto para manejar el scroll cuando se abre la búsqueda móvil
+  useEffect(() => {
+    if (showMobileSearch) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    // Limpiar al desmontar
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showMobileSearch]);
 
   // Obtener los assets para extraer sus categorías
   useEffect(() => {
@@ -140,31 +156,35 @@ function Header() {
     setShowMobileMenu(!showMobileMenu);
     // Cerrar búsqueda móvil si está abierta
     if (showMobileSearch) {
-      setShowMobileSearch(false);
+      closeMobileSearch();
     }
   };
 
-  // Función para abrir la búsqueda móvil
+  // MEJORADA: Función para abrir la búsqueda móvil
   const openMobileSearch = () => {
+    console.log('Abriendo búsqueda móvil...'); // Debug
     setShowMobileSearch(true);
     // Cerrar menú móvil si está abierto
     if (showMobileMenu) {
       setShowMobileMenu(false);
     }
     
-    // Enfocar el input cuando se abre la búsqueda móvil
+    // MEJORADO: Enfocar el input cuando se abre la búsqueda móvil
     setTimeout(() => {
-      const mobileSearchInput = document.getElementById('mobile-search-input');
-      if (mobileSearchInput) {
-        mobileSearchInput.focus();
+      if (mobileSearchInputRef.current) {
+        mobileSearchInputRef.current.focus();
+        console.log('Input móvil enfocado'); // Debug
       }
-    }, 150);
+    }, 100); // Reducido el timeout
   };
 
-  // Función para cerrar la búsqueda móvil
+  // MEJORADA: Función para cerrar la búsqueda móvil
   const closeMobileSearch = () => {
+    console.log('Cerrando búsqueda móvil...'); // Debug
     setShowMobileSearch(false);
     setShowSearchResults(false);
+    setSearchQuery(''); // NUEVO: Limpiar query al cerrar
+    setSearchResults([]); // NUEVO: Limpiar resultados al cerrar
   };
 
   // Cerrar menú móvil al redimensionar la ventana
@@ -305,11 +325,19 @@ function Header() {
             )}
           </div>
 
-          {/* Botón de búsqueda móvil */}
+          {/* MEJORADO: Botón de búsqueda móvil con mejor funcionalidad */}
           <button 
             className="mobile-search-btn"
             onClick={openMobileSearch}
             title="Buscar"
+            style={{ 
+              fontSize: '1.2rem',
+              padding: '8px',
+              color: '#8c52ff',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer'
+            }}
           >
             <FaSearch />
           </button>
@@ -367,7 +395,7 @@ function Header() {
         onClick={() => setShowMobileMenu(false)}
       />
 
-      {/* Búsqueda móvil - COMPORTAMIENTO IDÉNTICO AL DESKTOP */}
+      {/* MEJORADO: Búsqueda móvil con funcionalidad completa */}
       <div className={`mobile-search-overlay ${showMobileSearch ? 'active' : ''}`}>
         <div className="mobile-search-container" ref={mobileSearchRef}>
           <div className="mobile-search-header">
@@ -383,13 +411,13 @@ function Header() {
           <form onSubmit={handleSearchSubmit}>
             <div className="search-box">
               <input 
-                id="mobile-search-input"
+                ref={mobileSearchInputRef} // AÑADIDO: Ref para el input móvil
                 type="text" 
                 placeholder="Buscar assets..." 
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
-                autoFocus
+                autoComplete="off" // AÑADIDO: Evitar autocompletado del navegador
               />
               {searchQuery && (
                 <button 

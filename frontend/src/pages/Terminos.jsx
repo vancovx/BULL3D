@@ -1,4 +1,5 @@
 import React from "react";
+import './Terminos.css';
 
 const TermsAndConditions = () => {
   return (

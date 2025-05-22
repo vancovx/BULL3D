@@ -1,4 +1,4 @@
-/* Header.css - Versión completa con responsive mejorado */
+/* Header.css - Versión con búsqueda móvil mejorada */
 :root {
   --primary-color: #AF52DE;
   --dark-bg: #121628;
@@ -287,7 +287,7 @@
   transform: rotate(45deg) translate(-5px, -5px);
 }
 
-/* Botón de búsqueda móvil - oculto por defecto */
+/* MEJORADO: Botón de búsqueda móvil */
 .mobile-search-btn {
   display: none;
   background: none;
@@ -296,31 +296,73 @@
   cursor: pointer;
   font-size: 1.2rem;
   padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
 }
 
-/* Overlay de búsqueda móvil */
+.mobile-search-btn:hover {
+  background-color: rgba(175, 82, 222, 0.1);
+  transform: scale(1.1);
+}
+
+.mobile-search-btn:active {
+  transform: scale(0.95);
+}
+
+/* MEJORADO: Overlay de búsqueda móvil */
 .mobile-search-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
   z-index: 2000;
   display: none;
   padding: 80px 20px 20px;
+  overflow-y: auto;
+  backdrop-filter: blur(5px);
 }
 
 .mobile-search-overlay.active {
   display: block;
+  animation: fadeInOverlay 0.3s ease-out;
+}
+
+@keyframes fadeInOverlay {
+  from { 
+    opacity: 0; 
+    backdrop-filter: blur(0px);
+  }
+  to { 
+    opacity: 1; 
+    backdrop-filter: blur(5px);
+  }
 }
 
 .mobile-search-container {
   background-color: var(--header-bg);
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: 12px;
+  padding: 25px;
   margin: 0 auto;
   max-width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  animation: slideInFromTop 0.3s ease-out;
+}
+
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 .mobile-search-header {
@@ -328,11 +370,14 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mobile-search-header h3 {
   margin: 0;
   color: var(--text-color);
+  font-size: 1.2rem;
 }
 
 .close-search-btn {
@@ -341,6 +386,19 @@
   color: var(--text-color);
   font-size: 1.5rem;
   cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close-search-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--primary-color);
+  transform: rotate(90deg);
 }
 
 /* Menú móvil */
@@ -622,12 +680,13 @@
   
   .mobile-search-btn {
     order: 3;
-    display: block;
+    display: flex; /* CAMBIADO: Ahora se muestra en móvil */
     margin-left: auto;
   }
   
   .auth-section {
     order: 4;
+    margin-left: 10px; /* AJUSTADO: Reducir margen */
   }
   
   /* Ocultar elementos del menú desktop */
@@ -652,6 +711,32 @@
   .icon-button {
     width: 28px;
     height: 28px;
+  }
+
+  /* MEJORADO: Ajustes específicos para búsqueda móvil */
+  .mobile-search-overlay {
+    padding: 60px 15px 15px; /* Ajustar padding en móvil */
+  }
+
+  .mobile-search-container {
+    padding: 20px;
+    border-radius: 8px;
+  }
+
+  .mobile-search-header h3 {
+    font-size: 1.1rem;
+  }
+
+  /* Hacer que los resultados de búsqueda móvil ocupen más espacio */
+  .mobile-search-overlay .search-results {
+    position: static; /* CAMBIADO: Para que no sea absoluto en móvil */
+    margin-top: 15px;
+    max-height: 50vh; /* AÑADIDO: Limitar altura en móvil */
+  }
+
+  .mobile-search-overlay .search-result-info h4 {
+    max-width: none; /* CAMBIADO: Permitir texto completo en móvil */
+    white-space: normal; /* CAMBIADO: Permitir wrap en móvil */
   }
 }
 
@@ -678,5 +763,47 @@
   
   .auth-section {
     gap: 5px;
+  }
+
+  /* AÑADIDO: Mejoras específicas para pantallas muy pequeñas */
+  .mobile-search-overlay {
+    padding: 50px 10px 10px;
+  }
+
+  .mobile-search-container {
+    padding: 15px;
+  }
+
+  .mobile-search-header {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+  }
+
+  .mobile-search-header h3 {
+    font-size: 1rem;
+  }
+
+  .close-search-btn {
+    width: 35px;
+    height: 35px;
+    font-size: 1.2rem;
+  }
+
+  .search-result-item {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .search-result-image {
+    width: 40px;
+    height: 40px;
+  }
+
+  .search-result-info h4 {
+    font-size: 0.85rem;
+  }
+
+  .search-result-category {
+    font-size: 0.7rem;
   }
 }
