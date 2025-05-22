@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { ToastContainer } from 'react-toastify'
+import { useEffect } from 'react'
 import 'react-toastify/dist/ReactToastify.css'
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -19,6 +20,16 @@ import Terminos from './pages/Terminos'
 import './App.css'
 
 function App() {
+  // Aplicar el tema guardado al cargar la aplicación
+  useEffect(() => {
+    const savedContrast = localStorage.getItem('high-contrast')
+    if (savedContrast && JSON.parse(savedContrast)) {
+      document.documentElement.setAttribute('data-theme', 'high-contrast')
+    }
+  }, [])
+
+
+
   return (
     <>
       <Router>

@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { MdFileDownload } from "react-icons/md"
-import { FaSignOutAlt, FaDownload, FaTrash, FaCalendar, FaFileAlt } from 'react-icons/fa'
+import { FaSignOutAlt, FaDownload, FaTrash, FaCalendar, FaFileAlt, FaAdjust } from 'react-icons/fa'
 import { getMe, updateUser, reset as userReset } from '../features/users/userSlice'
 import { logout, reset as authReset } from '../features/auth/authSlice'
 import { getUserAssets, deleteAsset, reset as assetReset } from '../features/assets/assetSlice'
@@ -18,13 +18,36 @@ function Profile() {
   const [showPersonalizeModal, setShowPersonalizeModal] = useState(false)
   const [activeTab, setActiveTab] = useState('assets')
   const [currentPage, setCurrentPage] = useState(1)
-  const [isDownloading, setIsDownloading] = useState(false) // Estado para controlar las descargas
+  const [isDownloading, setIsDownloading] = useState(false)
+  
+  // NUEVO: Estado para alto contraste
+  const [isHighContrast, setIsHighContrast] = useState(false)
 
   // Obtenemos el usuario autenticado y el perfil del estado
   const { user } = useSelector((state) => state.auth)
   const { profile, isLoading, isSuccess, isError, message } = useSelector((state) => state.user)
   const { userAssets, isLoading: assetsLoading, isError: assetsError, message: assetsMessage } = useSelector((state) => state.assets)
   const { downloads, pagination, stats, isLoading: downloadsLoading, isError: downloadsError, message: downloadsMessage } = useSelector((state) => state.downloads)
+
+  // NUEVO: Cargar preferencia de alto contraste al iniciar
+  useEffect(() => {
+    const savedContrast = localStorage.getItem('high-contrast')
+    if (savedContrast) {
+      setIsHighContrast(JSON.parse(savedContrast))
+    }
+  }, [])
+
+  // NUEVO: Aplicar/quitar alto contraste cuando cambia el estado
+  useEffect(() => {
+    if (isHighContrast) {
+      document.documentElement.setAttribute('data-theme', 'high-contrast')
+    } else {
+      document.documentElement.removeAttribute('data-theme')
+    }
+    
+    // Guardar preferencia en localStorage
+    localStorage.setItem('high-contrast', JSON.stringify(isHighContrast))
+  }, [isHighContrast])
 
   // Este useEffect se ejecuta al cargar el componente
   useEffect(() => {
@@ -74,6 +97,12 @@ function Profile() {
       toast.error(downloadsMessage)
     }
   }, [isError, message, assetsError, assetsMessage, downloadsError, downloadsMessage])
+
+  // NUEVO: Función para manejar el toggle de alto contraste
+  const handleContrastToggle = () => {
+    setIsHighContrast(!isHighContrast)
+    toast.success(!isHighContrast ? 'Alto contraste activado' : 'Alto contraste desactivado')
+  }
 
   // Función para cerrar sesión
   const onLogout = () => {
@@ -346,9 +375,19 @@ function Profile() {
             </div>
           </div>
         </div>
-        <button className="personalize-btn" onClick={openPersonalizeModal}>
-          Personalizar
-        </button>
+        <div className="profile-actions">
+          <button className="personalize-btn" onClick={openPersonalizeModal}>
+            Personalizar
+          </button>
+          {/* NUEVO: Botón de alto contraste */}
+          <button 
+            className={`contrast-btn ${isHighContrast ? 'active' : ''}`}
+            onClick={handleContrastToggle}
+            title={isHighContrast ? 'Desactivar alto contraste' : 'Activar alto contraste'}
+          >
+            <FaAdjust />
+          </button>
+        </div>
       </div>
 
       <div className="profile-tabs">

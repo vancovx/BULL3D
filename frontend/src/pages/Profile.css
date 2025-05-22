@@ -79,6 +79,14 @@
   color: var(--text-color);
 }
 
+/* NUEVO: Contenedor de acciones del perfil */
+.profile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: flex-end;
+}
+
 .personalize-btn {
   background-color: var(--primary-color);
   color: white;
@@ -91,6 +99,85 @@
 
 .personalize-btn:hover {
   background-color: var(--primary-dark);
+}
+
+/* NUEVO: Estilos para la sección de accesibilidad en el perfil */
+.accessibility-section-profile {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 15px;
+  backdrop-filter: blur(10px);
+}
+
+.contrast-switch-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.switch-profile {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch-profile input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-profile {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.3);
+  transition: .4s;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.slider-profile:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider-profile {
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+input:checked + .slider-profile:before {
+  transform: translateX(20px);
+  background-color: var(--primary-color);
+}
+
+.switch-label-profile {
+  color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.accessibility-icon {
+  font-size: 1rem;
 }
 
 /* Profile Tabs */
@@ -231,10 +318,22 @@
   .profile-banner {
     flex-direction: column;
     align-items: flex-start;
+    gap: 20px;
+  }
+
+  .profile-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .accessibility-section-profile {
+    order: 1;
   }
 
   .personalize-btn {
-    margin-top: 20px;
+    order: 2;
   }
 }
 
@@ -262,8 +361,24 @@
     padding: 15px 10px;
     font-size: 0.9rem;
   }
-}
 
+  .profile-actions {
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    align-items: center;
+  }
+
+  .contrast-switch-profile {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .switch-label-profile {
+    font-size: 0.8rem;
+  }
+}
 
 .downloads-section {
   max-width: 1200px;
