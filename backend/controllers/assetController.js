@@ -1,5 +1,8 @@
 const asyncHandler = require('express-async-handler');
 const Asset = require('../models/assetModel');
+const Favorite = require('../models/favoriteModel');
+const Comment = require('../models/commentModel');
+const Download = require('../models/downloadModel');
 const { driveService } = require('../middleware/googleDriveMiddleware');
 
 // @desc    Get all assets (public access)
@@ -253,7 +256,7 @@ const updateAsset = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Delete an asset
+// @desc    Delete an asset and all associated data
 // @route   DELETE /api/assets/:id
 // @access  Private
 const deleteAsset = asyncHandler(async (req, res) => {
@@ -270,6 +273,9 @@ const deleteAsset = asyncHandler(async (req, res) => {
   }
 
   try {
+    console.log(`Iniciando eliminación completa del asset: ${asset._id}`);
+
+    // 1. Eliminar archivos de Google Drive
     if (asset._googleDriveIds) {
       if (asset._googleDriveIds.folderId) {
         console.log('Intentando eliminar carpeta con ID:', asset._googleDriveIds.folderId);
@@ -310,9 +316,37 @@ const deleteAsset = asyncHandler(async (req, res) => {
       console.log('No hay IDs de Google Drive para este asset');
     }
 
-    await Asset.deleteOne({ _id: req.params.id });
+    // 2. Eliminar todos los favoritos asociados a este asset
+    console.log('Eliminando favoritos asociados...');
+    const deletedFavorites = await Favorite.deleteMany({ asset: req.params.id });
+    console.log(`${deletedFavorites.deletedCount} favoritos eliminados`);
 
-    res.status(200).json({ id: req.params.id, message: 'Asset eliminado con éxito' });
+    // 3. Eliminar todos los comentarios asociados a este asset
+    console.log('Eliminando comentarios asociados...');
+    const deletedComments = await Comment.deleteMany({ asset: req.params.id });
+    console.log(`${deletedComments.deletedCount} comentarios eliminados`);
+
+    // 4. Eliminar todas las descargas asociadas a este asset
+    // Nota: Puedes comentar esta sección si prefieres mantener el historial de descargas
+    console.log('Eliminando registros de descarga asociados...');
+    const deletedDownloads = await Download.deleteMany({ asset: req.params.id });
+    console.log(`${deletedDownloads.deletedCount} registros de descarga eliminados`);
+
+    // 5. Finalmente, eliminar el asset
+    console.log('Eliminando el asset de la base de datos...');
+    await Asset.deleteOne({ _id: req.params.id });
+    console.log('Asset eliminado con éxito');
+
+    res.status(200).json({ 
+      id: req.params.id, 
+      message: 'Asset y todos sus datos asociados eliminados con éxito',
+      deletedItems: {
+        favorites: deletedFavorites.deletedCount,
+        comments: deletedComments.deletedCount,
+        downloads: deletedDownloads.deletedCount
+      }
+    });
+
   } catch (error) {
     console.error('Error completo al eliminar asset:', error);
     res.status(500);
@@ -320,6 +354,9 @@ const deleteAsset = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Search assets
+// @route   GET /api/assets/search
+// @access  Public
 const searchAssets = asyncHandler(async (req, res) => {
   const query = req.query.q;
   

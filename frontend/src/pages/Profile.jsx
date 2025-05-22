@@ -238,8 +238,6 @@ function Profile() {
   // Preparar los datos del perfil para pasar al modal
   const profileData = profile || user || {}
   
-  console.log('Profile data:', profileData) // Debug
-  console.log('User data:', user) // Debug
 
   // Mostrar spinner mientras carga
   if (isLoading) {
