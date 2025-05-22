@@ -734,3 +734,140 @@
     padding: 12px;
   }
 }
+
+/* Cambios para centrar el perfil en móvil - Añadir al final de Profile.css */
+
+/* Media Queries - MODIFICAR LA SECCIÓN MÓVIL EXISTENTE */
+@media (max-width: 768px) {
+  .profile-banner {
+    flex-direction: column;
+    align-items: center; /* CENTRADO */
+    text-align: center; /* CENTRADO */
+    gap: 20px;
+  }
+
+  /* CENTRAR la información del perfil */
+  .profile-info {
+    flex-direction: column;
+    align-items: center; /* CENTRADO */
+    text-align: center; /* CENTRADO */
+    width: 100%;
+  }
+
+  /* CENTRAR los stats */
+  .profile-stats {
+    justify-content: center; /* CENTRADO */
+    margin-top: 10px;
+  }
+
+  .profile-actions {
+    width: 100%;
+    flex-direction: row;
+    justify-content: center; /* CENTRADO */
+    align-items: center;
+  }
+
+  .downloads-section {
+    padding: 20px 15px;
+  }
+
+  .download-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .download-actions {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: 550px) {
+  .assets-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* CENTRAR completamente en móvil pequeño */
+  .profile-info {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .profile-avatar {
+    margin-right: 0;
+    margin-bottom: 15px;
+  }
+
+  /* CENTRAR user info */
+  .profile-user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .profile-user-info h2 {
+    margin: 0 0 5px 0;
+    text-align: center;
+  }
+
+  .username {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .profile-stats {
+    justify-content: center;
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .tab-btn {
+    padding: 15px 10px;
+    font-size: 0.9rem;
+  }
+
+  .profile-actions {
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    justify-content: center; /* CENTRADO */
+    align-items: center;
+  }
+
+  .contrast-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .contrast-btn::after {
+    bottom: -30px;
+    font-size: 0.7rem;
+  }
+
+  .download-asset-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .download-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pagination-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}

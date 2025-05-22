@@ -357,6 +357,8 @@ function ViewAsset() {
             />
           </div>
 
+          
+
           {/* Botón de volver al inicio */}
           <div className="back-button-container">
             <Link to="/" className="back-link">
