@@ -6,12 +6,31 @@ import './PersonalizeModal.css'
 function PersonalizeModal({ profile, onClose, onSave }) {
   // Estado para los datos del formulario
   const [formData, setFormData] = useState({
-    name: profile?.name || '',
-    username: profile?.username || '',
-    email: profile?.email || '',
-    phone: profile?.phone || '',
-    bio: profile?.bio || '',
+    name: '',
+    username: '',
+    email: '',
+    phone: '',
+    bio: '',
   })
+
+  // Inicializar el formulario con los datos del perfil
+  useEffect(() => {
+    console.log('Profile recibido en modal:', profile) // Debug
+    if (profile && Object.keys(profile).length > 0) {
+      setFormData({
+        name: profile.name || '',
+        username: profile.username || '',
+        email: profile.email || '',
+        phone: profile.numberphone || profile.phone || '',
+        bio: profile.description || profile.bio || '',
+      })
+    }
+  }, [profile])
+
+  // Log para debug del estado del formulario
+  useEffect(() => {
+    console.log('FormData actualizado:', formData)
+  }, [formData])
 
   // Extraer valores del formData
   const { name, username, email, phone, bio } = formData
@@ -28,14 +47,29 @@ function PersonalizeModal({ profile, onClose, onSave }) {
   const handleSubmit = (e) => {
     e.preventDefault()
 
-    // Preparar datos para enviar
+    // Validaciones básicas
+    if (!name.trim()) {
+      toast.error('El nombre es requerido')
+      return
+    }
+
+    if (!username.trim()) {
+      toast.error('El nombre de usuario es requerido')
+      return
+    }
+
+    if (!email.trim()) {
+      toast.error('El email es requerido')
+      return
+    }
+
+    // Preparar datos para enviar (usando los nombres correctos de la DB)
     const userData = {
-      id: profile?._id || profile?.id,
-      name,
-      username,
-      email,
-      phone,
-      bio,
+      name: name.trim(),
+      username: username.trim(),
+      email: email.trim(),
+      numberphone: phone.trim() || null, // Usar numberphone como en la DB
+      description: bio.trim() || null, // Usar description como en la DB
     }
 
     // Enviar al componente padre
@@ -64,7 +98,9 @@ function PersonalizeModal({ profile, onClose, onSave }) {
                 {getInitial(name || profile?.name || '?')}
               </div>
             </div>
-            {/* Sin botones para cambiar foto */}
+            <p className="avatar-note">
+              La foto de perfil se genera automáticamente con las iniciales de tu nombre
+            </p>
           </div>
 
           <div className="form-group">
@@ -119,7 +155,7 @@ function PersonalizeModal({ profile, onClose, onSave }) {
           </div>
           
           <div className="form-group">
-            <label htmlFor="bio">Pequeña Descripción</label>
+            <label htmlFor="bio">Descripción</label>
             <textarea
               id="bio"
               name="bio"

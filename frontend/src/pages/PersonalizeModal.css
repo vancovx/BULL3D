@@ -63,6 +63,46 @@
   max-height: calc(90vh - 70px); /* Restar altura del header */
 }
 
+/* Avatar section */
+.avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: rgba(140, 82, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(140, 82, 255, 0.1);
+}
+
+.profile-avatar-large {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: var(--input-bg, #252730);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  border: 3px solid var(--primary-color, #8c52ff);
+  box-shadow: 0 4px 12px rgba(140, 82, 255, 0.3);
+}
+
+.profile-avatar-large .profile-initials {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--primary-color, #8c52ff);
+  text-transform: uppercase;
+}
+
+.avatar-note {
+  color: var(--text-secondary, #a0a0a0);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+  line-height: 1.4;
+}
+
 .form-group {
   margin-bottom: 20px;
 }
@@ -72,6 +112,7 @@
   color: var(--text-color, #ffffff);
   font-size: 0.9rem;
   margin-bottom: 8px;
+  font-weight: 500;
 }
 
 .required {
@@ -83,17 +124,24 @@
   width: 100%;
   padding: 12px 15px;
   background-color: var(--input-bg, #252730);
-  border: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 4px;
   color: var(--input-text, #ffffff);
   font-size: 1rem;
   resize: none;
+  transition: all 0.2s ease;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.3);
+  border-color: var(--primary-color, #8c52ff);
+  box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.2);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .form-actions {
@@ -101,12 +149,14 @@
   justify-content: flex-end;
   gap: 15px;
   margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-cancel {
-  padding: 10px 20px;
+  padding: 12px 20px;
   background-color: transparent;
-  border: 1px solid var(--text-color, #ffffff);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 4px;
   color: var(--text-color, #ffffff);
   font-size: 1rem;
@@ -116,10 +166,11 @@
 
 .btn-cancel:hover {
   background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .btn-save {
-  padding: 10px 25px;
+  padding: 12px 25px;
   background-color: var(--primary-color, #8c52ff);
   border: none;
   border-radius: 4px;
@@ -151,11 +202,24 @@
   .btn-cancel, .btn-save {
     width: 100%;
   }
+
+  .profile-avatar-large {
+    width: 80px;
+    height: 80px;
+  }
+
+  .profile-avatar-large .profile-initials {
+    font-size: 2rem;
+  }
 }
 
 /* Para pantallas muy pequeñas */
 @media (max-width: 480px) {
   .modal-header {
     padding: 15px 20px;
+  }
+
+  .avatar-section {
+    padding: 15px;
   }
 }

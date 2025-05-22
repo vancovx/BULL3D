@@ -112,6 +112,30 @@ function Profile() {
     setActiveTab(tab)
   }
 
+  // Función para manejar la actualización del perfil
+  const handleProfileUpdate = (userData) => {
+    console.log('Datos a actualizar:', userData)
+    dispatch(updateUser(userData))
+      .unwrap()
+      .then((updatedData) => {
+        console.log('Perfil actualizado:', updatedData)
+        toast.success('Perfil actualizado correctamente')
+        closePersonalizeModal()
+        // Recargar el perfil después de actualizar para obtener los datos más recientes
+        dispatch(getMe())
+      })
+      .catch((error) => {
+        console.error('Error al actualizar perfil:', error)
+        toast.error('Error al actualizar el perfil')
+      })
+  }
+
+  // Preparar los datos del perfil para pasar al modal
+  const profileData = profile || user || {}
+  
+  console.log('Profile data:', profileData) // Debug
+  console.log('User data:', user) // Debug
+
   // Mostrar spinner mientras carga
   if (isLoading) {
     return <Spinner />
@@ -220,21 +244,9 @@ function Profile() {
 
       {showPersonalizeModal && (
         <PersonalizeModal 
-          profile={profile || user || {}} 
+          profile={profileData}
           onClose={closePersonalizeModal} 
-          onSave={(data) => {
-            dispatch(updateUser(data))
-              .unwrap()
-              .then(() => {
-                toast.success('Perfil actualizado correctamente');
-                closePersonalizeModal();
-                // Recargar el perfil después de actualizar
-                dispatch(getMe());
-              })
-              .catch((error) => {
-                toast.error('Error al actualizar el perfil');
-              });
-          }} 
+          onSave={handleProfileUpdate}
         />
       )}
     </div>
