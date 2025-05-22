@@ -63,7 +63,7 @@
   max-height: calc(90vh - 70px); /* Restar altura del header */
 }
 
-/* ✅ NUEVOS: Estilos para la sección de accesibilidad */
+
 .accessibility-section {
   background-color: rgba(140, 82, 255, 0.05);
   border: 1px solid rgba(140, 82, 255, 0.1);

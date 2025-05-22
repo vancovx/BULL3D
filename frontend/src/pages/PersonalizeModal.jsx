@@ -4,7 +4,7 @@ import { FaTimes, FaUserEdit } from 'react-icons/fa'
 import './PersonalizeModal.css'
 
 function PersonalizeModal({ profile, onClose, onSave }) {
-  // ✅ NUEVO: Estado para alto contraste
+
   const [isHighContrast, setIsHighContrast] = useState(false)
 
   // Estado para los datos del formulario
@@ -16,7 +16,7 @@ function PersonalizeModal({ profile, onClose, onSave }) {
     bio: '',
   })
 
-  // ✅ NUEVO: Cargar preferencia de alto contraste guardada
+
   useEffect(() => {
     const savedContrast = localStorage.getItem('high-contrast')
     if (savedContrast) {
@@ -24,7 +24,6 @@ function PersonalizeModal({ profile, onClose, onSave }) {
     }
   }, [])
 
-  // ✅ NUEVO: Aplicar el tema cuando cambie el estado de alto contraste
   useEffect(() => {
     if (isHighContrast) {
       document.documentElement.setAttribute('data-theme', 'high-contrast')
@@ -66,7 +65,6 @@ function PersonalizeModal({ profile, onClose, onSave }) {
     }))
   }
 
-  // ✅ NUEVO: Handler para el cambio de alto contraste
   const handleContrastToggle = (e) => {
     setIsHighContrast(e.target.checked)
     toast.success(e.target.checked ? 'Alto contraste activado' : 'Alto contraste desactivado')
@@ -195,7 +193,6 @@ function PersonalizeModal({ profile, onClose, onSave }) {
             />
           </div>
 
-          {/* ✅ MOVIDO: Sección de Accesibilidad al final */}
           <div className="accessibility-section">
             <h3>Accesibilidad</h3>
             <div className="contrast-switch">

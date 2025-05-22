@@ -309,6 +309,13 @@ function ViewAsset() {
     navigate('/login');
   };
 
+  // NUEVO: Función para navegar al perfil del usuario
+  const navigateToUserProfile = () => {
+    if (assetOwner && asset.user) {
+      navigate(`/user/${asset.user}`);
+    }
+  };
+
   if (isLoading) {
     return <Spinner />
   }
@@ -418,7 +425,12 @@ function ViewAsset() {
         {/* Barra lateral con información del asset */}
         <div className="asset-sidebar">
           <div className="creator-info">
-            <div className="creator-avatar">
+            <div 
+              className="creator-avatar"
+              onClick={navigateToUserProfile}
+              style={{ cursor: assetOwner ? 'pointer' : 'default' }}
+              title={assetOwner ? `Ver perfil de ${assetOwner.name}` : ''}
+            >
               {assetOwner ? (
                 <div className="profile-initials">
                   {getInitial(assetOwner.name)}
@@ -428,7 +440,19 @@ function ViewAsset() {
               )}
             </div>
             <div className="creator-details">
-              <div className="creator-name">{assetOwner ? assetOwner.name : 'Cargando...'}</div>
+              <div 
+                className="creator-name"
+                onClick={navigateToUserProfile}
+                style={{ 
+                  cursor: assetOwner ? 'pointer' : 'default',
+                  transition: 'color 0.2s'
+                }}
+                onMouseEnter={(e) => assetOwner && (e.target.style.color = '#8c52ff')}
+                onMouseLeave={(e) => assetOwner && (e.target.style.color = '#fff')}
+                title={assetOwner ? `Ver perfil de ${assetOwner.name}` : ''}
+              >
+                {assetOwner ? assetOwner.name : 'Cargando...'}
+              </div>
               <div className="creator-username">@{assetOwner ? assetOwner.username : '...'}</div>
             </div>
           </div>

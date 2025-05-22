@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { FaUser, FaPaperPlane, FaTrash, FaEdit, FaLock, FaSignInAlt } from 'react-icons/fa';
 import axios from 'axios';
@@ -14,6 +14,7 @@ const CommentSection = ({ assetId }) => {
   const [editText, setEditText] = useState('');
   
   const { user } = useSelector(state => state.auth);
+  const navigate = useNavigate();
   
   // Cargar comentarios al montar el componente
   useEffect(() => {
@@ -149,6 +150,13 @@ const CommentSection = ({ assetId }) => {
     const date = new Date(dateString);
     return date.toLocaleString();
   };
+
+  // NUEVA: Función para navegar al perfil del usuario
+  const navigateToUserProfile = (userId) => {
+    if (userId) {
+      navigate(`/user/${userId}`);
+    }
+  };
   
   return (
     <div className="comments-section">
@@ -190,12 +198,29 @@ const CommentSection = ({ assetId }) => {
         ) : comments.length > 0 ? (
           comments.map(comment => (
             <div key={comment._id} className="comment-item">
-              <div className="comment-avatar">
+              <div 
+                className="comment-avatar"
+                onClick={() => comment.user?._id && navigateToUserProfile(comment.user._id)}
+                style={{ cursor: comment.user?._id ? 'pointer' : 'default' }}
+                title={comment.user?._id ? `Ver perfil de ${comment.user.name}` : ''}
+              >
                 <div className="comment-initials">{getInitial(comment.user?.name)}</div>
               </div>
               <div className="comment-content">
                 <div className="comment-header">
-                  <span className="comment-author">{comment.user?.name || 'Usuario'}</span>
+                  <span 
+                    className="comment-author"
+                    onClick={() => comment.user?._id && navigateToUserProfile(comment.user._id)}
+                    style={{ 
+                      cursor: comment.user?._id ? 'pointer' : 'default',
+                      transition: 'color 0.2s'
+                    }}
+                    onMouseEnter={(e) => comment.user?._id && (e.target.style.color = '#8c52ff')}
+                    onMouseLeave={(e) => comment.user?._id && (e.target.style.color = '#fff')}
+                    title={comment.user?._id ? `Ver perfil de ${comment.user.name}` : ''}
+                  >
+                    {comment.user?.name || 'Usuario'}
+                  </span>
                   <span className="comment-date">{formatDate(comment.createdAt)}</span>
                   
                   {/* Botones de acciones solo para el autor del comentario */}

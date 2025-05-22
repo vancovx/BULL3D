@@ -96,13 +96,7 @@ function UserProfile() {
   }
 
   return (
-    <div className="user-profile-page-container">
-      {/* Botón de volver */}
-      <div className="back-navigation">
-        <button className="back-btn" onClick={() => navigate(-1)}>
-          <FaArrowLeft /> Volver
-        </button>
-      </div>
+    <div>
 
       {/* Banner del perfil */}
       <div className="user-profile-banner">
