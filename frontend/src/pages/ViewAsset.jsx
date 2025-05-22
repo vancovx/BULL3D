@@ -179,7 +179,6 @@ function ViewAsset() {
   // Manejar clic en botón de favoritos
   const handleFavoriteClick = () => {
     if (!user) {
-      toast.info('Inicia sesión para añadir a favoritos');
       navigate('/login');
       return;
     }
@@ -188,7 +187,7 @@ function ViewAsset() {
       dispatch(removeFavorite(asset._id))
         .unwrap()
         .then(() => {
-          toast.success('Eliminado de favoritos');
+          
         })
         .catch(error => {
           toast.error('Error al eliminar de favoritos');
@@ -197,7 +196,7 @@ function ViewAsset() {
       dispatch(addFavorite(asset._id))
         .unwrap()
         .then(() => {
-          toast.success('Añadido a favoritos');
+          
         })
         .catch(error => {
           toast.error('Error al añadir a favoritos');
@@ -209,7 +208,6 @@ function ViewAsset() {
   const handleDownload = async () => {
     // Verificar si el usuario está autenticado
     if (!user) {
-      toast.info('Inicia sesión para descargar este asset');
       navigate('/login');
       return;
     }
@@ -228,12 +226,12 @@ function ViewAsset() {
     setIsDownloading(true);
 
     try {
-      console.log('Registrando descarga en el historial...');
+
       
       // Primero registrar la descarga en el historial
       const downloadResponse = await dispatch(registerDownload(asset._id)).unwrap();
       
-      console.log('Descarga registrada:', downloadResponse);
+      
       
       // Si el registro fue exitoso, proceder con la descarga
       if (downloadResponse && downloadResponse.downloadUrl) {

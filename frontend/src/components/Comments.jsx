@@ -47,7 +47,6 @@ const CommentSection = ({ assetId }) => {
     }
     
     if (!user) {
-      toast.error('Debes iniciar sesión para comentar');
       return;
     }
     
@@ -65,7 +64,6 @@ const CommentSection = ({ assetId }) => {
       // Limpiar el campo y recargar comentarios
       setNewComment('');
       fetchComments();
-      toast.success('Comentario publicado con éxito');
     } catch (error) {
       console.error('Error al publicar comentario:', error);
       toast.error('No se pudo publicar el comentario');
