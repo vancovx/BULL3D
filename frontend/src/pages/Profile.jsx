@@ -6,7 +6,7 @@ import { FaSignOutAlt, FaDownload, FaTrash, FaCalendar, FaFileAlt } from 'react-
 import { getMe, updateUser, reset as userReset } from '../features/users/userSlice'
 import { logout, reset as authReset } from '../features/auth/authSlice'
 import { getUserAssets, deleteAsset, reset as assetReset } from '../features/assets/assetSlice'
-import { getUserDownloads, deleteDownloadEntry, reset as downloadReset } from '../features/downloads/downloadSlice'
+import { getUserDownloads, deleteDownloadEntry, registerDownload, reset as downloadReset } from '../features/downloads/downloadSlice'
 import Spinner from '../components/Spinner'
 import PersonalizeModal from './PersonalizeModal'
 import './Profile.css'
@@ -17,6 +17,7 @@ function Profile() {
   const [showPersonalizeModal, setShowPersonalizeModal] = useState(false)
   const [activeTab, setActiveTab] = useState('assets')
   const [currentPage, setCurrentPage] = useState(1)
+  const [isDownloading, setIsDownloading] = useState(false) // Estado para controlar las descargas
 
   // Obtenemos el usuario autenticado y el perfil del estado
   const { user } = useSelector((state) => state.auth)
@@ -98,19 +99,95 @@ function Profile() {
     }
   }
 
-  // Función para descargar un asset
-  const handleDownloadAsset = (asset) => {
-    // Verificar si hay una URL de contenido para descargar
-    if (asset.contentUrl) {
-      // Crear un enlace temporal
-      const link = document.createElement('a')
-      link.href = asset.contentUrl
-      link.download = asset.title || 'asset-download'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    } else {
-      toast.error('No hay contenido disponible para descargar')
+  // Función para descargar un asset (igual que en ViewAsset)
+  const handleDownloadAsset = async (asset) => {
+    // Verificar que el asset tiene una URL de descarga
+    if (!asset || !asset.downloadUrl) {
+      toast.error('No hay contenido disponible para descargar');
+      return;
+    }
+
+    // Evitar múltiples descargas simultáneas
+    if (isDownloading) {
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      console.log('Registrando descarga en el historial...');
+      
+      // Primero registrar la descarga en el historial
+      const downloadResponse = await dispatch(registerDownload(asset._id)).unwrap();
+      
+      console.log('Descarga registrada:', downloadResponse);
+      
+      // Si el registro fue exitoso, proceder con la descarga
+      if (downloadResponse && downloadResponse.downloadUrl) {
+        // Obtener nombre de archivo para la descarga basado en el título del asset
+        const fileName = asset.title 
+          ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
+          : 'asset_content';
+        
+        // Crear un elemento <a> temporal para la descarga
+        const link = document.createElement('a');
+        link.href = downloadResponse.downloadUrl; // Usar la URL del response
+        link.setAttribute('download', fileName);
+        link.style.display = 'none';
+        
+        // Añadir al DOM, hacer clic y eliminar
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.success('Descarga iniciada y registrada en tu historial');
+      } else {
+        // Si no hay URL en el response, usar la URL original del asset
+        const fileName = asset.title 
+          ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
+          : 'asset_content';
+        
+        const link = document.createElement('a');
+        link.href = asset.downloadUrl;
+        link.setAttribute('download', fileName);
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.success('Descarga iniciada y registrada en tu historial');
+      }
+      
+    } catch (error) {
+      console.error('Error al registrar la descarga:', error);
+      
+      // Si falla el registro, aún permitir la descarga pero sin historial
+      if (asset.downloadUrl) {
+        try {
+          const fileName = asset.title 
+            ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
+            : 'asset_content';
+          
+          const link = document.createElement('a');
+          link.href = asset.downloadUrl;
+          link.setAttribute('download', fileName);
+          link.style.display = 'none';
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          toast.warning('Descarga iniciada, pero no se pudo registrar en el historial');
+        } catch (downloadError) {
+          console.error('Error al iniciar la descarga:', downloadError);
+          toast.error('Error al iniciar la descarga');
+        }
+      } else {
+        toast.error('Error al procesar la descarga');
+      }
+    } finally {
+      setIsDownloading(false);
     }
   }
 
@@ -130,18 +207,98 @@ function Profile() {
     }
   }
 
-  // Función para descargar nuevamente un asset
-  const handleRedownload = (download) => {
-    if (download.asset && download.asset.downloadUrl) {
-      const link = document.createElement('a')
-      link.href = download.asset.downloadUrl
-      link.download = download.assetTitle || 'asset-download'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      toast.success('Descarga iniciada')
-    } else {
-      toast.error('No se puede descargar: asset no disponible')
+  // Función para descargar nuevamente un asset desde el historial
+  const handleRedownload = async (download) => {
+    // Verificar que el asset existe y tiene downloadUrl
+    if (!download.asset || !download.asset.downloadUrl) {
+      toast.error('No se puede descargar: asset no disponible o sin URL de descarga');
+      return;
+    }
+
+    // Evitar múltiples descargas simultáneas
+    if (isDownloading) {
+      return;
+    }
+
+    setIsDownloading(true);
+
+    try {
+      console.log('Registrando nueva descarga en el historial...');
+      
+      // Registrar nueva descarga en el historial
+      const downloadResponse = await dispatch(registerDownload(download.asset._id)).unwrap();
+      
+      console.log('Nueva descarga registrada:', downloadResponse);
+      
+      // Proceder con la descarga
+      if (downloadResponse && downloadResponse.downloadUrl) {
+        const fileName = download.assetTitle 
+          ? `${download.assetTitle.replace(/[^a-zA-Z0-9]/g, '_')}` 
+          : 'asset_content';
+        
+        const link = document.createElement('a');
+        link.href = downloadResponse.downloadUrl;
+        link.setAttribute('download', fileName);
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.success('Descarga iniciada y registrada en tu historial');
+        
+        // Recargar la página actual de descargas para mostrar la nueva entrada
+        dispatch(getUserDownloads({ page: currentPage, limit: 10 }));
+      } else {
+        // Usar la URL original del asset
+        const fileName = download.assetTitle 
+          ? `${download.assetTitle.replace(/[^a-zA-Z0-9]/g, '_')}` 
+          : 'asset_content';
+        
+        const link = document.createElement('a');
+        link.href = download.asset.downloadUrl;
+        link.setAttribute('download', fileName);
+        link.style.display = 'none';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.success('Descarga iniciada y registrada en tu historial');
+        
+        // Recargar la página actual de descargas
+        dispatch(getUserDownloads({ page: currentPage, limit: 10 }));
+      }
+      
+    } catch (error) {
+      console.error('Error al registrar la nueva descarga:', error);
+      
+      // Si falla el registro, aún permitir la descarga
+      if (download.asset.downloadUrl) {
+        try {
+          const fileName = download.assetTitle 
+            ? `${download.assetTitle.replace(/[^a-zA-Z0-9]/g, '_')}` 
+            : 'asset_content';
+          
+          const link = document.createElement('a');
+          link.href = download.asset.downloadUrl;
+          link.setAttribute('download', fileName);
+          link.style.display = 'none';
+          
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          toast.warning('Descarga iniciada, pero no se pudo registrar en el historial');
+        } catch (downloadError) {
+          console.error('Error al iniciar la descarga:', downloadError);
+          toast.error('Error al iniciar la descarga');
+        }
+      } else {
+        toast.error('Error al procesar la descarga');
+      }
+    } finally {
+      setIsDownloading(false);
     }
   }
 

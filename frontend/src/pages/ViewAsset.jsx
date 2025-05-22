@@ -261,7 +261,6 @@ function ViewAsset() {
 
   // Redireccionar a login
   const redirectToLogin = () => {
-    toast.info('Debes iniciar sesión para utilizar esta función');
     navigate('/login');
   };
 
@@ -380,17 +379,10 @@ function ViewAsset() {
                 </button>
               </>
             ) : (
-              <>
-                <button className="download-button disabled" onClick={redirectToLogin}>
-                  <FaLock /> Descargar
-                </button>
-                <button 
-                  className="favorite-button disabled"
-                  onClick={redirectToLogin}
-                >
-                  <FaRegStar />
-                </button>
-              </>
+              // Solo mostrar el botón de descarga cuando no hay usuario logueado
+              <button className="download-button disabled" onClick={redirectToLogin}>
+                <FaLock /> Iniciar sesión para descargar
+              </button>
             )}
           </div>
 
