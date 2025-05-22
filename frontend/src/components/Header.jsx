@@ -22,6 +22,7 @@ function Header() {
   const dropdownRef = useRef(null)
   const searchRef = useRef(null)
   const mobileMenuRef = useRef(null)
+  const mobileSearchRef = useRef(null)
   const [categories, setCategories] = useState([])
 
   // Cerrar dropdowns al hacer clic fuera
@@ -32,6 +33,9 @@ function Header() {
       }
       if (searchRef.current && !searchRef.current.contains(event.target)) {
         setShowSearchResults(false);
+      }
+      if (mobileSearchRef.current && !mobileSearchRef.current.contains(event.target)) {
+        // No cerrar la búsqueda móvil con clic fuera para mejor UX
       }
     }
     
@@ -73,7 +77,7 @@ function Header() {
     }
   }
 
-  // Función para manejar el cambio en el input de búsqueda - IDÉNTICA A HEADER
+  // Función para manejar el cambio en el input de búsqueda - UNIFICADA
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -97,48 +101,69 @@ function Header() {
     }
   };
 
-  // Función para manejar la búsqueda al presionar Enter - IDÉNTICA A HEADER
+  // Función para manejar la búsqueda al presionar Enter - UNIFICADA
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim() !== '') {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
       setShowSearchResults(false);
-      setShowMobileSearch(false);
+      closeMobileSearch();
     }
   };
 
-  // Función para navegar a un asset específico desde los resultados de búsqueda - IDÉNTICA A HEADER
+  // Función para navegar a un asset específico desde los resultados de búsqueda - UNIFICADA
   const navigateToAsset = (assetId) => {
     navigate(`/assets/${assetId}`);
     setSearchQuery('');
+    setSearchResults([]);
     setShowSearchResults(false);
-    setShowMobileSearch(false);
+    closeMobileSearch();
   };
 
-  // Función para limpiar la búsqueda - IDÉNTICA A HEADER
+  // Función para limpiar la búsqueda - UNIFICADA
   const clearSearch = () => {
     setSearchQuery('');
     setSearchResults([]);
     setShowSearchResults(false);
   };
 
+  // Función para manejar el foco en el input - UNIFICADA
+  const handleSearchFocus = () => {
+    if (searchQuery.trim() !== '') {
+      setShowSearchResults(true);
+    }
+  };
+
   // Función para togglear el menú móvil
   const toggleMobileMenu = () => {
     setShowMobileMenu(!showMobileMenu);
+    // Cerrar búsqueda móvil si está abierta
+    if (showMobileSearch) {
+      setShowMobileSearch(false);
+    }
   };
 
-  // Función para togglear la búsqueda móvil
-  const toggleMobileSearch = () => {
-    setShowMobileSearch(!showMobileSearch);
-    if (!showMobileSearch) {
-      // Enfocar el input cuando se abre la búsqueda móvil
-      setTimeout(() => {
-        const mobileSearchInput = document.getElementById('mobile-search-input');
-        if (mobileSearchInput) {
-          mobileSearchInput.focus();
-        }
-      }, 100);
+  // Función para abrir la búsqueda móvil
+  const openMobileSearch = () => {
+    setShowMobileSearch(true);
+    // Cerrar menú móvil si está abierto
+    if (showMobileMenu) {
+      setShowMobileMenu(false);
     }
+    
+    // Enfocar el input cuando se abre la búsqueda móvil
+    setTimeout(() => {
+      const mobileSearchInput = document.getElementById('mobile-search-input');
+      if (mobileSearchInput) {
+        mobileSearchInput.focus();
+      }
+    }, 150);
+  };
+
+  // Función para cerrar la búsqueda móvil
+  const closeMobileSearch = () => {
+    setShowMobileSearch(false);
+    setShowSearchResults(false);
   };
 
   // Cerrar menú móvil al redimensionar la ventana
@@ -146,7 +171,7 @@ function Header() {
     const handleResize = () => {
       if (window.innerWidth > 768) {
         setShowMobileMenu(false);
-        setShowMobileSearch(false);
+        closeMobileSearch();
       }
     };
 
@@ -203,7 +228,7 @@ function Header() {
             </div>
           </nav>
 
-          {/* Barra de búsqueda Desktop - IDÉNTICA A HEADER */}
+          {/* Barra de búsqueda Desktop */}
           <div className='search-box' ref={searchRef}>
             <form onSubmit={handleSearchSubmit}>
               <input 
@@ -211,7 +236,7 @@ function Header() {
                 placeholder="Buscar assets..." 
                 value={searchQuery}
                 onChange={handleSearchChange}
-                onFocus={() => searchQuery.trim() !== '' && setShowSearchResults(true)}
+                onFocus={handleSearchFocus}
               />
               {searchQuery && (
                 <button 
@@ -228,7 +253,7 @@ function Header() {
               </button>
             </form>
             
-            {/* Resultados de búsqueda Desktop - IDÉNTICOS A HEADER */}
+            {/* Resultados de búsqueda Desktop */}
             {showSearchResults && searchResults.length > 0 && (
               <div className="search-results">
                 <div className="search-results-header">
@@ -282,7 +307,7 @@ function Header() {
           {/* Botón de búsqueda móvil */}
           <button 
             className="mobile-search-btn"
-            onClick={toggleMobileSearch}
+            onClick={openMobileSearch}
             title="Buscar"
           >
             <FaSearch />
@@ -341,14 +366,14 @@ function Header() {
         onClick={() => setShowMobileMenu(false)}
       />
 
-      {/* Búsqueda móvil - CON LÓGICA IDÉNTICA A HEADER */}
+      {/* Búsqueda móvil - COMPORTAMIENTO IDÉNTICO AL DESKTOP */}
       <div className={`mobile-search-overlay ${showMobileSearch ? 'active' : ''}`}>
-        <div className="mobile-search-container">
+        <div className="mobile-search-container" ref={mobileSearchRef}>
           <div className="mobile-search-header">
             <h3>Buscar Assets</h3>
             <button 
               className="close-search-btn"
-              onClick={() => setShowMobileSearch(false)}
+              onClick={closeMobileSearch}
             >
               <FaTimes />
             </button>
@@ -362,6 +387,7 @@ function Header() {
                 placeholder="Buscar assets..." 
                 value={searchQuery}
                 onChange={handleSearchChange}
+                onFocus={handleSearchFocus}
                 autoFocus
               />
               {searchQuery && (
@@ -380,8 +406,8 @@ function Header() {
             </div>
           </form>
 
-          {/* Resultados de búsqueda móvil - IDÉNTICOS A HEADER */}
-          {searchResults.length > 0 && (
+          {/* Resultados de búsqueda móvil - IDÉNTICOS AL DESKTOP */}
+          {showSearchResults && searchResults.length > 0 && (
             <div className="search-results">
               <div className="search-results-header">
                 <h3>Resultados</h3>
@@ -415,7 +441,7 @@ function Header() {
                   <div className="see-all-results">
                     <Link 
                       to={`/search?q=${encodeURIComponent(searchQuery)}`} 
-                      onClick={() => setShowMobileSearch(false)}
+                      onClick={closeMobileSearch}
                     >
                       Ver todos los resultados ({searchResults.length})
                     </Link>
@@ -425,7 +451,7 @@ function Header() {
             </div>
           )}
           
-          {searchResults.length === 0 && searchQuery.trim() !== '' && (
+          {showSearchResults && searchResults.length === 0 && searchQuery.trim() !== '' && (
             <div className="search-results">
               <div className="no-search-results">
                 <p>No se encontraron resultados para "{searchQuery}"</p>
