@@ -7,7 +7,7 @@ import { FaSignOutAlt, FaDownload, FaTrash, FaCalendar, FaFileAlt } from 'react-
 import { getMe, updateUser, reset as userReset } from '../features/users/userSlice'
 import { logout, reset as authReset } from '../features/auth/authSlice'
 import { getUserAssets, deleteAsset, reset as assetReset } from '../features/assets/assetSlice'
-import { getUserDownloads, deleteDownloadEntry, registerDownload, reset as downloadReset } from '../features/downloads/downloadSlice'
+import { getUserDownloads, deleteDownloadEntry, registerDownload, getDownloadStats, reset as downloadReset } from '../features/downloads/downloadSlice'
 import Spinner from '../components/Spinner'
 import PersonalizeModal from './PersonalizeModal'
 import './Profile.css'
@@ -24,7 +24,7 @@ function Profile() {
   const { user } = useSelector((state) => state.auth)
   const { profile, isLoading, isSuccess, isError, message } = useSelector((state) => state.user)
   const { userAssets, isLoading: assetsLoading, isError: assetsError, message: assetsMessage } = useSelector((state) => state.assets)
-  const { downloads, pagination, isLoading: downloadsLoading, isError: downloadsError, message: downloadsMessage } = useSelector((state) => state.downloads)
+  const { downloads, pagination, stats, isLoading: downloadsLoading, isError: downloadsError, message: downloadsMessage } = useSelector((state) => state.downloads)
 
   // Este useEffect se ejecuta al cargar el componente
   useEffect(() => {
@@ -41,6 +41,9 @@ function Profile() {
     if (user && (user._id || user.id)) {
       dispatch(getUserAssets(user._id || user.id))
     }
+
+    // NUEVO: Cargar las estadísticas de descargas inmediatamente al cargar el perfil
+    dispatch(getDownloadStats())
     
     // Limpiar estados al desmontar el componente
     return () => {
@@ -142,6 +145,9 @@ function Profile() {
         document.body.removeChild(link);
         
         toast.success('Descarga iniciada y registrada en tu historial');
+
+        // NUEVO: Actualizar las estadísticas después de una descarga exitosa
+        dispatch(getDownloadStats());
       } else {
         // Si no hay URL en el response, usar la URL original del asset
         const fileName = asset.title 
@@ -158,6 +164,9 @@ function Profile() {
         document.body.removeChild(link);
         
         toast.success('Descarga iniciada y registrada en tu historial');
+
+        // NUEVO: Actualizar las estadísticas después de una descarga exitosa
+        dispatch(getDownloadStats());
       }
       
     } catch (error) {
@@ -199,8 +208,9 @@ function Profile() {
         .unwrap()
         .then(() => {
           toast.success('Entrada eliminada del historial')
-          // Recargar la página actual de descargas
+          // Recargar la página actual de descargas y las estadísticas
           dispatch(getUserDownloads({ page: currentPage, limit: 10 }))
+          dispatch(getDownloadStats()) // NUEVO: Actualizar estadísticas
         })
         .catch((error) => {
           toast.error('Error al eliminar la entrada')
@@ -330,7 +340,8 @@ function Profile() {
                 <span className="stat-value">{userAssets?.length || 0}</span> Assets
               </div>
               <div className="stat">
-                <span className="stat-value">{pagination?.totalDownloads || 0}</span> Descargas
+                {/* CAMBIADO: Usar stats.totalDownloads en lugar de pagination.totalDownloads */}
+                <span className="stat-value">{stats?.totalDownloads || 0}</span> Descargas
               </div>
             </div>
           </div>
