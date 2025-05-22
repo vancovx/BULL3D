@@ -21,7 +21,7 @@ class GoogleDriveService {
 
   initialize() {
     try {
-      const credentialsPath = path.join(__dirname, '../config/google-drive-credentials.json');
+      const credentialsPath = path.join(__dirname, '../secrets/google-drive-credentials.json');
       const credentialsFile = fs.readFileSync(credentialsPath);
       const credentials = JSON.parse(credentialsFile).web;
   

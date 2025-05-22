@@ -187,26 +187,25 @@
   align-items: center;
   gap: 5px;
   cursor: pointer;
-  padding: 8px 12px;
+  padding: 8px 15px;
   border-radius: 4px;
-  transition: background-color 0.2s;
-  background: none;
+  transition: all 0.2s;
+  background-color: var(--primary-color);
   border: none;
-  color: var(--primary-color);
+  color: white;
   font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
 }
 
-.explore-btn:hover, .explore-btn.active {
-  background-color: rgba(140, 82, 255, 0.1);
+.explore-btn:hover {
+  background-color: #7440e0;
 }
 
-.dropdown-icon {
-  font-size: 0.8rem;
-  transition: transform 0.2s;
-}
-
-.explore-btn.active .dropdown-icon {
-  transform: rotate(180deg);
+.explore-btn.active {
+  background-color: #7440e0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(140, 82, 255, 0.3);
 }
 
 /* Contenedor del dropdown de categorías */

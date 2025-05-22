@@ -18,7 +18,10 @@ function ViewAsset() {
   const [imagesLoaded, setImagesLoaded] = useState({})
   const [imagesError, setImagesError] = useState({})
   const [assetOwner, setAssetOwner] = useState(null)
-  const [isDownloading, setIsDownloading] = useState(false) // Estado para controlar la descarga
+  const [isDownloading, setIsDownloading] = useState(false)
+  
+  // NUEVO: Estado para manejar la imagen principal seleccionada
+  const [selectedImageIndex, setSelectedImageIndex] = useState(-1) // -1 = imagen de portada, 0+ = índice de imagen adicional
   
   const { asset, isLoading, isError, message } = useSelector(
     (state) => state.assets
@@ -32,6 +35,7 @@ function ViewAsset() {
     setAssetOwner(null);
     setImagesLoaded({});
     setImagesError({});
+    setSelectedImageIndex(-1); // NUEVO: Resetear imagen seleccionada
     
     if (isError) {
       console.log(message)
@@ -125,6 +129,47 @@ function ViewAsset() {
       return [];
     }
   }
+
+  // NUEVO: Función para obtener la URL de la imagen principal actual
+  const getCurrentMainImageUrl = () => {
+    if (selectedImageIndex === -1) {
+      // Mostrar imagen de portada
+      return getImageUrl(asset.coverImageUrl);
+    } else {
+      // Mostrar imagen adicional seleccionada
+      const additionalImages = getAdditionalImages();
+      if (additionalImages[selectedImageIndex]) {
+        return getImageUrl(additionalImages[selectedImageIndex]);
+      }
+      // Fallback a imagen de portada si no existe la imagen seleccionada
+      return getImageUrl(asset.coverImageUrl);
+    }
+  };
+
+  // NUEVO: Función para obtener el alt text de la imagen principal actual
+  const getCurrentMainImageAlt = () => {
+    if (selectedImageIndex === -1) {
+      return asset.title;
+    } else {
+      return `${asset.title} - imagen ${selectedImageIndex + 1}`;
+    }
+  };
+
+  // NUEVO: Función para manejar el clic en las miniaturas
+  const handleThumbnailClick = (index) => {
+    setSelectedImageIndex(index);
+    // Resetear estados de carga para la nueva imagen principal
+    setImagesLoaded(prev => ({ ...prev, main: false }));
+    setImagesError(prev => ({ ...prev, main: false }));
+  };
+
+  // NUEVO: Función para manejar el clic en la imagen de portada (miniatura)
+  const handleCoverThumbnailClick = () => {
+    setSelectedImageIndex(-1);
+    // Resetear estados de carga
+    setImagesLoaded(prev => ({ ...prev, main: false }));
+    setImagesError(prev => ({ ...prev, main: false }));
+  };
 
   // Funciones de utilidad
   const getInitial = (name) => {
@@ -297,9 +342,10 @@ function ViewAsset() {
                 <p>Error al cargar la imagen principal</p>
               </div>
             )}
+            {/* MODIFICADO: Usar la función getCurrentMainImageUrl() */}
             <img 
-              src={getImageUrl(asset.coverImageUrl)} 
-              alt={asset.title} 
+              src={getCurrentMainImageUrl()} 
+              alt={getCurrentMainImageAlt()} 
               onLoad={handleMainImageLoad}
               onError={handleMainImageError}
               style={{ display: imagesLoaded.main && !imagesError.main ? 'block' : 'none' }}
@@ -313,11 +359,38 @@ function ViewAsset() {
             </Link>
           </div>
 
-          {/* Miniaturas */}
-          {additionalImages && additionalImages.length > 0 && (
-            <div className="asset-thumbnails">
-              {additionalImages.slice(0, 3).map((imageUrl, index) => (
-                <div className="thumbnail" key={index}>
+          {/* MODIFICADO: Miniaturas con funcionalidad de clic */}
+          <div className="asset-thumbnails">
+            {/* Miniatura de la imagen de portada */}
+            <div 
+              className={`thumbnail ${selectedImageIndex === -1 ? 'thumbnail-active' : ''}`}
+              onClick={handleCoverThumbnailClick}
+            >
+              {!imagesLoaded.cover && !imagesError.cover && (
+                <div className="image-placeholder">Cargando...</div>
+              )}
+              {imagesError.cover && (
+                <div className="image-error">
+                  <p>Error</p>
+                </div>
+              )}
+              <img 
+                src={getImageUrl(asset.coverImageUrl)} 
+                alt={`${asset.title} - portada`} 
+                onLoad={() => setImagesLoaded(prev => ({ ...prev, cover: true }))}
+                onError={() => setImagesError(prev => ({ ...prev, cover: true }))}
+                style={{ display: imagesLoaded.cover && !imagesError.cover ? 'block' : 'none' }}
+              />
+            </div>
+
+            {/* Miniaturas de imágenes adicionales */}
+            {additionalImages && additionalImages.length > 0 && 
+              additionalImages.slice(0, 2).map((imageUrl, index) => ( // Solo mostrar 2 adicionales para que no se desborde
+                <div 
+                  className={`thumbnail ${selectedImageIndex === index ? 'thumbnail-active' : ''}`} 
+                  key={index}
+                  onClick={() => handleThumbnailClick(index)}
+                >
                   {!imagesLoaded[index] && !imagesError[index] && (
                     <div className="image-placeholder">Cargando...</div>
                   )}
@@ -334,9 +407,9 @@ function ViewAsset() {
                     style={{ display: imagesLoaded[index] && !imagesError[index] ? 'block' : 'none' }}
                   />
                 </div>
-              ))}
-            </div>
-          )}
+              ))
+            }
+          </div>
           
           {/* Sección de comentarios */}
           <Comments assetId={id} />
