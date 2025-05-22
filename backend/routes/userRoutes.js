@@ -13,11 +13,11 @@ const { protect } = require('../middleware/authMiddleware')
 router.post('/', registerUser)
 router.post('/login', loginUser)
 
-// Ruta para obtener datos públicos de un usuario
-router.get('/:id', getUserById) 
-
-//Rutas privadas (requieren autenticación)
+//Rutas privadas (requieren autenticación) - ESTAS DEBEN IR ANTES DE /:id
 router.get('/me', protect, getMe)
 router.put('/me', protect, updateUser)
+
+// Ruta para obtener datos públicos de un usuario - ESTA DEBE IR AL FINAL
+router.get('/:id', getUserById) 
 
 module.exports = router
