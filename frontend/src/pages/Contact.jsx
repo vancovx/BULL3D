@@ -17,28 +17,28 @@ const ContactPage = () => {
                 <h3>Información de contacto</h3>
                 <ul className="contact-list">
                   <li>
-                    <div className="icon">📍</div>
+                    <div className="icon"></div>
                     <div>
                       <strong>Dirección</strong>
                       <p>Calle Principal 123, Ciudad, CP 12345</p>
                     </div>
                   </li>
                   <li>
-                    <div className="icon">📞</div>
+                    <div className="icon"></div>
                     <div>
                       <strong>Teléfono</strong>
                       <p>+34 123 456 789</p>
                     </div>
                   </li>
                   <li>
-                    <div className="icon">✉️</div>
+                    <div className="icon"></div>
                     <div>
                       <strong>Email</strong>
                       <p>Bull3D@gmail.com</p>
                     </div>
                   </li>
                   <li>
-                    <div className="icon">🕒</div>
+                    <div className="icon"></div>
                     <div>
                       <strong>Horario de atención</strong>
                       <p>Lunes a Viernes: 9:00 - 18:00</p>
@@ -48,12 +48,6 @@ const ContactPage = () => {
                 </ul>
               </div>
               
-              <div className="map-container">
-                <h3>Encuéntranos</h3>
-                <div className="map-placeholder">
-                  <div className="map-overlay">Mapa interactivo</div>
-                </div>
-              </div>
               
               <div className="social-media">
                 <h3>Síguenos</h3>
@@ -80,7 +74,7 @@ const ContactPage = () => {
           </div>
           
           <footer className="contact-footer">
-            <p>&copy; 2025 Tu Empresa. Todos los derechos reservados.</p>
+            <p>&copy; 2025 BULL3D. Todos los derechos reservados.</p>
           </footer>
         </div>
       </div>
