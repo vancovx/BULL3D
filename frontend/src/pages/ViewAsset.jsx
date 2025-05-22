@@ -357,7 +357,31 @@ function ViewAsset() {
             />
           </div>
 
-          
+          {/* Acciones móviles - Solo visible en móvil */}
+            <div className="mobile-actions">
+              {user ? (
+                <>
+                  <button 
+                    className={`download-button ${isDownloading ? 'downloading' : ''}`}
+                    onClick={handleDownload}
+                    disabled={isDownloading}
+                  >
+                    <FaDownload /> {isDownloading ? 'Descargando...' : 'Descargar'}
+                  </button>
+                  <button 
+                    className={`favorite-button ${isFavorite ? 'favorite-active' : ''}`} 
+                    onClick={handleFavoriteClick}
+                    disabled={favoriteLoading}
+                  >
+                    {isFavorite ? <FaStar /> : <FaRegStar />}
+                  </button>
+                </>
+              ) : (
+                <button className="download-button disabled" onClick={redirectToLogin}>
+                  <FaLock /> Iniciar sesión para descargar
+                </button>
+              )}
+            </div>
 
           {/* Botón de volver al inicio */}
           <div className="back-button-container">
