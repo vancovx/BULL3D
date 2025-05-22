@@ -14,7 +14,7 @@ import UploadAsset from './pages/UploadAsset'
 import Favorites from './pages/Favorites'
 import ExplorarCategoria from './pages/ExplorarCategoria'
 import SearchResults from './pages/SearchResults'
-import UserProfile from './pages/SearchResults'
+import UserProfile from './pages/UserProfile'
 import './App.css'
 
 function App() {
@@ -35,6 +35,7 @@ function App() {
             <Route path='/upload' element={<UploadAsset/>} />
             <Route path='/favorites' element={<Favorites />} />
             <Route path='/search' element={<SearchResults />} />
+            <Route path='/user/:userId' element={<UserProfile />} />
           </Routes>
         </div>
         <Footer />
