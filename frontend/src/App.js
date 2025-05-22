@@ -16,7 +16,6 @@ import Favorites from './pages/Favorites'
 import ExplorarCategoria from './pages/ExplorarCategoria'
 import SearchResults from './pages/SearchResults'
 import UserProfile from './pages/UserProfile'
-import Terminos from './pages/Terminos'
 import './App.css'
 
 function App() {
@@ -48,7 +47,6 @@ function App() {
             <Route path='/favorites' element={<Favorites />} />
             <Route path='/search' element={<SearchResults />} />
             <Route path='/user/:userId' element={<UserProfile />} />
-            <Route path='/terminos' element={<Terminos />} />
           </Routes>
         </div>
         <Footer />

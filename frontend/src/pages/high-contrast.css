@@ -744,3 +744,46 @@
   background-color: var(--hc-bg-primary) !important;
 }
 
+/* ================================
+   IMÁGENES - SIN CAMBIOS
+   ================================ */
+[data-theme="high-contrast"] img {
+  /* ELIMINADO: Todos los filtros y efectos */
+  border: none !important; /* También quitar bordes */
+  /* Las imágenes mantienen su apariencia original */
+}
+
+[data-theme="high-contrast"] img:hover {
+  /* ELIMINADO: Todos los efectos de hover */
+  /* Las imágenes no cambian al hacer hover */
+}
+
+/* Contenedores de imágenes mantienen sus bordes originales */
+[data-theme="high-contrast"] .asset-main-image,
+[data-theme="high-contrast"] .asset-image,
+[data-theme="high-contrast"] .thumbnail {
+  border: 2px solid var(--hc-border) !important;
+}
+
+/* NUEVO: Asegurar que las imágenes de perfil/avatar también se mantengan normales */
+[data-theme="high-contrast"] .profile-avatar img,
+[data-theme="high-contrast"] .user-profile-avatar img,
+[data-theme="high-contrast"] .creator-avatar img,
+[data-theme="high-contrast"] .comment-avatar img,
+[data-theme="high-contrast"] .download-asset-image img,
+[data-theme="high-contrast"] .search-result-image img,
+[data-theme="high-contrast"] .asset-card img,
+[data-theme="high-contrast"] .cover-preview,
+[data-theme="high-contrast"] .additional-image-item img {
+  filter: none !important;
+  transform: none !important;
+  border: none !important;
+  opacity: 1 !important;
+}
+
+/* NUEVO: Asegurar que los logos también se mantengan normales */
+[data-theme="high-contrast"] .header-logo,
+[data-theme="high-contrast"] .footer-logo-img {
+  filter: none !important;
+  /* Los logos mantienen su apariencia original */
+}

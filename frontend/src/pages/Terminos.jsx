@@ -1,3 +1,8 @@
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import { FaCloudUploadAlt, FaImage, FaFile, FaTimes } from 'react-icons/fa'
 import React from "react";
 import './Terminos.css';
 
