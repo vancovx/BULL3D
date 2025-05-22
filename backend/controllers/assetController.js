@@ -2,12 +2,10 @@ const asyncHandler = require('express-async-handler');
 const Asset = require('../models/assetModel');
 const { driveService } = require('../middleware/googleDriveMiddleware');
 
-
 // @desc    Get all assets (public access)
 // @route   GET /api/assets
 // @access  Public
 const getAssets = asyncHandler(async (req, res) => {
-  // Retrieve all assets regardless of user
   const assets = await Asset.find({});
   res.status(200).json(assets);
 });
@@ -40,19 +38,16 @@ const getAssetById = asyncHandler(async (req, res) => {
 const createAsset = asyncHandler(async (req, res) => {
   const { title, description, date, category, tags } = req.body;
 
-  // Validar que los campos requeridos estén presentes
-  if (!title  || !description || !category) {
+  if (!title || !description || !category) {
     res.status(400);
     throw new Error('Please provide all required fields');
   }
 
-  // Validar que no haya más de 5 etiquetas
   if (tags && tags.length > 5) {
     res.status(400);
     throw new Error('Tags cannot exceed 5 items');
   }
 
-  // Validar que se han subido todos los archivos necesarios
   if (!req.files || !req.files.coverImage || !req.files.images || !req.files.content) {
     res.status(400);
     throw new Error('Please upload all required files');
@@ -63,36 +58,39 @@ const createAsset = asyncHandler(async (req, res) => {
     const folderResult = await driveService.createFolder(`Asset-${title}-${Date.now()}`);
     const folderId = folderResult.id;
 
-    // Subir imagen de portada
+    // Subir imagen de portada (usando proxy)
     const coverImage = req.files.coverImage[0];
     const coverImageResult = await driveService.uploadFile(
       coverImage.buffer,
       coverImage.mimetype,
       `cover-${Date.now()}-${coverImage.originalname}`,
-      folderId
+      folderId,
+      false // No es archivo de contenido
     );
 
-    // Subir las imágenes adicionales
+    // Subir las imágenes adicionales (usando proxy)
     const imagesUploadPromises = req.files.images.map(image => 
       driveService.uploadFile(
         image.buffer,
         image.mimetype,
         `image-${Date.now()}-${image.originalname}`,
-        folderId
+        folderId,
+        false // No es archivo de contenido
       )
     );
     const imagesResults = await Promise.all(imagesUploadPromises);
     
-    // Subir el contenido principal
+    // Subir el contenido principal (URL directa de descarga)
     const content = req.files.content[0];
     const contentResult = await driveService.uploadFile(
       content.buffer,
       content.mimetype,
       `content-${Date.now()}-${content.originalname}`,
-      folderId
+      folderId,
+      true // ES archivo de contenido
     );
 
-    // Crear un array de URLs de imágenes
+    // Crear un array de URLs de imágenes (para proxy)
     const imagesUrls = imagesResults.map(result => result.directUrl);
 
     // Procesar las etiquetas si existen
@@ -105,9 +103,10 @@ const createAsset = asyncHandler(async (req, res) => {
       description,
       category,
       tags: processedTags,
-      coverImageUrl: coverImageResult.directUrl,
-      imagesUrl: JSON.stringify(imagesUrls),
-      contentUrl: contentResult.directUrl,
+      coverImageUrl: coverImageResult.directUrl, // URL del proxy para imagen
+      imagesUrl: JSON.stringify(imagesUrls), // URLs del proxy para imágenes
+      contentUrl: contentResult.directUrl, // URL del proxy (por si acaso)
+      downloadUrl: contentResult.downloadUrl, // URL DIRECTA de Google Drive para descarga
       date: date ? new Date(date) : new Date(),
       _googleDriveIds: {
         folderId,
@@ -135,7 +134,6 @@ const updateAsset = asyncHandler(async (req, res) => {
     throw new Error('Asset not found');
   }
 
-  // Check if the asset belongs to the user
   if (asset.user.toString() !== req.user.id) {
     res.status(403);
     throw new Error('Not authorized to update this asset');
@@ -144,13 +142,11 @@ const updateAsset = asyncHandler(async (req, res) => {
   const { title, description, date, category, tags } = req.body;
   const updateData = {};
 
-  // Actualizar campos de texto si están presentes
   if (title) updateData.title = title;
   if (description) updateData.description = description;
   if (date) updateData.date = new Date(date);
   if (category) updateData.category = category;
   
-  // Procesar las etiquetas si existen
   if (tags) {
     const processedTags = Array.isArray(tags) ? tags : [tags];
     if (processedTags.length > 5) {
@@ -161,7 +157,6 @@ const updateAsset = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Actualizar archivos si se proporcionan nuevos
     const googleDriveIds = { ...asset._googleDriveIds };
 
     // Actualizar imagen de portada si se proporciona
@@ -170,19 +165,19 @@ const updateAsset = asyncHandler(async (req, res) => {
       let coverImageResult;
       
       if (googleDriveIds.coverImageId) {
-        // Actualizar el archivo existente
         coverImageResult = await driveService.updateFile(
           googleDriveIds.coverImageId,
           coverImage.buffer,
-          coverImage.mimetype
+          coverImage.mimetype,
+          false // No es contenido
         );
       } else {
-        // Subir como nuevo archivo
         coverImageResult = await driveService.uploadFile(
           coverImage.buffer,
           coverImage.mimetype,
           `cover-${Date.now()}-${coverImage.originalname}`,
-          googleDriveIds.folderId
+          googleDriveIds.folderId,
+          false
         );
         googleDriveIds.coverImageId = coverImageResult.id;
       }
@@ -192,7 +187,6 @@ const updateAsset = asyncHandler(async (req, res) => {
 
     // Actualizar imágenes adicionales si se proporcionan
     if (req.files && req.files.images && req.files.images.length > 0) {
-      // Eliminar imágenes antiguas si existen
       if (googleDriveIds.imagesIds && googleDriveIds.imagesIds.length > 0) {
         const deletePromises = googleDriveIds.imagesIds.map(id => 
           driveService.deleteFile(id)
@@ -200,13 +194,13 @@ const updateAsset = asyncHandler(async (req, res) => {
         await Promise.all(deletePromises);
       }
 
-      // Subir las nuevas imágenes
       const imagesUploadPromises = req.files.images.map(image => 
         driveService.uploadFile(
           image.buffer,
           image.mimetype,
           `image-${Date.now()}-${image.originalname}`,
-          googleDriveIds.folderId
+          googleDriveIds.folderId,
+          false // No es contenido
         )
       );
       
@@ -223,30 +217,29 @@ const updateAsset = asyncHandler(async (req, res) => {
       let contentResult;
       
       if (googleDriveIds.contentId) {
-        // Actualizar el archivo existente
         contentResult = await driveService.updateFile(
           googleDriveIds.contentId,
           content.buffer,
-          content.mimetype
+          content.mimetype,
+          true // ES contenido
         );
       } else {
-        // Subir como nuevo archivo
         contentResult = await driveService.uploadFile(
           content.buffer,
           content.mimetype,
           `content-${Date.now()}-${content.originalname}`,
-          googleDriveIds.folderId
+          googleDriveIds.folderId,
+          true // ES contenido
         );
         googleDriveIds.contentId = contentResult.id;
       }
       
       updateData.contentUrl = contentResult.directUrl;
+      updateData.downloadUrl = contentResult.downloadUrl; // URL directa de descarga
     }
 
-    // Actualizar los IDs de Google Drive
     updateData._googleDriveIds = googleDriveIds;
 
-    // Actualizar el asset en la base de datos
     const updatedAsset = await Asset.findByIdAndUpdate(
       req.params.id,
       updateData,
@@ -260,9 +253,6 @@ const updateAsset = asyncHandler(async (req, res) => {
   }
 });
 
-// @desc    Delete an asset
-// @route   DELETE /api/assets/:id
-// @access  Private
 // @desc    Delete an asset
 // @route   DELETE /api/assets/:id
 // @access  Private
@@ -280,10 +270,7 @@ const deleteAsset = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Eliminar todos los archivos de Google Drive
     if (asset._googleDriveIds) {
-
-      // Si hay una carpeta principal, eliminarla (eliminará todo su contenido)
       if (asset._googleDriveIds.folderId) {
         console.log('Intentando eliminar carpeta con ID:', asset._googleDriveIds.folderId);
         try {
@@ -291,15 +278,13 @@ const deleteAsset = asyncHandler(async (req, res) => {
           console.log('Carpeta eliminada con éxito');
         } catch (driveError) {
           console.error('Error al eliminar carpeta de Google Drive:', driveError);
-          
         }
       } else {
-        // Si no hay carpeta pero hay archivos individuales, eliminarlos uno por uno
         const fileIds = [
           asset._googleDriveIds.coverImageId,
           asset._googleDriveIds.contentId,
           ...(asset._googleDriveIds.imagesIds || [])
-        ].filter(Boolean); // Filtrar valores nulos/undefined
+        ].filter(Boolean);
         
         console.log('Intentando eliminar archivos individuales:', fileIds);
         
@@ -335,7 +320,6 @@ const deleteAsset = asyncHandler(async (req, res) => {
   }
 });
 
-
 const searchAssets = asyncHandler(async (req, res) => {
   const query = req.query.q;
   
@@ -344,7 +328,6 @@ const searchAssets = asyncHandler(async (req, res) => {
     throw new Error('Please provide a search query');
   }
   
-  // Crear una consulta de búsqueda que busque en título, categoría y etiquetas
   const searchQuery = {
     $or: [
       { title: { $regex: query, $options: 'i' } },
@@ -356,8 +339,6 @@ const searchAssets = asyncHandler(async (req, res) => {
   const assets = await Asset.find(searchQuery);
   res.status(200).json(assets);
 });
-
-
 
 module.exports = {
   getAssets,

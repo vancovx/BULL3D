@@ -15,30 +15,28 @@ const upload = multer({
 class GoogleDriveService {
   constructor() {
     this.drive = null;
-    this.auth = null; // Store the auth client
+    this.auth = null;
     this.initialize();
   }
 
   initialize() {
     try {
-      // Cargar credenciales desde el archivo JSON
       const credentialsPath = path.join(__dirname, '../config/google-drive-credentials.json');
       const credentialsFile = fs.readFileSync(credentialsPath);
-      const credentials = JSON.parse(credentialsFile).web;  // Cambiado para acceder a la propiedad .web
+      const credentials = JSON.parse(credentialsFile).web;
   
       const client = new google.auth.OAuth2(
         credentials.client_id,
         credentials.client_secret,
-        credentials.redirect_uris[0]  // Usar el primer URI de redirección
+        credentials.redirect_uris[0]
       );
   
-      // Asegurarse de que el refresh token existe en el archivo de credenciales
       if (!credentials.refresh_token) {
         throw new Error('Falta el refresh token en el archivo de credenciales. Ejecuta getRefreshToken.js primero.');
       }
   
       client.setCredentials({ refresh_token: credentials.refresh_token });
-      this.auth = client; // Store the auth client
+      this.auth = client;
       
       this.drive = google.drive({ version: 'v3', auth: client });
       console.log('Google Drive API inicializada correctamente');
@@ -48,7 +46,6 @@ class GoogleDriveService {
     }
   }
 
-  // Get a fresh access token
   async getAccessToken() {
     try {
       const { token } = await this.auth.getAccessToken();
@@ -59,29 +56,24 @@ class GoogleDriveService {
     }
   }
 
-  // Get file metadata
- // Get file metadata
-async getFileMetadata(fileId) {
-  try {
-    const response = await this.drive.files.get({
-      fileId,
-      fields: 'id,name,mimeType,size,webContentLink,webViewLink'
-    });
-    
-    return response.data;
-  } catch (error) {
-    console.error(`Error al obtener metadatos del archivo ${fileId}:`, error);
-    throw error;
+  async getFileMetadata(fileId) {
+    try {
+      const response = await this.drive.files.get({
+        fileId,
+        fields: 'id,name,mimeType,size,webContentLink,webViewLink'
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error(`Error al obtener metadatos del archivo ${fileId}:`, error);
+      throw error;
+    }
   }
-}
 
-  // Generate a direct download URL for a file
   async getDownloadUrl(fileId) {
     try {
-      // Verificar que el archivo existe y obtener sus metadatos
       const fileMetadata = await this.getFileMetadata(fileId);
       
-      // Crear una URL de descarga directa que no use el proxy
       const downloadUrl = `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`;
       
       return {
@@ -96,8 +88,8 @@ async getFileMetadata(fileId) {
     }
   }
 
-  // Subir un archivo a Google Drive y obtener la URL pública
-  async uploadFile(fileBuffer, mimeType, fileName, folderId = null) {
+  // Subir un archivo a Google Drive y obtener URLs diferenciadas
+  async uploadFile(fileBuffer, mimeType, fileName, folderId = null, isContentFile = false) {
     try {
       const fileMetadata = {
         name: fileName,
@@ -126,23 +118,30 @@ async getFileMetadata(fileId) {
         sendNotificationEmail: false
       });
 
-      // En lugar de devolver una URL directa de Google Drive, 
-      // devolvemos una URL que apunta a nuestro propio proxy
       const fileId = response.data.id;
-      const directUrl = `/api/proxy/image/${fileId}`;
       
-      return {
-        id: response.data.id,
-        viewUrl: response.data.webViewLink,
-        directUrl
-      };
+      // Para archivos de contenido descargable, devolver URL directa de Google Drive
+      if (isContentFile) {
+        return {
+          id: fileId,
+          viewUrl: response.data.webViewLink,
+          directUrl: `/api/proxy/image/${fileId}`, // Para vista previa si es necesario
+          downloadUrl: `https://drive.google.com/uc?export=download&id=${fileId}` // URL directa de descarga
+        };
+      } else {
+        // Para imágenes, usar el proxy
+        return {
+          id: fileId,
+          viewUrl: response.data.webViewLink,
+          directUrl: `/api/proxy/image/${fileId}`
+        };
+      }
     } catch (error) {
       console.error('Error al subir archivo a Google Drive:', error);
       throw error;
     }
   }
 
-  // Crear una carpeta en Google Drive
   async createFolder(folderName, parentFolderId = null) {
     try {
       const fileMetadata = {
@@ -156,7 +155,6 @@ async getFileMetadata(fileId) {
         fields: 'id,webViewLink'
       });
 
-      // Configurar permisos para hacer la carpeta accesible públicamente
       await this.drive.permissions.create({
         fileId: response.data.id,
         requestBody: {
@@ -176,7 +174,6 @@ async getFileMetadata(fileId) {
     }
   }
 
-  // Eliminar un archivo o carpeta de Google Drive
   async deleteFile(fileId) {
     if (!fileId) {
       console.log('Se intentó eliminar un archivo con ID indefinido o nulo');
@@ -186,17 +183,14 @@ async getFileMetadata(fileId) {
     try {
       console.log(`Intentando eliminar archivo con ID: ${fileId}`);
       
-      // Verificar primero si el archivo existe
       const checkFile = await this.drive.files.get({
         fileId: fileId,
         fields: 'id,name,mimeType'
       }).catch(err => {
-        // Si el archivo no existe o hay otro error al obtenerlo
         console.log(`Error al verificar existencia del archivo ${fileId}:`, err.message);
         return null;
       });
       
-      // Si el archivo no existe, devolvemos verdadero ya que el resultado es el mismo
       if (!checkFile) {
         console.log(`El archivo ${fileId} no existe o no es accesible`);
         return true;
@@ -204,7 +198,6 @@ async getFileMetadata(fileId) {
       
       console.log(`Archivo encontrado: ${checkFile.data.name} (${checkFile.data.mimeType})`);
       
-      // Eliminar el archivo
       await this.drive.files.delete({
         fileId: fileId
       });
@@ -214,26 +207,22 @@ async getFileMetadata(fileId) {
     } catch (error) {
       console.error(`Error detallado al eliminar archivo ${fileId}:`, error);
       
-      // Si el error es 404 (archivo no encontrado), consideramos que ya está eliminado
       if (error.response && error.response.status === 404) {
         console.log(`Archivo ${fileId} no encontrado, se considera ya eliminado`);
         return true;
       }
       
-      // Comprobar si hay errores de permisos o token expirado
       if (error.response && error.response.status === 401) {
         console.error('Error de autenticación. Posible token expirado.');
       } else if (error.response && error.response.status === 403) {
         console.error('Error de permisos. No tienes permiso para eliminar este archivo.');
       }
       
-      // Para cualquier otro error, lo propagamos
       throw error;
     }
   }
 
-  // Actualizar un archivo existente
-  async updateFile(fileId, fileBuffer, mimeType) {
+  async updateFile(fileId, fileBuffer, mimeType, isContentFile = false) {
     try {
       const media = {
         mimeType,
@@ -246,14 +235,21 @@ async getFileMetadata(fileId) {
         fields: 'id,webViewLink'
       });
 
-      // Usar nuestro proxy en lugar de URL directa de Google Drive
-      const directUrl = `/api/proxy/image/${fileId}`;
-      
-      return {
-        id: response.data.id,
-        viewUrl: response.data.webViewLink,
-        directUrl
-      };
+      // Para archivos de contenido, devolver URL de descarga directa
+      if (isContentFile) {
+        return {
+          id: response.data.id,
+          viewUrl: response.data.webViewLink,
+          directUrl: `/api/proxy/image/${fileId}`,
+          downloadUrl: `https://drive.google.com/uc?export=download&id=${fileId}`
+        };
+      } else {
+        return {
+          id: response.data.id,
+          viewUrl: response.data.webViewLink,
+          directUrl: `/api/proxy/image/${fileId}`
+        };
+      }
     } catch (error) {
       console.error('Error al actualizar archivo en Google Drive:', error);
       throw error;
@@ -261,7 +257,6 @@ async getFileMetadata(fileId) {
   }
 }
 
-// Exportamos una instancia del servicio y el middleware de multer
 const driveService = new GoogleDriveService();
 
 module.exports = {

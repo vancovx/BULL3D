@@ -47,13 +47,19 @@ const assetSchema = mongoose.Schema(
     },
 
     imagesUrl: {
-      type: String, // JSON string de URLs
+      type: String, // JSON string de URLs (estas usan el proxy)
       required: [true, 'Images URLs are required'],
     },
 
     contentUrl: {
-      type: String,
+      type: String, // URL del proxy para vista previa (si es necesario)
       required: [true, 'Content URL is required'],
+    },
+
+    // NUEVA: URL directa de Google Drive para descarga
+    downloadUrl: {
+      type: String,
+      required: [true, 'Download URL is required'],
     },
     
     // Campo adicional para almacenar IDs de Google Drive
@@ -78,17 +84,10 @@ assetSchema.methods.getImagesUrls = function() {
   }
 };
 
-// Hook para limpiar datos antes de enviar al cliente (MODIFICADO)
+// Hook para limpiar datos antes de enviar al cliente
 assetSchema.set('toJSON', {
   transform: function(doc, ret, options) {
-    // Solo eliminar _googleDriveIds en operaciones públicas
-    // Para descargas privadas, mantenemos el contentId
-    if (options && options.includeDownloadId) {
-      // Para descargas autenticadas, incluir solo el contentId
-      ret.downloadId = ret._googleDriveIds?.contentId;
-    }
-    
-    // Siempre eliminar el objeto completo _googleDriveIds
+    // Eliminar el objeto completo _googleDriveIds por seguridad
     delete ret._googleDriveIds;
     return ret;
   }
