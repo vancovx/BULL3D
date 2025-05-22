@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { MdFileDownload } from "react-icons/md"
 import { FaSignOutAlt, FaDownload, FaTrash, FaCalendar, FaFileAlt } from 'react-icons/fa'
 import { getMe, updateUser, reset as userReset } from '../features/users/userSlice'
 import { logout, reset as authReset } from '../features/auth/authSlice'
@@ -207,7 +208,7 @@ function Profile() {
     }
   }
 
-  // Función para descargar nuevamente un asset desde el historial
+  // Función para descargar nuevamente un asset desde el historial (SIN registrar nueva entrada)
   const handleRedownload = async (download) => {
     // Verificar que el asset existe y tiene downloadUrl
     if (!download.asset || !download.asset.downloadUrl) {
@@ -223,80 +224,27 @@ function Profile() {
     setIsDownloading(true);
 
     try {
-      console.log('Registrando nueva descarga en el historial...');
+      console.log('Iniciando descarga directa sin registrar en historial...');
       
-      // Registrar nueva descarga en el historial
-      const downloadResponse = await dispatch(registerDownload(download.asset._id)).unwrap();
+      // Descargar directamente usando la URL del asset (sin registrar en historial)
+      const fileName = download.assetTitle 
+        ? `${download.assetTitle.replace(/[^a-zA-Z0-9]/g, '_')}` 
+        : 'asset_content';
       
-      console.log('Nueva descarga registrada:', downloadResponse);
+      const link = document.createElement('a');
+      link.href = download.asset.downloadUrl;
+      link.setAttribute('download', fileName);
+      link.style.display = 'none';
       
-      // Proceder con la descarga
-      if (downloadResponse && downloadResponse.downloadUrl) {
-        const fileName = download.assetTitle 
-          ? `${download.assetTitle.replace(/[^a-zA-Z0-9]/g, '_')}` 
-          : 'asset_content';
-        
-        const link = document.createElement('a');
-        link.href = downloadResponse.downloadUrl;
-        link.setAttribute('download', fileName);
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        toast.success('Descarga iniciada y registrada en tu historial');
-        
-        // Recargar la página actual de descargas para mostrar la nueva entrada
-        dispatch(getUserDownloads({ page: currentPage, limit: 10 }));
-      } else {
-        // Usar la URL original del asset
-        const fileName = download.assetTitle 
-          ? `${download.assetTitle.replace(/[^a-zA-Z0-9]/g, '_')}` 
-          : 'asset_content';
-        
-        const link = document.createElement('a');
-        link.href = download.asset.downloadUrl;
-        link.setAttribute('download', fileName);
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        toast.success('Descarga iniciada y registrada en tu historial');
-        
-        // Recargar la página actual de descargas
-        dispatch(getUserDownloads({ page: currentPage, limit: 10 }));
-      }
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Descarga iniciada');
       
     } catch (error) {
-      console.error('Error al registrar la nueva descarga:', error);
-      
-      // Si falla el registro, aún permitir la descarga
-      if (download.asset.downloadUrl) {
-        try {
-          const fileName = download.assetTitle 
-            ? `${download.assetTitle.replace(/[^a-zA-Z0-9]/g, '_')}` 
-            : 'asset_content';
-          
-          const link = document.createElement('a');
-          link.href = download.asset.downloadUrl;
-          link.setAttribute('download', fileName);
-          link.style.display = 'none';
-          
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          toast.warning('Descarga iniciada, pero no se pudo registrar en el historial');
-        } catch (downloadError) {
-          console.error('Error al iniciar la descarga:', downloadError);
-          toast.error('Error al iniciar la descarga');
-        }
-      } else {
-        toast.error('Error al procesar la descarga');
-      }
+      console.error('Error al iniciar la descarga:', error);
+      toast.error('Error al iniciar la descarga');
     } finally {
       setIsDownloading(false);
     }
@@ -434,14 +382,15 @@ function Profile() {
                     onClick={() => handleDeleteAsset(asset._id)}
                     title="Eliminar asset"
                   >
-                    ×
+                    <FaTrash />
                   </button>
                   <button 
                     className="download-btn" 
                     onClick={() => handleDownloadAsset(asset)}
                     title="Descargar asset"
+                    disabled={isDownloading}
                   >
-                    ↓
+                    {isDownloading ? '...' : <MdFileDownload />}
                   </button>
                 </div>
                 <div className="asset-title" onClick={() => navigate(`/assets/${asset._id}`)}>
@@ -515,15 +464,6 @@ function Profile() {
                     </div>
                     
                     <div className="download-actions">
-                      {download.asset && (
-                        <button 
-                          className="redownload-btn"
-                          onClick={() => handleRedownload(download)}
-                          title="Descargar nuevamente"
-                        >
-                          <FaDownload />
-                        </button>
-                      )}
                       <button 
                         className="delete-download-btn"
                         onClick={() => handleDeleteDownloadEntry(download._id)}
