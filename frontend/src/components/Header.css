@@ -609,6 +609,27 @@
     gap: 10px;
   }
   
+  /* Reordenar elementos en móvil */
+  .logo-container {
+    order: 1;
+  }
+  
+  .hamburger-btn {
+    order: 2;
+    display: flex;
+    margin-left: 10px;
+  }
+  
+  .mobile-search-btn {
+    order: 3;
+    display: block;
+    margin-left: auto;
+  }
+  
+  .auth-section {
+    order: 4;
+  }
+  
   /* Ocultar elementos del menú desktop */
   .header-nav {
     display: none;
@@ -618,18 +639,8 @@
     display: none;
   }
   
-  /* Mostrar botones móviles */
-  .hamburger-btn {
-    display: flex;
-  }
-  
-  .mobile-search-btn {
-    display: block;
-  }
-  
   /* Ajustar auth section */
   .auth-section {
-    margin-left: auto;
     gap: 8px;
   }
   

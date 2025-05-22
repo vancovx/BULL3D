@@ -223,25 +223,7 @@ const CommentSection = ({ assetId }) => {
                   </span>
                   <span className="comment-date">{formatDate(comment.createdAt)}</span>
                   
-                  {/* Botones de acciones solo para el autor del comentario */}
-                  {user && user._id === comment.user?._id && (
-                    <div className="comment-actions">
-                      <button 
-                        className="edit-comment-btn" 
-                        onClick={() => startEditing(comment)}
-                        title="Editar comentario"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button 
-                        className="delete-comment-btn" 
-                        onClick={() => handleDeleteComment(comment._id)}
-                        title="Eliminar comentario"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  )}
+                  
                 </div>
                 
                 {editingComment === comment._id ? (

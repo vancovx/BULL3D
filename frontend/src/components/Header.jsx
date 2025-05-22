@@ -73,7 +73,7 @@ function Header() {
     }
   }
 
-  // Función para manejar el cambio en el input de búsqueda
+  // Función para manejar el cambio en el input de búsqueda - IDÉNTICA A HEADER
   const handleSearchChange = (e) => {
     const query = e.target.value;
     setSearchQuery(query);
@@ -97,7 +97,7 @@ function Header() {
     }
   };
 
-  // Función para manejar la búsqueda al presionar Enter
+  // Función para manejar la búsqueda al presionar Enter - IDÉNTICA A HEADER
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim() !== '') {
@@ -107,7 +107,7 @@ function Header() {
     }
   };
 
-  // Función para navegar a un asset específico desde los resultados de búsqueda
+  // Función para navegar a un asset específico desde los resultados de búsqueda - IDÉNTICA A HEADER
   const navigateToAsset = (assetId) => {
     navigate(`/assets/${assetId}`);
     setSearchQuery('');
@@ -115,7 +115,7 @@ function Header() {
     setShowMobileSearch(false);
   };
 
-  // Función para limpiar la búsqueda
+  // Función para limpiar la búsqueda - IDÉNTICA A HEADER
   const clearSearch = () => {
     setSearchQuery('');
     setSearchResults([]);
@@ -158,6 +158,13 @@ function Header() {
     <>
       <header className='main-header'>
         <div className='header-content'>
+          {/* Logo */}
+          <div className='logo-container'>
+            <Link to='/'>
+              <img className="header-logo" src="/Logo_Toro2.png" alt="Logo" />
+            </Link>
+          </div>
+
           {/* Botón hamburguesa móvil */}
           <button 
             className={`hamburger-btn ${showMobileMenu ? 'active' : ''}`}
@@ -167,13 +174,6 @@ function Header() {
             <span className="hamburger-line"></span>
             <span className="hamburger-line"></span>
           </button>
-
-          {/* Logo */}
-          <div className='logo-container'>
-            <Link to='/'>
-              <img className="header-logo" src="/Logo_Toro.png" alt="Logo" />
-            </Link>
-          </div>
 
           {/* Navegación Desktop */}
           <nav className='header-nav'>
@@ -203,7 +203,7 @@ function Header() {
             </div>
           </nav>
 
-          {/* Barra de búsqueda Desktop */}
+          {/* Barra de búsqueda Desktop - IDÉNTICA A HEADER */}
           <div className='search-box' ref={searchRef}>
             <form onSubmit={handleSearchSubmit}>
               <input 
@@ -228,7 +228,7 @@ function Header() {
               </button>
             </form>
             
-            {/* Resultados de búsqueda Desktop */}
+            {/* Resultados de búsqueda Desktop - IDÉNTICOS A HEADER */}
             {showSearchResults && searchResults.length > 0 && (
               <div className="search-results">
                 <div className="search-results-header">
@@ -341,7 +341,7 @@ function Header() {
         onClick={() => setShowMobileMenu(false)}
       />
 
-      {/* Búsqueda móvil */}
+      {/* Búsqueda móvil - CON LÓGICA IDÉNTICA A HEADER */}
       <div className={`mobile-search-overlay ${showMobileSearch ? 'active' : ''}`}>
         <div className="mobile-search-container">
           <div className="mobile-search-header">
@@ -380,7 +380,7 @@ function Header() {
             </div>
           </form>
 
-          {/* Resultados de búsqueda móvil */}
+          {/* Resultados de búsqueda móvil - IDÉNTICOS A HEADER */}
           {searchResults.length > 0 && (
             <div className="search-results">
               <div className="search-results-header">
