@@ -23,6 +23,7 @@ function Header() {
   const searchRef = useRef(null)
   const mobileMenuRef = useRef(null)
   const mobileSearchRef = useRef(null)
+  const desktopSearchInputRef = useRef(null);
   const [categories, setCategories] = useState([])
 
   // Cerrar dropdowns al hacer clic fuera

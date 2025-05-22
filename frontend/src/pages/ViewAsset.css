@@ -204,18 +204,6 @@
   background-color: #7440e0;
 }
 
-.download-button.disabled {
-  background-color: #444;
-  color: #999;
-  cursor: not-allowed;
-  border: 1px solid #555;
-}
-
-.download-button.disabled:hover {
-  background-color: #444;
-  transform: none;
-}
-
 .favorite-button {
   width: 40px;
   height: 40px;
