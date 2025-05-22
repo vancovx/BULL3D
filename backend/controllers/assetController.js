@@ -105,7 +105,7 @@ const createAsset = asyncHandler(async (req, res) => {
       tags: processedTags,
       coverImageUrl: coverImageResult.directUrl, // URL del proxy para imagen
       imagesUrl: JSON.stringify(imagesUrls), // URLs del proxy para imágenes
-      contentUrl: contentResult.directUrl, // URL del proxy (por si acaso)
+      contentUrl: contentResult.directUrl, // URL del proxy
       downloadUrl: contentResult.downloadUrl, // URL DIRECTA de Google Drive para descarga
       date: date ? new Date(date) : new Date(),
       _googleDriveIds: {

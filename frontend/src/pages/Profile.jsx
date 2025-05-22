@@ -2,12 +2,11 @@ import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
-import { MdFileDownload } from "react-icons/md"
-import { FaSignOutAlt, FaDownload, FaTrash, FaCalendar, FaFileAlt, FaAdjust } from 'react-icons/fa'
+import { FaSignOutAlt, FaTrash, FaCalendar, FaFileAlt, FaAdjust, FaEdit, FaCloudUploadAlt } from 'react-icons/fa'
 import { getMe, updateUser, reset as userReset } from '../features/users/userSlice'
 import { logout, reset as authReset } from '../features/auth/authSlice'
 import { getUserAssets, deleteAsset, reset as assetReset } from '../features/assets/assetSlice'
-import { getUserDownloads, deleteDownloadEntry, registerDownload, getDownloadStats, reset as downloadReset } from '../features/downloads/downloadSlice'
+import { getUserDownloads, deleteDownloadEntry, getDownloadStats, reset as downloadReset } from '../features/downloads/downloadSlice'
 import Spinner from '../components/Spinner'
 import PersonalizeModal from './PersonalizeModal'
 import './Profile.css'
@@ -18,9 +17,8 @@ function Profile() {
   const [showPersonalizeModal, setShowPersonalizeModal] = useState(false)
   const [activeTab, setActiveTab] = useState('assets')
   const [currentPage, setCurrentPage] = useState(1)
-  const [isDownloading, setIsDownloading] = useState(false)
   
-  // NUEVO: Estado para alto contraste
+  // Estado para alto contraste
   const [isHighContrast, setIsHighContrast] = useState(false)
 
   // Obtenemos el usuario autenticado y el perfil del estado
@@ -29,15 +27,13 @@ function Profile() {
   const { userAssets, isLoading: assetsLoading, isError: assetsError, message: assetsMessage } = useSelector((state) => state.assets)
   const { downloads, pagination, stats, isLoading: downloadsLoading, isError: downloadsError, message: downloadsMessage } = useSelector((state) => state.downloads)
 
-  // MODIFICADO: Solo leer el estado inicial, no gestionar el tema aquí
+  // Solo leer el estado inicial del alto contraste
   useEffect(() => {
     const savedContrast = localStorage.getItem('high-contrast')
     if (savedContrast) {
       setIsHighContrast(JSON.parse(savedContrast))
     }
   }, [])
-
-  // ELIMINADO: Ya no gestionamos el tema aquí, se hace globalmente en App.js
 
   // Este useEffect se ejecuta al cargar el componente
   useEffect(() => {
@@ -55,7 +51,7 @@ function Profile() {
       dispatch(getUserAssets(user._id || user.id))
     }
 
-    // NUEVO: Cargar las estadísticas de descargas inmediatamente al cargar el perfil
+    // Cargar las estadísticas de descargas inmediatamente al cargar el perfil
     dispatch(getDownloadStats())
     
     // Limpiar estados al desmontar el componente
@@ -88,7 +84,7 @@ function Profile() {
     }
   }, [isError, message, assetsError, assetsMessage, downloadsError, downloadsMessage])
 
-  // MODIFICADO: Función para manejar el toggle guardando en localStorage
+  // Función para manejar el toggle de alto contraste
   const handleContrastToggle = () => {
     const newContrastState = !isHighContrast
     setIsHighContrast(newContrastState)
@@ -132,102 +128,9 @@ function Profile() {
     }
   }
 
-  // Función para descargar un asset (igual que en ViewAsset)
-  const handleDownloadAsset = async (asset) => {
-    // Verificar que el asset tiene una URL de descarga
-    if (!asset || !asset.downloadUrl) {
-      toast.error('No hay contenido disponible para descargar');
-      return;
-    }
-
-    // Evitar múltiples descargas simultáneas
-    if (isDownloading) {
-      return;
-    }
-
-    setIsDownloading(true);
-
-    try {
-      console.log('Registrando descarga en el historial...');
-      
-      // Primero registrar la descarga en el historial
-      const downloadResponse = await dispatch(registerDownload(asset._id)).unwrap();
-      
-      console.log('Descarga registrada:', downloadResponse);
-      
-      // Si el registro fue exitoso, proceder con la descarga
-      if (downloadResponse && downloadResponse.downloadUrl) {
-        // Obtener nombre de archivo para la descarga basado en el título del asset
-        const fileName = asset.title 
-          ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
-          : 'asset_content';
-        
-        // Crear un elemento <a> temporal para la descarga
-        const link = document.createElement('a');
-        link.href = downloadResponse.downloadUrl; // Usar la URL del response
-        link.setAttribute('download', fileName);
-        link.style.display = 'none';
-        
-        // Añadir al DOM, hacer clic y eliminar
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        toast.success('Descarga iniciada y registrada en tu historial');
-
-        // NUEVO: Actualizar las estadísticas después de una descarga exitosa
-        dispatch(getDownloadStats());
-      } else {
-        // Si no hay URL en el response, usar la URL original del asset
-        const fileName = asset.title 
-          ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
-          : 'asset_content';
-        
-        const link = document.createElement('a');
-        link.href = asset.downloadUrl;
-        link.setAttribute('download', fileName);
-        link.style.display = 'none';
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        toast.success('Descarga iniciada y registrada en tu historial');
-
-        // NUEVO: Actualizar las estadísticas después de una descarga exitosa
-        dispatch(getDownloadStats());
-      }
-      
-    } catch (error) {
-      console.error('Error al registrar la descarga:', error);
-      
-      // Si falla el registro, aún permitir la descarga pero sin historial
-      if (asset.downloadUrl) {
-        try {
-          const fileName = asset.title 
-            ? `${asset.title.replace(/[^a-zA-Z0-9]/g, '_')}` 
-            : 'asset_content';
-          
-          const link = document.createElement('a');
-          link.href = asset.downloadUrl;
-          link.setAttribute('download', fileName);
-          link.style.display = 'none';
-          
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          
-          toast.warning('Descarga iniciada, pero no se pudo registrar en el historial');
-        } catch (downloadError) {
-          console.error('Error al iniciar la descarga:', downloadError);
-          toast.error('Error al iniciar la descarga');
-        }
-      } else {
-        toast.error('Error al procesar la descarga');
-      }
-    } finally {
-      setIsDownloading(false);
-    }
+  // NUEVA: Función para editar un asset
+  const handleEditAsset = (assetId) => {
+    navigate(`/edit-asset/${assetId}`)
   }
 
   // Función para eliminar entrada del historial de descargas
@@ -239,7 +142,7 @@ function Profile() {
           toast.success('Entrada eliminada del historial')
           // Recargar la página actual de descargas y las estadísticas
           dispatch(getUserDownloads({ page: currentPage, limit: 10 }))
-          dispatch(getDownloadStats()) // NUEVO: Actualizar estadísticas
+          dispatch(getDownloadStats())
         })
         .catch((error) => {
           toast.error('Error al eliminar la entrada')
@@ -254,13 +157,6 @@ function Profile() {
       toast.error('No se puede descargar: asset no disponible o sin URL de descarga');
       return;
     }
-
-    // Evitar múltiples descargas simultáneas
-    if (isDownloading) {
-      return;
-    }
-
-    setIsDownloading(true);
 
     try {
       console.log('Iniciando descarga directa sin registrar en historial...');
@@ -284,8 +180,6 @@ function Profile() {
     } catch (error) {
       console.error('Error al iniciar la descarga:', error);
       toast.error('Error al iniciar la descarga');
-    } finally {
-      setIsDownloading(false);
     }
   }
 
@@ -369,7 +263,6 @@ function Profile() {
                 <span className="stat-value">{userAssets?.length || 0}</span> Assets
               </div>
               <div className="stat">
-                {/* CAMBIADO: Usar stats.totalDownloads en lugar de pagination.totalDownloads */}
                 <span className="stat-value">{stats?.totalDownloads || 0}</span> Descargas
               </div>
             </div>
@@ -379,7 +272,6 @@ function Profile() {
           <button className="personalize-btn" onClick={openPersonalizeModal}>
             Personalizar
           </button>
-          {/* MEJORADO: Botón de alto contraste con mejor diseño */}
           <button 
             className={`contrast-btn ${isHighContrast ? 'active' : ''}`}
             onClick={handleContrastToggle}
@@ -435,12 +327,11 @@ function Profile() {
                     <FaTrash />
                   </button>
                   <button 
-                    className="download-btn" 
-                    onClick={() => handleDownloadAsset(asset)}
-                    title="Descargar asset"
-                    disabled={isDownloading}
+                    className="edit-btn" 
+                    onClick={() => handleEditAsset(asset._id)}
+                    title="Editar asset"
                   >
-                    {isDownloading ? '...' : <MdFileDownload />}
+                    <FaEdit />
                   </button>
                 </div>
                 <div className="asset-title" onClick={() => navigate(`/assets/${asset._id}`)}>
@@ -450,10 +341,14 @@ function Profile() {
             ))
           ) : (
             <div className="no-assets">
-              <p>No tienes assets publicados</p>
-              <button className="create-asset-btn" onClick={() => navigate('/upload')}>
-                Crear un asset
-              </button>
+              <div className="no-assets-content">
+                <FaCloudUploadAlt className="no-assets-icon" />
+                <h3>No tienes assets publicados</h3>
+                <p>Cuando publiques contenido, aparecerá aquí en tu perfil.</p>
+                <button className="create-asset-btn" onClick={() => navigate('/upload')}>
+                  Crear un asset
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -554,7 +449,7 @@ function Profile() {
           ) : (
             <div className="no-downloads">
               <div className="no-downloads-content">
-                <FaDownload className="no-downloads-icon" />
+                <FaFileAlt className="no-downloads-icon" />
                 <h3>No tienes descargas registradas</h3>
                 <p>Cuando descargues assets, aparecerán aquí en tu historial.</p>
                 <button className="browse-assets-btn" onClick={() => navigate('/')}>
