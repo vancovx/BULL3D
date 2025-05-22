@@ -29,7 +29,7 @@ function Profile() {
   const { userAssets, isLoading: assetsLoading, isError: assetsError, message: assetsMessage } = useSelector((state) => state.assets)
   const { downloads, pagination, stats, isLoading: downloadsLoading, isError: downloadsError, message: downloadsMessage } = useSelector((state) => state.downloads)
 
-  // NUEVO: Cargar preferencia de alto contraste al iniciar
+  // MODIFICADO: Solo leer el estado inicial, no gestionar el tema aquí
   useEffect(() => {
     const savedContrast = localStorage.getItem('high-contrast')
     if (savedContrast) {
@@ -37,17 +37,7 @@ function Profile() {
     }
   }, [])
 
-  // NUEVO: Aplicar/quitar alto contraste cuando cambia el estado
-  useEffect(() => {
-    if (isHighContrast) {
-      document.documentElement.setAttribute('data-theme', 'high-contrast')
-    } else {
-      document.documentElement.removeAttribute('data-theme')
-    }
-    
-    // Guardar preferencia en localStorage
-    localStorage.setItem('high-contrast', JSON.stringify(isHighContrast))
-  }, [isHighContrast])
+  // ELIMINADO: Ya no gestionamos el tema aquí, se hace globalmente en App.js
 
   // Este useEffect se ejecuta al cargar el componente
   useEffect(() => {
@@ -98,10 +88,20 @@ function Profile() {
     }
   }, [isError, message, assetsError, assetsMessage, downloadsError, downloadsMessage])
 
-  // NUEVO: Función para manejar el toggle de alto contraste
+  // MODIFICADO: Función para manejar el toggle guardando en localStorage
   const handleContrastToggle = () => {
-    setIsHighContrast(!isHighContrast)
-    toast.success(!isHighContrast ? 'Alto contraste activado' : 'Alto contraste desactivado')
+    const newContrastState = !isHighContrast
+    setIsHighContrast(newContrastState)
+    
+    // Guardar en localStorage
+    localStorage.setItem('high-contrast', JSON.stringify(newContrastState))
+    
+    // Aplicar/quitar el tema inmediatamente
+    if (newContrastState) {
+      document.documentElement.setAttribute('data-theme', 'high-contrast')
+    } else {
+      document.documentElement.removeAttribute('data-theme')
+    }
   }
 
   // Función para cerrar sesión
@@ -379,7 +379,7 @@ function Profile() {
           <button className="personalize-btn" onClick={openPersonalizeModal}>
             Personalizar
           </button>
-          {/* NUEVO: Botón de alto contraste */}
+          {/* MEJORADO: Botón de alto contraste con mejor diseño */}
           <button 
             className={`contrast-btn ${isHighContrast ? 'active' : ''}`}
             onClick={handleContrastToggle}

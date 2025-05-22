@@ -79,26 +79,114 @@
   color: var(--text-color);
 }
 
-/* NUEVO: Contenedor de acciones del perfil */
+/* MODIFICADO: Contenedor de acciones del perfil - botones en fila */
 .profile-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* CAMBIADO: de column a row */
   gap: 15px;
-  align-items: flex-end;
+  align-items: center; /* CAMBIADO: de flex-end a center */
 }
 
 .personalize-btn {
-  background-color: var(--primary-color);
+  background-color: rgba(255, 255, 255, 0.15);
   color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 15px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 20px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
 }
 
 .personalize-btn:hover {
-  background-color: var(--primary-dark);
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* NUEVO: Estilos mejorados para el botón de alto contraste */
+.contrast-btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.contrast-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.1) 50%);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+}
+
+.contrast-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: white;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.contrast-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.contrast-btn.active {
+  background-color: rgba(255, 255, 0, 0.2);
+  border-color: rgba(255, 255, 0, 0.5);
+  color: #ffff00;
+  box-shadow: 0 0 15px rgba(255, 255, 0, 0.3);
+}
+
+.contrast-btn.active:hover {
+  background-color: rgba(255, 255, 0, 0.3);
+  border-color: rgba(255, 255, 0, 0.7);
+  box-shadow: 0 0 20px rgba(255, 255, 0, 0.4);
+}
+
+/* Tooltip para el botón de contraste */
+.contrast-btn::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+
+.contrast-btn:hover::after {
+  opacity: 1;
 }
 
 /* NUEVO: Estilos para la sección de accesibilidad en el perfil */
@@ -323,18 +411,12 @@ input:checked + .slider-profile:before {
 
   .profile-actions {
     width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: row; /* MANTENIDO: también en fila en móvil */
+    justify-content: flex-end; /* CAMBIADO: alineados a la derecha en móvil */
     align-items: center;
   }
 
-  .accessibility-section-profile {
-    order: 1;
-  }
-
-  .personalize-btn {
-    order: 2;
-  }
+  /* ELIMINADO: Los estilos de order ya no son necesarios */
 }
 
 @media (max-width: 550px) {
@@ -363,20 +445,25 @@ input:checked + .slider-profile:before {
   }
 
   .profile-actions {
-    flex-direction: column;
+    flex-direction: row; /* MANTENIDO: en fila incluso en móviles pequeños */
     gap: 10px;
     width: 100%;
+    justify-content: center; /* CAMBIADO: centrados en pantallas muy pequeñas */
     align-items: center;
   }
 
-  .contrast-switch-profile {
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
+  /* ELIMINADO: Los estilos innecesarios de contrast-switch-profile y switch-label-profile */
+  
+  /* Ajustar el botón de contraste en móvil */
+  .contrast-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
-
-  .switch-label-profile {
-    font-size: 0.8rem;
+  
+  .contrast-btn::after {
+    bottom: -30px;
+    font-size: 0.7rem;
   }
 }
 
