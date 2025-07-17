@@ -1,80 +1,85 @@
-🎮 BULL3D - Asset Management Platform
-<div align="center"> <img src="https://img.shields.io/badge/Stack-MERN-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="MERN Stack"> <img src="https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React"> <img src="https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js"> <img src="https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB"> </div>
-📋 Description
-BULL3D is a web platform specifically designed for the management of digital assets. Built with the MERN stack, it provides a solution to organize, catalog, and manage all the digital resources required in the video game development process.
+🎮 BULL3D - Plataforma de Gestión de Assets
+
+<div align="center">
+  <img src="https://img.shields.io/badge/Stack-MERN-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="MERN Stack">
+  <img src="https://img.shields.io/badge/Frontend-React-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React">
+  <img src="https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js">
+  <img src="https://img.shields.io/badge/Database-MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB">
+</div>
+
+## 📋 Descripción
+
+**BULL3D** es una plataforma web diseñada específicamente para la gestión de assets digitales. Construida con el stack MERN, ofrece una solución para organizar, catalogar y administrar todos los recursos digitales necesarios en el proceso de desarrollo de videojuegos.
+
+![Aplicación en funcionamiento](GitHub.png)
+
+## ✨ Características Principales
+
+🎯 **Gestión Centralizada de Assets** - Organiza todos tus recursos 3D, texturas, sonidos y más en un solo lugar
+
+🔐 **Sistema de Autenticación Seguro** - Control de acceso basado en JWT con encriptación bcrypt
+
+📱 **Interfaz Moderna y Responsiva** - Diseñada con Material UI para una experiencia de usuario excepcional
+
+☁️ **Almacenamiento en la Nube** - Integración con Google Cloud.
 
 
+## 🛠️ Stack Tecnológico
 
-✨ Key Features
-🎯 Centralized Asset Management - Organize all your 3D assets, textures, sounds, and more in one place
+### Frontend
+- **React.js** - Biblioteca de JavaScript para interfaces de usuario
+- **Context API/Redux** - Gestión de estado global
 
-🔐 Secure Authentication System - Access control based on JWT with bcrypt encryption
+### Backend
+- **Node.js** - Entorno de ejecución de JavaScript
+- **Express.js** - Framework web minimalista y flexible
+- **JWT** - Autenticación basada en tokens
+- **bcrypt** - Hashing de contraseñas
 
-📱 Modern and Responsive Interface - Designed with Material UI for an exceptional user experience
+### Base de Datos
+- **MongoDB** - Base de datos NoSQL orientada a documentos
+- **Mongoose** - ODM elegante para MongoDB y Node.js
 
-☁️ Cloud Storage - Integration with Google Cloud.
 
-🛠️ Technology Stack
-Frontend
-React.js - JavaScript library for user interfaces
+## 🚀 Instalación y Configuración
 
-Context API/Redux - Global state management
+### Prerrequisitos
+- Node.js (v14 o superior)
+- MongoDB (local o Atlas)
+- npm o yarn
 
-Backend
-Node.js - JavaScript runtime environment
+### Pasos de Instalación
 
-Express.js - Minimal and flexible web framework
-
-JWT - Token-based authentication
-
-bcrypt - Password hashing
-
-Database
-MongoDB - NoSQL document-based database
-
-Mongoose - Elegant ODM for MongoDB and Node.js
-
-🚀 Installation and Setup
-Prerequisites
-Node.js (v14 or higher)
-
-MongoDB (local or Atlas)
-
-npm or yarn
-
-Installation Steps
-Clone the repository
-
+1. **Clonar el repositorio**
 bash
-Copy
 git clone https://github.com/vancovx/BULL3D.git
 cd BULL3D
-Install backend dependencies
 
+
+2. **Instalar dependencias del backend**
 bash
-Copy
 cd backend
 npm install
-Install frontend dependencies
 
+
+3. **Instalar dependencias del frontend**
 bash
-Copy
 cd ../frontend
 npm install
-Configure environment variables
 
+
+4. **Configurar variables de entorno**
 bash
-Copy
-# In the backend directory, create .env
+# En el directorio backend, crear .env
 NODE_ENV = production
 PORT = 5000
-MONGO_URI = your_mongodb_url
-JWT_SECRET = your_jwt_secret_key
-GOOGLE_DRIVE_CREDENTIALS = your_google_cloud_credentials
-Start the development server
+MONGO_URI = tu_url_de_mongodb
+JWT_SECRET = tu_clave_secreta_jwt
+GOOGLE_DRIVE_CREDENTIALS = tus_claves_google_cloud
 
+
+5. **Iniciar el servidor de desarrollo**
 bash
-Copy
 # Terminal 1 - Backend
 cd backend
 npm run dev
@@ -82,30 +87,42 @@ npm run dev
 # Terminal 2 - Frontend
 cd frontend
 npm run dev
-📂 Project Structure
-csharp
-Copy
+
+
+## 📂 Estructura del Proyecto
+
 BULL3D/
 ├── backend/
-│   ├── models/          # Data models (Mongoose)
-│   ├── routes/          # API routes
-│   ├── middleware/      # Custom middlewares
-│   ├── controllers/     # Controller logic
-│   └── config/          # Configurations
+│   ├── models/          # Modelos de datos (Mongoose)
+│   ├── routes/          # Rutas de la API
+│   ├── middleware/      # Middlewares personalizados
+│   ├── controllers/     # Lógica de controladores
+│   └── config/          # Configuraciones
 ├── frontend/
 │   ├── src/
-│   │   ├── components/  # Reusable components
-│   │   ├── pages/       # Main pages
+│   │   ├── components/  # Componentes reutilizables
+│   │   ├── pages/       # Páginas principales
 │   │   ├── context/     # Context API
-│   │   ├── services/    # API services
-│   │   └── utils/       # Utilities
-│   └── public/          # Static assets
+│   │   ├── services/    # Servicios API
+│   │   └── utils/       # Utilidades
+│   └── public/          # Assets estáticos
 └── README.md
-👨‍👨‍👧 Development Team
+
+
+
+## 👨‍👨‍👧 Equipo de Desarrollo
 <div align="center">
-Vanessa Covrig
 
-Alejandro Villena
 
-Antonio Morales
+[**Vanessa Covrig**](https://github.com/vancovx) 
 
+[**Alejandro Villena**](https://github.com/AlexxCFH)
+
+[**Antonio Morales**](https://github.com/Anmorales0)
+
+
+---
+
+<div align="center">
+  <p>⭐ Si te gusta este proyecto, ¡no olvides darle una estrella! ⭐</p>
+</div>
