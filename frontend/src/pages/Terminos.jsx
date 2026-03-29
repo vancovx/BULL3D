@@ -22,7 +22,7 @@ const TermsAndConditions = () => {
         Todos los archivos, recursos gráficos y digitales ("assets") disponibles
         en esta plataforma son propiedad de sus respectivos creadores o de esta
         página. Están licenciados para su uso personal o comercial según se
-        especifique en cada recurso individual.
+        especifique en cada recurso individual mostrado.
       </p>
 
       <h2 className="text-2xl font-semibold mt-6 mb-2">2. Restricciones</h2>
